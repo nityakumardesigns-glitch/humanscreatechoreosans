@@ -1,0 +1,3824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Humanist Typeface — v2</title>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/opentype.js@1.3.4/dist/opentype.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --terracotta:      #C4714A;
+  --terracotta-mid:  #D4906E;
+  --terracotta-light:#EEC9B3;
+  --terracotta-pale: #FAF0EB;
+  --sage:            #7A9E87;
+  --sage-mid:        #9AB8A4;
+  --sage-light:      #C2D9CC;
+  --sage-pale:       #EDF4F0;
+  --ochre:           #C4A24A;
+  --ochre-mid:       #D4B870;
+  --ochre-light:     #E8D5A0;
+  --ochre-pale:      #FAF4E0;
+  --ink:             #2C2420;
+  --ink-mid:         #6B5B52;
+  --ink-muted:       #A89990;
+  --ink-faint:       #B8AEA8;
+  --surface:         #F9F9F7;
+  --white:           #FFFFFF;
+  --border:          #E8E2DC;
+  --border-mid:      #D4CCC6;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ── */
+.header {
+  padding: 2rem 4rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 0.5px solid var(--border);
+}
+.header-left { display: flex; flex-direction: column; gap: 2px; }
+.header-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+}
+.header-sub {
+  font-size: 0.68rem;
+  color: var(--ink-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.header-right {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  font-style: normal;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* ── STEP STRIP ── */
+.step-strip {
+  padding: 0.85rem 4rem;
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  border-bottom: 0.5px solid var(--border);
+  background: var(--white);
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.7rem;
+  color: var(--ink-mid);
+  letter-spacing: 0.03em;
+}
+.step-n {
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.58rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+.step-sep { color: var(--ink-faint); }
+
+/* ── ALPHABET GRID ── */
+.alpha-wrap { padding: 2.5rem 4rem 9rem; }
+.alpha-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  max-width: 100%;
+}
+.letter-cell {
+  aspect-ratio: 4/5;
+  border-radius: 4px;
+  display: flex; align-items: flex-end; justify-content: flex-start;
+  cursor: pointer;
+  position: relative;
+  border: 0.5px solid var(--border-mid);
+  background: transparent;
+  transition: transform 0.14s ease, border-color 0.14s ease;
+  opacity: 0.7;
+  overflow: hidden;
+  padding: 0.6rem 0.7rem;
+}
+.letter-cell:hover {
+  transform: translateY(-2px);
+  opacity: 1;
+  border-color: var(--ink-muted);
+}
+/* saved states — border color only, no background fill */
+.letter-cell.tc { border: 1px solid var(--terracotta); opacity: 1; background: transparent; }
+.letter-cell.sg { border: 1px solid var(--sage);       opacity: 1; background: transparent; }
+.letter-cell.oc { border: 1px solid var(--ochre);      opacity: 1; background: transparent; }
+
+
+
+
+/* placeholder label (shown when unsaved) */
+.cell-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: #9A8F88;
+  user-select: none;
+  position: absolute;
+  bottom: 0.55rem;
+  left: 0.7rem;
+  transition: opacity 0.2s, color 0.2s;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.letter-cell:hover .cell-label { color: var(--ink-muted); }
+.letter-cell.tc .cell-label { color: var(--terracotta-light); }
+.letter-cell.sg .cell-label { color: var(--sage-light); }
+.letter-cell.oc .cell-label { color: var(--ochre-light); }
+/* label stays visible on saved cells — color shifts to palette tone above */
+
+/* saved SVG preview */
+.cell-svg-wrap {
+  position: absolute;
+  top: 8%; left: 8%; right: 8%; bottom: 22%;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  overflow: hidden;
+}
+.cell-svg-wrap svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+.letter-cell.tc .cell-svg-wrap,
+.letter-cell.sg .cell-svg-wrap,
+.letter-cell.oc .cell-svg-wrap { opacity: 1; }
+
+.cell-dot {
+  position: absolute; top: 7px; right: 7px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  display: none;
+}
+.letter-cell.tc .cell-dot { background: var(--terracotta); display: block; }
+.letter-cell.sg .cell-dot { background: var(--sage);       display: block; }
+.letter-cell.oc .cell-dot { background: var(--ochre);      display: block; }
+
+/* + icon on empty cells */
+.cell-plus {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -60%);
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: var(--ink-faint);
+  line-height: 1;
+  pointer-events: none;
+  transition: opacity 0.2s, color 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.letter-cell:hover .cell-plus { color: var(--ink-muted); }
+.letter-cell.tc .cell-plus,
+.letter-cell.sg .cell-plus,
+.letter-cell.oc .cell-plus { opacity: 0; }
+
+.cell-tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: white;
+  font-size: 0.6rem;
+  white-space: nowrap;
+  padding: 3px 7px;
+  border-radius: 3px;
+  pointer-events: none;
+  opacity: 0;
+  letter-spacing: 0.04em;
+  transition: opacity 0.12s;
+  z-index: 10;
+}
+.letter-cell:hover .cell-tooltip { opacity: 1; }
+
+/* flash in */
+@keyframes pop-in {
+  0%  { transform: scale(0.88); opacity: 0; }
+  65% { transform: scale(1.04); }
+  100%{ transform: scale(1);    opacity: 1; }
+}
+.letter-cell.just-saved { animation: pop-in 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+
+/* ── PROGRESS BAR ── */
+.progress-bar {
+  position: fixed; bottom: 22px; left: 0; right: 0;
+  height: 50px;
+  background: var(--white);
+  border-top: 0.5px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 4rem; gap: 0.6rem;
+  z-index: 100;
+}
+.pb-label {
+  font-size: 0.65rem; color: var(--ink-muted);
+  letter-spacing: 0.09em; text-transform: uppercase;
+  white-space: nowrap; margin-right: 0.25rem;
+}
+.beads-row { display: flex; align-items: center; gap: 3px; flex: 1; }
+.bead {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--border); flex-shrink: 0;
+  position: relative;
+  transition: background 0.4s ease, transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.bead::before {
+  content: '';
+  position: absolute; top: 50%; left: -3px;
+  width: 3px; height: 0.5px;
+  background: var(--border);
+  transform: translateY(-50%);
+}
+.bead:first-child::before { display: none; }
+.bead.live { transform: scale(1.25); }
+.bead.live-tc { background: var(--terracotta); }
+.bead.live-sg { background: var(--sage); }
+.bead.live-oc { background: var(--ochre); }
+
+.pb-count {
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  white-space: nowrap;
+  margin-left: 0.75rem;
+  font-style: normal;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  transition: color 0.3s;
+}
+.pb-count.done { color: var(--sage); }
+
+.credit-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 22px;
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  padding: 0 4rem;
+  font-size: 0.62rem;
+  color: var(--ink-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+  z-index: 99;
+}
+.credit-bar a {
+  color: var(--terracotta);
+  text-decoration: none;
+  transition: opacity 0.14s;
+}
+.credit-bar a:hover { opacity: 0.7; }
+
+.otf-link {
+  display: none;
+  margin-left: 0.2rem;
+  font-size: 0.7rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  color: var(--terracotta);
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  border-bottom: 0.5px solid var(--terracotta-light);
+  transition: color 0.14s, border-color 0.14s;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.otf-link:hover {
+  color: var(--ink-mid);
+  border-color: var(--ink-muted);
+}
+.otf-link.active { display: inline; }
+
+/* ── MODAL ── */
+.modal-veil {
+  position: fixed; inset: 0;
+  background: rgba(28, 22, 18, 0.6);
+  display: none; align-items: center; justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(3px);
+}
+.modal-veil.open { display: flex; }
+
+.modal {
+  background: var(--white);
+  border-radius: 18px;
+  width: 980px; max-width: 95vw; max-height: 90vh;
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 32px 80px rgba(28,22,18,0.22), 0 0 0 0.5px rgba(28,22,18,0.08);
+}
+
+/* ── LEFT PANEL: Camera ── */
+.panel-cam {
+  background: #17120E;
+  display: flex; flex-direction: column;
+  min-height: 530px;
+  position: relative;
+}
+.cam-topbar {
+  padding: 1.2rem 1.4rem 0.7rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.cam-label {
+  font-size: 0.63rem; letter-spacing: 0.12em;
+  text-transform: uppercase; color: rgba(255,255,255,0.35);
+}
+.cam-status { display: flex; align-items: center; gap: 5px; }
+.sdot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #3A3330; transition: background 0.3s;
+}
+.sdot.on { background: var(--sage); animation: sdot-pulse 1.8s ease infinite; }
+.sdot.frozen { background: var(--ochre); animation: none; }
+@keyframes sdot-pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+.stext {
+  font-size: 0.62rem; color: rgba(255,255,255,0.3);
+  letter-spacing: 0.06em;
+}
+
+.cam-viewport { flex: 1; position: relative; overflow: hidden; }
+#videoEl {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  transform: scaleX(-1); opacity: 0.65;
+}
+#poseCanvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  transform: scaleX(-1);
+}
+
+/* freeze vignette overlay */
+.freeze-vignette {
+  position: absolute; inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border: 3px solid var(--ochre);
+  border-radius: 0;
+}
+.freeze-vignette.on { opacity: 1; }
+
+/* axis strips */
+.axis-grid {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 0.65rem 0.9rem;
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.72));
+  display: none;
+}
+.axis-pill {
+  background: rgba(255,255,255,0.055);
+  border: 0.5px solid rgba(255,255,255,0.1);
+  border-radius: 4px; padding: 0.28rem 0.45rem;
+  display: flex; align-items: center; gap: 0.45rem;
+}
+.axis-name { font-size: 0.57rem; letter-spacing: 0.09em; color: rgba(255,255,255,0.33); text-transform: uppercase; }
+.axis-track { flex: 1; height: 2px; background: rgba(255,255,255,0.08); border-radius: 1px; overflow: hidden; min-width: 36px; }
+.axis-fill { height: 100%; border-radius: 1px; transition: width 0.1s linear; }
+.axis-fill.wt { background: var(--terracotta-mid); }
+.axis-fill.sl { background: var(--sage-mid); }
+.axis-fill.wd { background: var(--ochre-mid); }
+.axis-fill.dr { background: #8888ff; }
+.axis-val { font-size: 0.6rem; font-weight: 500; color: rgba(255,255,255,0.6); font-variant-numeric: tabular-nums; }
+
+/* camera placeholder */
+.cam-placeholder {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 1rem; padding: 2rem;
+}
+.cam-ico {
+  width: 46px; height: 34px;
+  border: 1.5px solid rgba(255,255,255,0.18);
+  border-radius: 5px; position: relative;
+}
+.cam-ico::before {
+  content: '';
+  position: absolute; right: -8px; top: 50%; transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-left-color: rgba(255,255,255,0.18);
+}
+.cam-hint {
+  font-size: 0.68rem; color: rgba(255,255,255,0.28);
+  text-align: center; line-height: 1.65; letter-spacing: 0.03em;
+}
+.btn-cam {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem; font-weight: 500;
+  letter-spacing: 0.09em; text-transform: uppercase;
+  padding: 0.5rem 1.2rem;
+  background: transparent;
+  border: 0.5px solid rgba(255,255,255,0.22);
+  border-radius: 4px;
+  color: rgba(255,255,255,0.55);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.btn-cam:hover { border-color: rgba(255,255,255,0.5); color: rgba(255,255,255,0.88); }
+
+/* ── FREEZE TOGGLE ── */
+.freeze-row {
+  padding: 0.7rem 1.4rem;
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 0.5px solid rgba(255,255,255,0.06);
+  display: none;
+}
+.freeze-label {
+  font-size: 0.63rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: rgba(255,255,255,0.35);
+}
+.freeze-hint {
+  font-size: 0.6rem; color: rgba(255,255,255,0.22);
+  margin-top: 1px;
+}
+.freeze-toggle-wrap { display: flex; align-items: center; gap: 8px; }
+.toggle-track {
+  width: 36px; height: 20px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.1);
+  position: relative; cursor: pointer;
+  transition: background 0.25s ease;
+  border: 0.5px solid rgba(255,255,255,0.12);
+  flex-shrink: 0;
+}
+.toggle-track.active {
+  background: var(--ochre);
+  border-color: var(--ochre-mid);
+}
+.toggle-thumb {
+  position: absolute; top: 3px; left: 3px;
+  width: 14px; height: 14px;
+  border-radius: 50%; background: rgba(255,255,255,0.5);
+  transition: transform 0.22s cubic-bezier(0.34,1.2,0.64,1), background 0.22s;
+}
+.toggle-track.active .toggle-thumb {
+  transform: translateX(16px);
+  background: white;
+}
+.freeze-state-label {
+  font-size: 0.62rem; letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.28);
+  min-width: 38px; text-align: right;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.freeze-state-label.on { color: var(--ochre-mid); }
+
+/* frozen badge on design panel */
+.frozen-badge {
+  display: none; align-items: center; gap: 5px;
+  font-size: 0.6rem; letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ochre);
+  background: rgba(196,162,74,0.1);
+  border: 0.5px solid rgba(196,162,74,0.25);
+  padding: 3px 8px; border-radius: 12px;
+}
+.frozen-badge.show { display: flex; }
+.frozen-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: var(--ochre);
+  animation: sdot-pulse 1.6s ease infinite;
+}
+
+/* ── RIGHT PANEL: Design ── */
+.panel-design {
+  background: var(--surface);
+  display: flex; flex-direction: column;
+}
+.design-topbar {
+  padding: 1.1rem 1.65rem 0.85rem;
+  display: flex; align-items: baseline; justify-content: space-between;
+  border-bottom: 0.5px solid var(--border);
+  gap: 0.5rem;
+}
+.design-letter {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2.1rem; line-height: 1; color: var(--ink);
+}
+.design-right-top {
+  display: flex; align-items: center; gap: 8px;
+}
+.design-axis-label {
+  font-size: 0.63rem; color: var(--ink-muted); letter-spacing: 0.05em;
+}
+
+.canvas-wrap {
+  flex: 1; position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+#tCanvas { width: 100%; height: 100%; }
+
+/* frozen canvas veil */
+.canvas-wrap::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: rgba(196,162,74,0.03);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.canvas-wrap.frozen::after { opacity: 1; }
+
+.design-footer {
+  padding: 0.9rem 1.65rem;
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 0.5px solid var(--border);
+  gap: 0.75rem;
+}
+.drive-pill {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.62rem; color: var(--ink-muted);
+  letter-spacing: 0.07em; text-transform: uppercase;
+  background: var(--border); padding: 3px 9px; border-radius: 20px;
+}
+.drive-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sage); }
+
+.btn-save {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem; font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 0.5rem 1.4rem;
+  border-radius: 6px; border: none;
+  cursor: pointer;
+  background: var(--ink); color: white;
+  transition: background 0.14s, transform 0.1s, opacity 0.2s;
+}
+.btn-save:hover { background: #4A3A30; }
+.btn-save:active { transform: scale(0.97); }
+.btn-save:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-close {
+  position: absolute; top: 1rem; right: 1rem;
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 0.5px solid var(--border);
+  background: var(--white);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 0.7rem; color: var(--ink-mid);
+  z-index: 10; transition: background 0.1s;
+}
+.btn-close:hover { background: var(--surface); }
+
+/* ══════════════════════════════════════
+   RESPONSIVE — tablet (≤ 768px)
+══════════════════════════════════════ */
+@media (max-width: 600px) {
+
+  /* Header */
+  .header {
+    padding: 1.25rem 1.5rem 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .header-right { display: none; }
+
+  /* Step strip — allow wrap if needed, no forced scroll */
+  .step-strip {
+    padding: 0.7rem 1.5rem;
+    gap: 0.75rem 1.25rem;
+    overflow-x: visible;
+    white-space: normal;
+    flex-wrap: wrap;
+  }
+  .step-sep { display: none; }
+  .step { flex-shrink: 0; }
+
+  /* Grid — 6 columns on tablet */
+  .alpha-wrap { padding: 1.5rem 1.5rem 6rem; }
+  .alpha-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4rem;
+    max-width: 100%;
+  }
+  .cell-label { font-size: 0.58rem; }
+
+  /* Progress bar */
+  .progress-bar {
+    padding: 0 1.5rem;
+    height: auto;
+    min-height: 50px;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .pb-label { display: none; }
+  .beads-row { order: -1; flex: 0 0 100%; margin-bottom: 1px; }
+  .pb-count { margin-left: 0; font-size: 0.65rem; }
+  .otf-link  { font-size: 0.65rem; }
+
+  /* Modal — always full height on tablet, no compact phase */
+  .modal {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    width: 100%;
+    max-width: 100%;
+    height: 93dvh;
+    max-height: 93dvh;
+    border-radius: 20px 20px 0 0;
+    align-self: flex-end;
+    transition: none;
+  }
+  .modal.expanded {
+    height: 93dvh;
+    max-height: 93dvh;
+  }
+  .modal-veil { align-items: flex-end; }
+
+  /* Drag handle */
+  .modal::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 50%;
+    transform: translateX(-50%);
+    width: 36px; height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    z-index: 20;
+  }
+
+  .panel-cam {
+    min-height: 0;
+    flex: 1;
+    max-height: none;
+  }
+  .cam-viewport {
+    max-height: none;
+    flex: 1;
+  }
+
+  .axis-grid { padding: 0.5rem 0.7rem; gap: 0.3rem; }
+  .axis-pill { padding: 0.22rem 0.35rem; }
+  .freeze-hint { display: none; }
+
+  .panel-design { display: flex; }
+
+  .design-topbar { padding: 0.8rem 1rem 0.6rem; }
+  .design-letter { font-size: 1.6rem; }
+  .design-axis-label { display: none; }
+  .canvas-wrap { min-height: 180px; }
+  .design-footer { padding: 0.7rem 1rem; }
+  .drive-pill { display: none; }
+  .btn-save { width: 100%; text-align: center; padding: 0.65rem 1rem; }
+  .btn-close { top: 0.75rem; right: 0.75rem; }
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — mobile (≤ 480px)
+══════════════════════════════════════ */
+@media (max-width: 480px) {
+
+  /* Header */
+  .header { padding: 1rem 1.1rem 0.85rem; }
+  .header-title { font-size: 0.95rem; }
+  .header-sub { font-size: 0.6rem; }
+
+  /* Step strip — single row if it fits, wrap to two if not */
+  .step-strip {
+    padding: 0.65rem 1.1rem;
+    flex-wrap: wrap;
+    gap: 0.45rem 0.9rem;
+    overflow-x: visible;
+    white-space: normal;
+  }
+  .step { font-size: 0.62rem; flex-shrink: 0; }
+  .step-n { width: 15px; height: 15px; font-size: 0.52rem; }
+
+  /* Grid — 5 columns on small mobile, tight */
+  .alpha-wrap { padding: 1.1rem 1rem 7rem; }
+  .alpha-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.35rem;
+  }
+  .cell-label { font-size: 0.55rem; }
+  .cell-dot { width: 4px; height: 4px; top: 4px; right: 4px; }
+
+  /* Progress bar — two-line layout */
+  .progress-bar {
+    padding: 0.55rem 1.1rem;
+    min-height: 56px;
+  }
+  .beads-row { gap: 2px; }
+  .bead { width: 7px; height: 7px; }
+  .bead::before { width: 2px; left: -2px; }
+  .pb-count { font-size: 0.6rem; }
+  .otf-link  { font-size: 0.6rem; margin-left: 0.15rem; }
+
+  /* Modal — always full height on small phones */
+  .modal {
+    height: 93dvh;
+    max-height: 93dvh;
+    border-radius: 16px 16px 0 0;
+    transition: none;
+  }
+  .modal.expanded {
+    height: 93dvh;
+    max-height: 93dvh;
+  }
+  .cam-hint { font-size: 0.6rem; }
+  .design-topbar { padding: 0.65rem 0.85rem 0.5rem; }
+  .design-letter { font-size: 1.4rem; }
+  .canvas-wrap { min-height: 140px; }
+  .design-footer { padding: 0.6rem 0.85rem; gap: 0.5rem; }
+  .btn-claim { font-size: 0.72rem; padding: 0.6rem 0.85rem; }
+  .axis-name { display: none; }
+  .axis-val { font-size: 0.58rem; }
+}
+
+/* ══════════════════════════════════════
+   HOVER CARD
+══════════════════════════════════════ */
+.hover-card {
+  position: fixed;
+  z-index: 2000;
+  width: 220px;
+  background: var(--white);
+  border-radius: 10px;
+  box-shadow:
+    0 2px 6px  rgba(44,36,32,0.06),
+    0 8px 24px rgba(44,36,32,0.10),
+    0 24px 48px rgba(44,36,32,0.12);
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px) scale(0.97);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.hover-card.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Video / glyph area */
+.hover-card-video-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: var(--surface);
+  overflow: hidden;
+}
+.hover-card-video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: none;
+  z-index: 2;
+}
+.hover-card-video.loaded { display: block; }
+.hover-card-video-placeholder {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 18%;
+  background: var(--surface);
+  z-index: 1;
+}
+.hover-card-glyph { width: 100%; height: 100%; overflow: visible; }
+.hover-card-glyph svg { width: 100%; height: 100%; overflow: visible; }
+
+/* Info body */
+.hover-card-body {
+  padding: 0.75rem 0.85rem 0.85rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  border-top: 0.5px solid var(--border);
+}
+.hover-card-letter-glyph {
+  width: 36px; height: 44px;
+  flex-shrink: 0;
+  overflow: visible;
+  display: flex; align-items: center; justify-content: center;
+}
+.hover-card-letter-glyph svg { width: 100%; height: 100%; overflow: visible; }
+.hover-card-info {
+  display: flex; flex-direction: column; gap: 2px;
+  overflow: hidden;
+}
+.hover-card-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 0.82rem;
+  color: var(--ink);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hover-card-meta {
+  font-size: 0.62rem;
+  color: var(--ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hover-card-location {
+  font-size: 0.6rem;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Color accent strip at top of card matches letter color */
+.hover-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--terracotta);
+  transition: background 0.2s;
+}
+.hover-card.clr-sg::before { background: var(--sage); }
+.hover-card.clr-oc::before { background: var(--ochre); }
+
+/* Mobile — tap card instead of hover */
+@media (max-width: 600px) {
+  .hover-card { width: 180px; }
+  .hover-card-name { font-size: 0.75rem; }
+}
+
+/* ══════════════════════════════════════
+   RECORD ROW
+══════════════════════════════════════ */
+.record-row {
+  padding: 0.75rem 1.4rem;
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 0.5px solid rgba(255,255,255,0.07);
+  gap: 0.75rem;
+}
+.record-row-left { display: flex; flex-direction: column; gap: 2px; }
+.rec-status-label {
+  font-size: 0.65rem; color: rgba(255,255,255,0.55);
+  letter-spacing: 0.04em;
+}
+.rec-sub {
+  font-size: 0.58rem; color: rgba(255,255,255,0.25);
+  letter-spacing: 0.04em;
+}
+
+.btn-record {
+  display: flex; align-items: center; gap: 7px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 0.5rem 1.1rem;
+  background: rgba(196,113,74,0.15);
+  border: 0.5px solid rgba(196,113,74,0.4);
+  border-radius: 4px;
+  color: var(--terracotta-mid);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  flex-shrink: 0;
+}
+.btn-record:hover {
+  background: rgba(196,113,74,0.25);
+  border-color: rgba(196,113,74,0.7);
+}
+.btn-record:active { transform: scale(0.97); }
+.btn-record.recording {
+  background: rgba(196,113,74,0.3);
+  border-color: var(--terracotta-mid);
+  color: var(--terracotta-mid);
+  pointer-events: none;
+}
+.btn-record-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--terracotta);
+  flex-shrink: 0;
+}
+.btn-record.recording .btn-record-dot {
+  animation: rec-pulse 0.8s ease infinite;
+}
+@keyframes rec-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+
+/* ── Framing guide ── */
+.frame-guide {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 3;
+}
+.frame-guide-box {
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed rgba(255,255,255,0.28);
+  border-radius: 4px;
+}
+/* corner accents */
+.frame-guide-box::before,
+.frame-guide-box::after {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  border-color: rgba(255,255,255,0.5);
+  border-style: solid;
+}
+.frame-guide-box::before {
+  top: -1px; left: -1px;
+  border-width: 2px 0 0 2px;
+  border-radius: 3px 0 0 0;
+}
+.frame-guide-box::after {
+  bottom: -1px; right: -1px;
+  border-width: 0 2px 2px 0;
+  border-radius: 0 0 3px 0;
+}
+.frame-guide-label {
+  position: absolute;
+  bottom: 16px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.58rem; color: rgba(255,255,255,0.35);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* ── Recording countdown ring ── */
+.rec-countdown {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 0.5rem; z-index: 5;
+  background: rgba(18,14,10,0.45);
+  backdrop-filter: blur(2px);
+}
+.rec-ring { position: relative; width: 48px; height: 48px; }
+.rec-ring-svg { width: 48px; height: 48px; transform: rotate(-90deg); }
+.rec-ring-track {
+  fill: none; stroke: rgba(255,255,255,0.1); stroke-width: 3;
+}
+.rec-ring-fill {
+  fill: none;
+  stroke: var(--terracotta);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 125.6;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1s linear;
+}
+.rec-countdown-num {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.1rem; color: white; line-height: 1;
+}
+.rec-countdown-label {
+  font-size: 0.6rem; color: rgba(255,255,255,0.5);
+  letter-spacing: 0.12em; text-transform: uppercase;
+}
+
+/* ── Live recording badge ── */
+.rec-live-badge {
+  position: absolute; top: 10px; left: 10px;
+  display: flex; align-items: center; gap: 5px;
+  background: rgba(196,113,74,0.85);
+  border-radius: 3px;
+  padding: 3px 8px;
+  font-size: 0.6rem; font-weight: 600;
+  letter-spacing: 0.12em;
+  color: white;
+  z-index: 6;
+}
+.rec-live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: white;
+  animation: rec-pulse 0.8s ease infinite;
+}
+
+/* ── Video preview ── */
+.rec-preview {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: stretch; justify-content: flex-end;
+  z-index: 4;
+}
+.rec-preview video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0.75;
+}
+.rec-preview-label {
+  position: relative; z-index: 1;
+  font-size: 0.6rem; color: rgba(255,255,255,0.55);
+  letter-spacing: 0.06em; text-align: center;
+  padding: 0.5rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.5));
+}
+
+/* ══════════════════════════════════════
+   DESIGN PANEL INNER (slides for profile)
+══════════════════════════════════════ */
+.panel-design { position: relative; overflow: hidden; }
+.panel-design-inner {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  transform: translateX(0);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.panel-design-inner.slide-out { transform: translateX(-100%); }
+
+/* ══════════════════════════════════════
+   PROFILE PANEL
+══════════════════════════════════════ */
+.panel-profile {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  background: var(--surface);
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+  overflow-y: auto;
+}
+.panel-profile.slide-in { transform: translateX(0); }
+
+.profile-header {
+  padding: 1.25rem 1.65rem 1rem;
+  display: flex; align-items: center; gap: 1rem;
+  border-bottom: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+.profile-glyph-mini {
+  width: 80px; height: 96px;
+  border-radius: 6px;
+  border: 1px solid var(--border-mid);
+  background: var(--surface);
+  flex-shrink: 0;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.profile-glyph-mini canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.profile-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1rem; color: var(--ink); line-height: 1.2;
+}
+.profile-sub {
+  font-size: 0.65rem; color: var(--ink-muted);
+  margin-top: 2px; letter-spacing: 0.02em;
+}
+.profile-sub span { color: var(--terracotta); }
+
+.profile-form {
+  padding: 1.25rem 1.65rem;
+  display: flex; flex-direction: column;
+  gap: 1.1rem; flex: 1;
+}
+.profile-field { display: flex; flex-direction: column; gap: 4px; }
+.profile-label {
+  font-size: 0.6rem; font-weight: 500;
+  letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.profile-input {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem; color: var(--ink);
+  background: transparent;
+  border: none;
+  border-bottom: 0.5px solid var(--border-mid);
+  padding: 0.35rem 0;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+.profile-input::placeholder { color: var(--ink-faint); }
+.profile-input:focus { border-bottom-color: var(--terracotta); }
+
+.profile-footer {
+  padding: 1rem 1.65rem 1.25rem;
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 0.5px solid var(--border);
+  flex-shrink: 0;
+}
+.btn-back {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.7rem; color: var(--ink-muted);
+  background: transparent; border: none;
+  cursor: pointer; letter-spacing: 0.04em;
+  padding: 0.4rem 0;
+  transition: color 0.14s;
+}
+.btn-back:hover { color: var(--ink); }
+
+.btn-claim {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem; font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 0.55rem 1.4rem;
+  border-radius: 6px; border: none;
+  cursor: pointer;
+  background: var(--ink); color: white;
+  transition: background 0.14s, transform 0.1s, opacity 0.2s;
+}
+.btn-claim:hover { background: #4A3A30; }
+.btn-claim:active { transform: scale(0.97); }
+.btn-claim:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ══════════════════════════════════════
+   HEADER RIGHT WRAP + WORLD VIEW BUTTON
+══════════════════════════════════════ */
+.header-right-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.55rem;
+}
+.btn-worldview {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.38rem 0.9rem;
+  border-radius: 20px;
+  border: 0.5px solid var(--border-mid);
+  background: var(--white);
+  color: var(--ink-mid);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+.btn-worldview:hover {
+  border-color: var(--terracotta-mid);
+  color: var(--terracotta);
+  background: var(--terracotta-pale);
+  transform: translateY(-1px);
+}
+.btn-worldview-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--terracotta);
+  flex-shrink: 0;
+  animation: sdot-pulse 2.4s ease infinite;
+}
+
+/* ══════════════════════════════════════
+   WORLD VIEW OVERLAY
+══════════════════════════════════════ */
+.worldview-veil {
+  position: fixed; inset: 0;
+  background: #0F0C0A;
+  z-index: 3000;
+  display: none;
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity 0.38s ease;
+}
+.worldview-veil.open { display: flex; }
+.worldview-veil.visible { opacity: 1; }
+
+/* Top bar */
+.wv-topbar {
+  flex-shrink: 0;
+  padding: 1.2rem 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 0.5px solid rgba(255,255,255,0.07);
+}
+.wv-title-group { display: flex; flex-direction: column; gap: 3px; }
+.wv-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1rem;
+  color: rgba(255,255,255,0.88);
+  letter-spacing: 0.01em;
+}
+.wv-sub {
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.28);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.wv-topbar-right { display: flex; align-items: center; gap: 1.5rem; }
+.wv-live-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.wv-live-dot {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--sage);
+  animation: sdot-pulse 1.8s ease infinite;
+}
+.wv-close {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 0.5px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  color: rgba(255,255,255,0.45);
+  font-size: 0.72rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+.wv-close:hover { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.88); }
+
+/* Stats strip */
+.wv-stats-strip {
+  flex-shrink: 0;
+  padding: 0.85rem 3rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  border-bottom: 0.5px solid rgba(255,255,255,0.05);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.wv-stats-strip::-webkit-scrollbar { display: none; }
+.wv-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+.wv-stat-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.25rem;
+  color: rgba(255,255,255,0.82);
+  line-height: 1;
+}
+.wv-stat-label {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.wv-stat-divider {
+  width: 0.5px;
+  height: 32px;
+  background: rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+.wv-country-list {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+.wv-country-chip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.67rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.wv-country-chip strong {
+  font-weight: 600;
+  color: rgba(255,255,255,0.75);
+}
+.wv-country-chip-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Map container */
+.wv-map-wrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+.wv-map-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* Dim world landmasses */
+.wv-land {
+  fill: rgba(255,255,255,0.04);
+  stroke: rgba(255,255,255,0.09);
+  stroke-width: 0.4;
+}
+.wv-graticule {
+  fill: none;
+  stroke: rgba(255,255,255,0.04);
+  stroke-width: 0.3;
+}
+
+/* Map pins */
+.wv-pin-group { cursor: pointer; }
+.wv-pin-ring {
+  fill: none;
+  stroke-width: 1;
+  animation: wv-ring-pulse 2.6s ease infinite;
+}
+@keyframes wv-ring-pulse {
+  0%   { r: 8; opacity: 0.5; }
+  60%  { r: 16; opacity: 0; }
+  100% { r: 16; opacity: 0; }
+}
+.wv-pin-dot { transition: r 0.2s ease; }
+.wv-pin-group:hover .wv-pin-dot { r: 7; }
+.wv-pin-letter {
+  font-family: 'DM Serif Display', serif;
+  font-size: 7px;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  fill: white;
+  font-weight: 400;
+}
+
+/* ── World view hover card (reuses existing hover-card) ── */
+/* extended version with glyph animation canvas */
+.wv-hover-card {
+  position: fixed;
+  z-index: 4000;
+  width: 230px;
+  background: #1A1410;
+  border-radius: 10px;
+  box-shadow:
+    0 2px 8px  rgba(0,0,0,0.30),
+    0 12px 32px rgba(0,0,0,0.45),
+    0 32px 64px rgba(0,0,0,0.35),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(8px) scale(0.96);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.wv-hover-card.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.wv-hover-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--terracotta);
+}
+.wv-hover-card.clr-sg::before { background: var(--sage); }
+.wv-hover-card.clr-oc::before { background: var(--ochre); }
+
+.wv-hc-video-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: #0F0C0A;
+  overflow: hidden;
+}
+.wv-hc-video {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: none;
+  z-index: 2;
+}
+.wv-hc-video.loaded { display: block; }
+.wv-hc-canvas-wrap {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  padding: 12%;
+  z-index: 1;
+}
+.wv-hc-canvas { width: 100%; height: 100%; display: block; }
+
+.wv-hc-body {
+  padding: 0.75rem 0.85rem 0.85rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  border-top: 0.5px solid rgba(255,255,255,0.06);
+}
+.wv-hc-glyph-mini {
+  width: 32px; height: 40px;
+  flex-shrink: 0;
+  overflow: visible;
+  display: flex; align-items: center; justify-content: center;
+}
+.wv-hc-glyph-mini svg { width: 100%; height: 100%; overflow: visible; }
+.wv-hc-info { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+.wv-hc-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.88);
+  line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.wv-hc-meta {
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.38);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.wv-hc-location {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 0.04em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+@media (max-width: 600px) {
+  .btn-worldview { font-size: 0.6rem; padding: 0.32rem 0.7rem; }
+  .header-right-wrap { gap: 0.4rem; }
+  .wv-topbar { padding: 1rem 1.25rem; }
+  .wv-stats-strip { padding: 0.7rem 1.25rem; gap: 1.25rem; }
+  .wv-stat-num { font-size: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-left">
+    <div class="header-title">The Humanist Typeface</div>
+    <div class="header-sub">Dance-to-Design Experiment</div>
+  </div>
+  <div class="header-right-wrap">
+    <span class="header-right">Move your body. Shape the alphabet.</span>
+    <button class="btn-worldview" id="btnWorldView" onclick="openWorldView()">
+      <span class="btn-worldview-dot"></span>
+      World view
+    </button>
+  </div>
+</header>
+
+<!-- STEP STRIP -->
+<div class="step-strip">
+  <div class="step"><div class="step-n">1</div><span>Choose a letter</span></div>
+  <span class="step-sep">—</span>
+  <div class="step"><div class="step-n">2</div><span>Enable camera</span></div>
+  <span class="step-sep">—</span>
+  <div class="step"><div class="step-n">3</div><span>Perform a dance move</span></div>
+  <span class="step-sep">—</span>
+  <div class="step"><div class="step-n">4</div><span>Claim your glyph</span></div>
+</div>
+
+<!-- ALPHABET GRID -->
+<section class="alpha-wrap">
+  <div class="alpha-grid" id="alphaGrid"></div>
+</section>
+
+<!-- PROGRESS BAR -->
+<div class="progress-bar">
+  <span class="pb-label">Typeface</span>
+  <div class="beads-row" id="beadsRow"></div>
+  <span class="pb-count" id="pbCount">26 human touches left to download OTF</span>
+  <a class="otf-link" id="otfLink" href="#">(Get Choreo Sans beta)</a>
+</div>
+<div class="credit-bar">
+  © <a href="https://www.linkedin.com/in/nityakumardesigns/" target="_blank" rel="noopener">Nitya Kumar</a>
+</div>
+
+<!-- WORLD VIEW OVERLAY -->
+<div class="worldview-veil" id="worldviewVeil">
+
+  <!-- Top bar -->
+  <div class="wv-topbar">
+    <div class="wv-title-group">
+      <div class="wv-title">The Humanist Typeface — World View</div>
+      <div class="wv-sub">Letters shaped by humans across the planet</div>
+    </div>
+    <div class="wv-topbar-right">
+      <div class="wv-live-badge">
+        <span class="wv-live-dot"></span>
+        Live
+      </div>
+      <button class="wv-close" onclick="closeWorldView()">✕</button>
+    </div>
+  </div>
+
+  <!-- Stats strip -->
+  <div class="wv-stats-strip" id="wvStatsStrip">
+    <div class="wv-stat">
+      <span class="wv-stat-num" id="wvTotalLetters">0</span>
+      <span class="wv-stat-label">Letters created</span>
+    </div>
+    <div class="wv-stat-divider"></div>
+    <div class="wv-stat">
+      <span class="wv-stat-num" id="wvTotalCountries">0</span>
+      <span class="wv-stat-label">Countries</span>
+    </div>
+    <div class="wv-stat-divider"></div>
+    <div class="wv-country-list" id="wvCountryList"></div>
+  </div>
+
+  <!-- SVG Map -->
+  <div class="wv-map-wrap" id="wvMapWrap">
+    <svg class="wv-map-svg" id="wvMapSvg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet"></svg>
+  </div>
+</div>
+
+<!-- World View hover card -->
+<div class="wv-hover-card" id="wvHoverCard">
+  <div class="wv-hc-video-wrap">
+    <video class="wv-hc-video" id="wvHcVideo" autoplay muted loop playsinline></video>
+    <div class="wv-hc-canvas-wrap" id="wvHcCanvasWrap">
+      <canvas class="wv-hc-canvas" id="wvHcCanvas"></canvas>
+    </div>
+  </div>
+  <div class="wv-hc-body">
+    <div class="wv-hc-glyph-mini" id="wvHcGlyphMini"></div>
+    <div class="wv-hc-info">
+      <div class="wv-hc-name" id="wvHcName">—</div>
+      <div class="wv-hc-meta" id="wvHcMeta">—</div>
+      <div class="wv-hc-location" id="wvHcLocation">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-veil" id="modalVeil">
+  <div class="modal">
+    <button class="btn-close" id="btnClose">✕</button>
+
+    <!-- LEFT: Camera -->
+    <div class="panel-cam" id="panelCam">
+      <div class="cam-topbar">
+        <span class="cam-label">Motion tracking</span>
+        <div class="cam-status">
+          <div class="sdot" id="sdot"></div>
+          <span class="stext" id="stext">Inactive</span>
+        </div>
+      </div>
+
+      <div class="cam-viewport" id="camViewport">
+        <div class="cam-placeholder" id="camPlaceholder">
+          <div class="cam-ico"></div>
+          <div class="cam-hint">MediaPipe Pose tracks wrists (15, 16)<br>and ankles (27, 28) in real time.</div>
+          <button class="btn-cam" id="btnStartCam">Enable Camera</button>
+        </div>
+        <video id="videoEl" autoplay muted playsinline style="display:none;"></video>
+        <canvas id="poseCanvas" style="display:none;"></canvas>
+        <div class="freeze-vignette" id="freezeVignette"></div>
+
+        <!-- Framing guide shown before recording -->
+        <div class="frame-guide" id="frameGuide" style="display:none;">
+          <div class="frame-guide-box"></div>
+          <span class="frame-guide-label">Frame your full body</span>
+        </div>
+
+        <!-- Recording countdown overlay -->
+        <div class="rec-countdown" id="recCountdown" style="display:none;">
+          <div class="rec-ring">
+            <svg class="rec-ring-svg" viewBox="0 0 48 48">
+              <circle class="rec-ring-track" cx="24" cy="24" r="20"/>
+              <circle class="rec-ring-fill" id="recRingFill" cx="24" cy="24" r="20"/>
+            </svg>
+            <span class="rec-countdown-num" id="recCountdownNum">6</span>
+          </div>
+          <span class="rec-countdown-label">Recording in…</span>
+        </div>
+
+        <!-- Video preview after recording -->
+        <div class="rec-preview" id="recPreview" style="display:none;">
+          <video id="previewVideo" autoplay muted loop playsinline></video>
+          <div class="rec-preview-label">Your move — looking good ↑</div>
+        </div>
+
+        <!-- Live recording badge (minimal, shows during actual 6s record) -->
+        <div class="rec-live-badge" id="recLiveBadge" style="display:none;">
+          <span class="rec-live-dot"></span>
+          REC
+        </div>
+
+        <div class="axis-grid" id="axisGrid">
+          <div class="axis-pill">
+            <span class="axis-name">Weight</span>
+            <div class="axis-track"><div class="axis-fill wt" id="aWt" style="width:50%"></div></div>
+            <span class="axis-val" id="vWt">0.50</span>
+          </div>
+          <div class="axis-pill">
+            <span class="axis-name">Slant</span>
+            <div class="axis-track"><div class="axis-fill sl" id="aSl" style="width:50%"></div></div>
+            <span class="axis-val" id="vSl">0.50</span>
+          </div>
+          <div class="axis-pill">
+            <span class="axis-name">Drive</span>
+            <div class="axis-track"><div class="axis-fill dr" id="aDr" style="width:0%"></div></div>
+            <span class="axis-val" id="vDr">Wrist</span>
+          </div>
+          <div class="axis-pill">
+            <span class="axis-name">Width</span>
+            <div class="axis-track"><div class="axis-fill wd" id="aWd" style="width:50%"></div></div>
+            <span class="axis-val" id="vWd">0.50</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Record row -->
+      <div class="record-row" id="recordRow" style="display:none;">
+        <div class="record-row-left">
+          <div class="rec-status-label" id="recStatusLabel">Dance, then capture your move</div>
+          <div class="rec-sub" id="recSub">6 sec · shape locks on record</div>
+        </div>
+        <button class="btn-record" id="btnRecord">
+          <span class="btn-record-dot"></span>
+          Record
+        </button>
+      </div>
+    </div>
+
+    <!-- RIGHT: Design + Profile panels -->
+    <div class="panel-design">
+      <div class="design-topbar">
+        <div class="design-letter" id="designLetter">A</div>
+        <div class="design-axis-label">Weight · Slant · Width</div>
+      </div>
+
+      <!-- Glyph canvas view -->
+      <div class="panel-design-inner" id="panelDesignInner">
+        <div class="canvas-wrap" id="canvasWrap">
+          <canvas id="tCanvas"></canvas>
+        </div>
+        <div class="design-footer">
+          <div class="drive-pill">
+            <div class="drive-dot" id="driveDot"></div>
+            <span id="driveLabel">Pose ready</span>
+          </div>
+          <button class="btn-save" id="btnSave" style="display:none;">Save to Typeface →</button>
+        </div>
+      </div>
+
+      <!-- Profile form (slides in after recording) -->
+      <div class="panel-profile" id="panelProfile">
+        <div class="profile-header">
+          <div class="profile-glyph-mini" id="profileGlyphMini"></div>
+          <div>
+            <div class="profile-title">Who made this glyph?</div>
+            <div class="profile-sub">Your details appear when people hover <span id="profileLetterSpan">A</span></div>
+          </div>
+        </div>
+
+        <div class="profile-form">
+          <div class="profile-field">
+            <label class="profile-label">First name</label>
+            <input class="profile-input" id="inputName" type="text" placeholder="Nitya" autocomplete="given-name">
+          </div>
+          <div class="profile-field">
+            <label class="profile-label">Role</label>
+            <input class="profile-input" id="inputRole" type="text" placeholder="Product Designer" autocomplete="organization-title">
+          </div>
+          <div class="profile-field">
+            <label class="profile-label">Company</label>
+            <input class="profile-input" id="inputCompany" type="text" placeholder="Anthropic" autocomplete="organization">
+          </div>
+          <div class="profile-field">
+            <label class="profile-label">Location</label>
+            <input class="profile-input" id="inputLocation" type="text" placeholder="Mumbai, India" autocomplete="country-name">
+          </div>
+        </div>
+
+        <div class="profile-footer">
+          <button class="btn-back" id="btnBack">← Redo move</button>
+          <button class="btn-claim" id="btnClaim">Claim your glyph →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+const LETTERS   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const CLR_CYCLE = ['tc','sg','oc','tc','sg','oc','tc','sg','oc','tc','sg','oc','tc','sg','oc','tc','sg','oc','tc','sg','oc','tc','sg','oc','tc','sg'];
+const CLR_HEX   = { tc: '#C4714A', sg: '#7A9E87', oc: '#C4A24A' };
+
+// savedLetters[letter] = { colorKey, axes: {weight,slant,width}, svgData: <string of SVG path commands> }
+const savedLetters = {};
+
+let activeLetter  = null;
+let cameraActive  = false;
+let isFrozen      = false;   // ← NEW FREEZE STATE
+let animFrame     = null;
+let pose = null, camera = null;
+let mediaRecorder = null, recordedBlob = null, recordingTimer = null;
+
+// Live axes (set by MediaPipe or demo ticker)
+const axes       = { weight: 0.5, slant: 0.5, width: 0.5 };
+// Smoothed axes (only updated when !isFrozen)
+const smoothAxes = { weight: 0.5, slant: 0.5, width: 0.5 };
+// Frozen snapshot axes (copied from smoothAxes when freeze is toggled on)
+const frozenAxes = { weight: 0.5, slant: 0.5, width: 0.5 };
+const LERP = 0.075;
+
+/* ════════════════════════════════════════
+   FREEZE TOGGLE LOGIC
+════════════════════════════════════════ */
+function setFrozen(val) {
+  isFrozen = val;
+  if (isFrozen) {
+    frozenAxes.weight = smoothAxes.weight;
+    frozenAxes.slant  = smoothAxes.slant;
+    frozenAxes.width  = smoothAxes.width;
+  }
+  // Axis bars grey out while frozen
+  document.querySelectorAll('.axis-fill').forEach(el => {
+    el.style.transition = isFrozen ? 'none' : 'width 0.1s linear';
+    el.style.opacity    = isFrozen ? '0.35' : '1';
+  });
+}
+
+// Remove old toggle listener (toggle no longer in DOM)
+
+/* ════════════════════════════════════════
+   SVG PATH SERIALISATION
+   Captures the draw commands as an SVG path string
+   at the moment of saving, for persistent grid display.
+════════════════════════════════════════ */
+
+/**
+ * captureLetterSVG(letter, weight, slant, width)
+ * Returns a tiny SVG string (viewBox 0 0 100 100) of the current letter.
+ * We re-run the draw logic on a temp canvas, extract the path via
+ * a proxy Context2D recorder, then emit clean SVG path data.
+ */
+function captureLetterSVG(letter, weight, slant, width) {
+  // Normalised coordinate space: 100 × 100
+  const NW = 100, NH = 100;
+  const baseline  = NH * 0.78;
+  const capHeight = NH * 0.18;
+  const xHeight   = NH * 0.42;
+  const cx        = NW / 2;
+  const sw        = 2.5 + weight * 10;
+  const slantShear = (slant - 0.5) * 0.28;
+  const scaleX    = 0.65 + width * 0.7;
+
+  const colorKey = CLR_CYCLE[LETTERS.indexOf(letter)];
+  const color    = CLR_HEX[colorKey];
+
+  // We'll collect SVG path command strings
+  const cmds = [];
+
+  // Proxy recorder — mirrors Canvas2D drawing API into SVG path `d` strings
+  const recorder = makePathRecorder(cmds, cx, NW, NH, slantShear, scaleX, sw, color, baseline, capHeight, xHeight);
+
+  // Run the glyph draw through the recorder
+  drawGlyphOnRecorder(recorder, letter, cx, baseline, capHeight, xHeight, sw, NW, NH);
+
+  const pathEls = cmds.join('\n');
+
+  return `<svg viewBox="0 0 ${NW} ${NH}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" width="100%" height="100%">${pathEls}</svg>`;
+}
+
+/**
+ * makePathRecorder builds a minimal Canvas2D–like API proxy that
+ * emits SVG path elements instead of painting to a canvas.
+ * Commands are accumulated in the `cmds` array.
+ */
+function makePathRecorder(cmds, cx, NW, NH, slantShear, scaleX, defaultSW, defaultColor, baseline, capHeight, xHeight) {
+  // We apply the same shear+scale transform to each point
+  function tx(x, y) {
+    // shear: x' = x + shear*y, scale: x' *= scaleX around cx
+    const xs = x + slantShear * y;
+    const xf = cx + (xs - cx) * scaleX;
+    return xf;
+  }
+  function ty(y) { return y; }
+
+  let _d = '';
+  let _sw = defaultSW;
+  let _color = defaultColor;
+  let _lineCap = 'round';
+  let _lineJoin = 'round';
+
+  return {
+    set lineWidth(v)  { _sw = v; },
+    set strokeStyle(v){ _color = v; },
+    set lineCap(v)    { _lineCap = v; },
+    set lineJoin(v)   { _lineJoin = v; },
+    set fillStyle(v)  { },
+    beginPath()   { _d = ''; },
+    moveTo(x, y)  { _d += `M ${tx(x,y).toFixed(2)} ${ty(y).toFixed(2)} `; },
+    lineTo(x, y)  { _d += `L ${tx(x,y).toFixed(2)} ${ty(y).toFixed(2)} `; },
+    bezierCurveTo(c1x, c1y, c2x, c2y, ex, ey) {
+      _d += `C ${tx(c1x,c1y).toFixed(2)} ${ty(c1y).toFixed(2)} ${tx(c2x,c2y).toFixed(2)} ${ty(c2y).toFixed(2)} ${tx(ex,ey).toFixed(2)} ${ty(ey).toFixed(2)} `;
+    },
+    arc(x, y, r, startAngle, endAngle, anticlockwise) {
+      // Approximate arc as polyline segments for SVG compatibility
+      const dir = anticlockwise ? -1 : 1;
+      let a = startAngle;
+      const step = (dir * (endAngle - startAngle)) / 32;
+      _d += `M ${tx(x + r * Math.cos(a), y + r * Math.sin(a)).toFixed(2)} ${ty(y + r * Math.sin(a)).toFixed(2)} `;
+      for (let i = 0; i < 32; i++) {
+        a += step;
+        _d += `L ${tx(x + r * Math.cos(a), y + r * Math.sin(a)).toFixed(2)} ${ty(y + r * Math.sin(a)).toFixed(2)} `;
+      }
+    },
+    ellipse(x, y, rx, ry, rot, startAngle, endAngle) {
+      const steps = 40;
+      const da = (endAngle - startAngle) / steps;
+      let a = startAngle;
+      _d += `M ${tx(x + rx * Math.cos(a), y + ry * Math.sin(a)).toFixed(2)} ${ty(y + ry * Math.sin(a)).toFixed(2)} `;
+      for (let i = 0; i < steps; i++) {
+        a += da;
+        _d += `L ${tx(x + rx * Math.cos(a), y + ry * Math.sin(a)).toFixed(2)} ${ty(y + ry * Math.sin(a)).toFixed(2)} `;
+      }
+      _d += 'Z ';
+    },
+    stroke() {
+      if (!_d.trim()) return;
+      cmds.push(`<path d="${_d.trim()}" stroke="${_color}" stroke-width="${_sw.toFixed(2)}" stroke-linecap="${_lineCap}" stroke-linejoin="${_lineJoin}" fill="none"/>`);
+      _d = '';
+    },
+    fillText(text, x, y) {
+      // Render letter as fallback text element
+      cmds.push(`<text x="${tx(x,y).toFixed(2)}" y="${ty(y).toFixed(2)}" font-family="DM Serif Display,serif" font-size="${_sw * 4}" fill="${_color}" text-anchor="middle">${text}</text>`);
+    },
+    save() {}, restore() {},
+    get lineWidth()   { return _sw; },
+    get strokeStyle() { return _color; },
+    setLineDash()     {},
+  };
+}
+
+/* ════════════════════════════════════════
+   SHARED GLYPH DRAW FUNCTION
+   Used by both canvas renderer and SVG recorder
+════════════════════════════════════════ */
+function drawGlyphOnRecorder(ctx, letter, cx, baseline, capHeight, xHeight, sw, W, H) {
+  ctx.lineWidth   = sw;
+  ctx.lineCap     = 'round';
+  ctx.lineJoin    = 'round';
+  const top = capHeight, mid = xHeight, bot = baseline;
+  const lx = cx - W * 0.155, rx = cx + W * 0.155;
+
+  ctx.beginPath();
+  switch(letter) {
+    case 'A':
+      ctx.moveTo(cx, top); ctx.lineTo(lx - W*0.04, bot);
+      ctx.moveTo(cx, top); ctx.lineTo(rx + W*0.04, bot);
+      ctx.stroke(); ctx.beginPath();
+      ctx.moveTo(lx + W*0.03, mid + (bot-mid)*0.38); ctx.lineTo(rx - W*0.03, mid + (bot-mid)*0.38);
+      break;
+    case 'B':
+      ctx.moveTo(lx, top); ctx.lineTo(lx, bot);
+      ctx.moveTo(lx, top); ctx.bezierCurveTo(rx + W*0.13, top, rx + W*0.13, mid, lx, mid);
+      ctx.moveTo(lx, mid); ctx.bezierCurveTo(rx + W*0.16, mid, rx + W*0.16, bot, lx, bot);
+      ctx.moveTo(lx, bot); ctx.lineTo(rx - W*0.03, bot);
+      ctx.moveTo(lx, top); ctx.lineTo(rx - W*0.03, top);
+      break;
+    case 'C':
+      ctx.arc(cx, (top + bot) / 2, (bot - top) / 2.2, 0.38, Math.PI * 2 - 0.38, false);
+      break;
+    case 'D':
+      ctx.moveTo(lx, top); ctx.lineTo(lx, bot);
+      ctx.moveTo(lx, top); ctx.bezierCurveTo(rx + W*0.22, top, rx + W*0.22, bot, lx, bot);
+      break;
+    case 'E':
+      ctx.moveTo(lx, top); ctx.lineTo(lx, bot);
+      ctx.moveTo(lx, top); ctx.lineTo(rx, top);
+      ctx.moveTo(lx, (top + bot) / 2); ctx.lineTo(cx + W*0.06, (top + bot) / 2);
+      ctx.moveTo(lx, bot); ctx.lineTo(rx, bot);
+      break;
+    case 'F':
+      ctx.moveTo(lx, top); ctx.lineTo(lx, bot);
+      ctx.moveTo(lx, top); ctx.lineTo(rx, top);
+      ctx.moveTo(lx, (top + bot) / 2); ctx.lineTo(cx + W*0.06, (top + bot) / 2);
+      break;
+    case 'G':
+      ctx.arc(cx, (top + bot) / 2, (bot - top) / 2.2, 0.38, Math.PI * 2 - 0.1, false);
+      ctx.moveTo(cx + (bot-top)/2.2, (top+bot)/2); ctx.lineTo(cx, (top+bot)/2);
+      break;
+    case 'H':
+      ctx.moveTo(lx, top); ctx.lineTo(lx, bot);
+      ctx.moveTo(rx, top); ctx.lineTo(rx, bot);
+      ctx.moveTo(lx, (top + bot) / 2); ctx.lineTo(rx, (top + bot) / 2);
+      break;
+    case 'I':
+      ctx.moveTo(cx, top); ctx.lineTo(cx, bot);
+      ctx.moveTo(lx + W*0.05, top); ctx.lineTo(rx - W*0.05, top);
+      ctx.moveTo(lx + W*0.05, bot); ctx.lineTo(rx - W*0.05, bot);
+      break;
+    case 'J':
+      ctx.moveTo(rx, top); ctx.lineTo(rx, bot - W*0.08);
+      ctx.bezierCurveTo(rx, bot + H*0.05, lx - W*0.02, bot + H*0.05, lx, bot - W*0.02);
+      ctx.moveTo(lx + W*0.04, top); ctx.lineTo(rx + W*0.04, top);
+      break;
+    case 'K':
+      ctx.moveTo(lx, top); ctx.lineTo(lx, bot);
+      ctx.moveTo(lx, (top + bot) / 2); ctx.lineTo(rx, top);
+      ctx.moveTo(lx, (top + bot) / 2); ctx.lineTo(rx, bot);
+      break;
+    case 'L':
+      ctx.moveTo(lx, top); ctx.lineTo(lx, bot);
+      ctx.moveTo(lx, bot); ctx.lineTo(rx, bot);
+      break;
+    case 'M':
+      ctx.moveTo(lx - W*0.04, bot); ctx.lineTo(lx - W*0.04, top);
+      ctx.lineTo(cx, mid - W*0.04);
+      ctx.lineTo(rx + W*0.04, top);
+      ctx.lineTo(rx + W*0.04, bot);
+      break;
+    case 'N':
+      ctx.moveTo(lx, bot); ctx.lineTo(lx, top);
+      ctx.lineTo(rx, bot);
+      ctx.lineTo(rx, top);
+      break;
+    case 'O':
+      ctx.ellipse(cx, (top + bot) / 2, W * 0.175, (bot - top) / 2.1, 0, 0, Math.PI * 2);
+      break;
+    case 'P':
+      ctx.moveTo(lx, bot); ctx.lineTo(lx, top);
+      ctx.moveTo(lx, top); ctx.bezierCurveTo(rx + W*0.16, top, rx + W*0.16, mid, lx, mid);
+      break;
+    case 'Q':
+      ctx.ellipse(cx, (top + bot) / 2, W * 0.175, (bot - top) / 2.1, 0, 0, Math.PI * 2);
+      ctx.stroke(); ctx.beginPath();
+      ctx.moveTo(cx + W*0.09, (top+bot)*0.6); ctx.lineTo(rx + W*0.07, bot + H*0.045);
+      break;
+    case 'R':
+      ctx.moveTo(lx, bot); ctx.lineTo(lx, top);
+      ctx.moveTo(lx, top); ctx.bezierCurveTo(rx + W*0.16, top, rx + W*0.16, mid, lx, mid);
+      ctx.moveTo(lx + W*0.05, mid); ctx.lineTo(rx, bot);
+      break;
+    case 'S':
+      ctx.moveTo(rx - W*0.02, top + H*0.04);
+      ctx.bezierCurveTo(rx - W*0.02, top, lx + W*0.02, top, lx + W*0.02, top + (bot-top)*0.28);
+      ctx.bezierCurveTo(lx + W*0.02, (top+bot)/2 - H*0.01, rx - W*0.02, (top+bot)/2 + H*0.01, rx - W*0.02, bot - (bot-top)*0.28);
+      ctx.bezierCurveTo(rx - W*0.02, bot, lx + W*0.02, bot, lx + W*0.02, bot - H*0.04);
+      break;
+    case 'T':
+      ctx.moveTo(cx, top); ctx.lineTo(cx, bot);
+      ctx.moveTo(lx - W*0.06, top); ctx.lineTo(rx + W*0.06, top);
+      break;
+    case 'U':
+      ctx.moveTo(lx, top); ctx.lineTo(lx, bot - W*0.08);
+      ctx.bezierCurveTo(lx, bot + H*0.04, rx, bot + H*0.04, rx, bot - W*0.08);
+      ctx.lineTo(rx, top);
+      break;
+    case 'V':
+      ctx.moveTo(lx - W*0.04, top); ctx.lineTo(cx, bot);
+      ctx.moveTo(rx + W*0.04, top); ctx.lineTo(cx, bot);
+      break;
+    case 'W':
+      ctx.moveTo(lx - W*0.06, top); ctx.lineTo(lx + W*0.04, bot);
+      ctx.lineTo(cx, mid + W*0.04);
+      ctx.lineTo(rx - W*0.04, bot);
+      ctx.lineTo(rx + W*0.06, top);
+      break;
+    case 'X':
+      ctx.moveTo(lx, top); ctx.lineTo(rx, bot);
+      ctx.moveTo(rx, top); ctx.lineTo(lx, bot);
+      break;
+    case 'Y':
+      ctx.moveTo(lx, top); ctx.lineTo(cx, (top + bot) / 2);
+      ctx.moveTo(rx, top); ctx.lineTo(cx, (top + bot) / 2);
+      ctx.moveTo(cx, (top + bot) / 2); ctx.lineTo(cx, bot);
+      break;
+    case 'Z':
+      ctx.moveTo(lx, top); ctx.lineTo(rx, top);
+      ctx.lineTo(lx, bot);
+      ctx.lineTo(rx, bot);
+      break;
+    default:
+      ctx.fillText(letter, cx, bot);
+      return;
+  }
+  ctx.stroke();
+}
+
+/* ════════════════════════════════════════
+   TYPOGRAPHIC CANVAS (modal right panel)
+════════════════════════════════════════ */
+const tCanvas = document.getElementById('tCanvas');
+const tCtx    = tCanvas.getContext('2d');
+
+function resizeTCanvas() {
+  const wrap = document.getElementById('canvasWrap');
+  tCanvas.width  = wrap.clientWidth;
+  tCanvas.height = wrap.clientHeight;
+  drawLetter();
+}
+
+function getLiveAxes() {
+  // When frozen, use the snapshot; otherwise use the smoothed live values
+  return isFrozen ? frozenAxes : smoothAxes;
+}
+
+function colorHex(letter) {
+  if (savedLetters[letter]) return CLR_HEX[savedLetters[letter].colorKey];
+  const idx = LETTERS.indexOf(letter);
+  return CLR_HEX[CLR_CYCLE[idx]];
+}
+
+function drawLetter() {
+  if (!tCtx || !activeLetter) return;
+  const W = tCanvas.width, H = tCanvas.height;
+  tCtx.clearRect(0, 0, W, H);
+
+  const { weight, slant, width } = getLiveAxes();
+  const sw         = 4 + weight * 18;
+  const slantShear = (slant - 0.5) * 0.3;
+  const scaleX     = 0.65 + width * 0.7;
+
+  const baseline  = H * 0.73;
+  const capHeight = H * 0.2;
+  const xHeight   = H * 0.42;
+  const cx        = W / 2;
+
+  /* ── guides ── */
+  tCtx.save();
+  tCtx.strokeStyle = 'rgba(196,113,74,0.18)';
+  tCtx.lineWidth = 0.6;
+  tCtx.setLineDash([]);
+  tCtx.beginPath(); tCtx.moveTo(W*0.04, baseline);  tCtx.lineTo(W*0.96, baseline);  tCtx.stroke();
+
+  tCtx.strokeStyle = 'rgba(160,140,130,0.18)';
+  tCtx.lineWidth = 0.5;
+  tCtx.beginPath(); tCtx.moveTo(W*0.04, capHeight); tCtx.lineTo(W*0.96, capHeight); tCtx.stroke();
+
+  tCtx.setLineDash([3, 4]);
+  tCtx.beginPath(); tCtx.moveTo(W*0.04, xHeight);   tCtx.lineTo(W*0.96, xHeight);   tCtx.stroke();
+  tCtx.setLineDash([]);
+
+  tCtx.font = '8.5px DM Sans, sans-serif';
+  tCtx.fillStyle = 'rgba(160,140,130,0.45)';
+  tCtx.fillText('baseline',  W*0.055, baseline - 4);
+  tCtx.fillText('cap height',W*0.055, capHeight - 4);
+  tCtx.fillText('x-height',  W*0.055, xHeight - 4);
+
+  // Left margin rule
+  tCtx.strokeStyle = 'rgba(160,140,130,0.14)';
+  tCtx.lineWidth = 0.5;
+  tCtx.beginPath(); tCtx.moveTo(W*0.2, H*0.07); tCtx.lineTo(W*0.2, H*0.93); tCtx.stroke();
+  tCtx.restore();
+
+  /* ── glyph ── */
+  const color = colorHex(activeLetter);
+  tCtx.save();
+  tCtx.translate(cx, 0);
+  tCtx.transform(1, 0, slantShear, 1, 0, 0);
+  tCtx.scale(scaleX, 1);
+  tCtx.translate(-cx, 0);
+  tCtx.strokeStyle = color;
+  tCtx.lineCap = 'round';
+  tCtx.lineJoin = 'round';
+  drawGlyphOnRecorder(tCtx, activeLetter, cx, baseline, capHeight, xHeight, sw, W, H);
+  tCtx.restore();
+
+  /* ── anchor dots ── */
+  const top = capHeight, bot = baseline, mid = xHeight;
+  const lx = cx - W*0.155, rx = cx + W*0.155;
+  const anchors = [
+    {x:cx,y:top},{x:lx,y:bot},{x:rx,y:bot},
+    {x:cx,y:(top+bot)/2},{x:lx,y:top},{x:rx,y:top},
+  ];
+  const t = Date.now() / 1000;
+  const pulseScale = isFrozen ? 0.4 : 1; // quieter pulse when frozen
+
+  anchors.forEach((pt, i) => {
+    const pulse = isFrozen ? 0.55 : (0.6 + 0.4 * Math.sin(t * 2.2 + i * 0.85));
+    const r = 2.5 + weight * 2.5;
+    tCtx.save();
+    tCtx.translate(pt.x, pt.y);
+    tCtx.transform(1, 0, slantShear, 1, -pt.x, 0);
+
+    tCtx.beginPath();
+    tCtx.arc(0, 0, r + 3.5 * pulse * pulseScale, 0, Math.PI * 2);
+    // parse hex to rgba
+    const h = color.replace('#','');
+    const ri = parseInt(h.slice(0,2),16), gi = parseInt(h.slice(2,4),16), bi = parseInt(h.slice(4,6),16);
+    tCtx.strokeStyle = `rgba(${ri},${gi},${bi},${0.14 * pulse})`;
+    tCtx.lineWidth = 0.7;
+    tCtx.stroke();
+
+    tCtx.beginPath();
+    tCtx.arc(0, 0, r, 0, Math.PI * 2);
+    tCtx.fillStyle = color;
+    tCtx.globalAlpha = isFrozen ? 0.5 : 0.8 * pulse;
+    tCtx.fill();
+    tCtx.restore();
+  });
+}
+
+/* ════════════════════════════════════════
+   ANIMATION LOOP
+════════════════════════════════════════ */
+function startAnim() {
+  cancelAnimationFrame(animFrame);
+  function loop() {
+    // Only propagate axes → smoothAxes when NOT frozen
+    if (!isFrozen) {
+      smoothAxes.weight += (axes.weight - smoothAxes.weight) * LERP;
+      smoothAxes.slant  += (axes.slant  - smoothAxes.slant)  * LERP;
+      smoothAxes.width  += (axes.width  - smoothAxes.width)  * LERP;
+    }
+    drawLetter();
+    animFrame = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+/* ════════════════════════════════════════
+   BUILD GRID + BEADS
+════════════════════════════════════════ */
+function buildGrid() {
+  const grid = document.getElementById('alphaGrid');
+  LETTERS.forEach(letter => {
+    const cell = document.createElement('div');
+    cell.className = 'letter-cell';
+    cell.dataset.letter = letter;
+    cell.innerHTML = `
+      <span class="cell-label">${letter}</span>
+      <div class="cell-svg-wrap" id="svg-${letter}"></div>
+      <div class="cell-dot"></div>
+      <div class="cell-plus">+</div>
+      <div class="cell-tooltip">${savedLetters[letter] ? 'Redesign' : 'Design this letter'}</div>
+    `;
+    cell.addEventListener('click', () => {
+      // If already saved, don't reopen modal — hover card is the interaction
+      if (savedLetters[letter]) return;
+      openModal(letter);
+    });
+    attachHoverCard(cell, letter);
+    grid.appendChild(cell);
+  });
+}
+
+function buildBeads() {
+  const row = document.getElementById('beadsRow');
+  LETTERS.forEach(letter => {
+    const b = document.createElement('div');
+    b.className = 'bead';
+    b.id = `bead-${letter}`;
+    row.appendChild(b);
+  });
+}
+
+// Update the grid cell: swap placeholder label for saved SVG thumbnail
+function refreshCell(letter, animate = false) {
+  const cell = document.querySelector(`.letter-cell[data-letter="${letter}"]`);
+  if (!cell) return;
+  const saved = savedLetters[letter];
+
+  cell.classList.remove('tc','sg','oc','just-saved');
+
+  if (saved) {
+    cell.classList.add(saved.colorKey);
+    // Only animate for the letter just saved in this session
+    if (animate) {
+      cell.classList.add('just-saved');
+      setTimeout(() => cell.classList.remove('just-saved'), 450);
+    }
+    const wrap = document.getElementById(`svg-${letter}`);
+    if (wrap) wrap.innerHTML = saved.svgData;
+  }
+  const tip = cell.querySelector('.cell-tooltip');
+  if (tip) tip.textContent = saved ? 'Redesign' : 'Design this letter';
+}
+
+function refreshBead(letter) {
+  const b = document.getElementById(`bead-${letter}`);
+  if (!b) return;
+  b.className = 'bead';
+  const saved = savedLetters[letter];
+  if (saved) b.classList.add('live', `live-${saved.colorKey}`);
+}
+
+function refreshProgress() {
+  const done      = Object.keys(savedLetters).length;
+  const remaining = 26 - done;
+  const el   = document.getElementById('pbCount');
+  const link = document.getElementById('otfLink');
+
+  if (remaining === 0) {
+    el.textContent = 'Typeface complete — ready to download OTF';
+    el.classList.add('done');
+  } else {
+    el.textContent = `${remaining} human ${remaining === 1 ? 'touch' : 'touches'} left to download OTF`;
+    el.classList.remove('done');
+  }
+
+  // Show the download link as soon as at least one letter exists
+  link.classList.toggle('active', done > 0);
+}
+
+/* ════════════════════════════════════════
+   OTF GENERATION + DOWNLOAD
+   Builds a real OTF font from the saved glyph axes
+   using opentype.js path commands.
+════════════════════════════════════════ */
+
+// Convert our parametric letter into an opentype.js Path
+function buildOpentypePath(letter, weight, slant, width) {
+  const UPM      = 1000;   // units per em
+  const baseline = 0;
+  const capH     = 700;
+  const xH       = 450;
+  // Our draw space is 0..NW, 0..NH normalised to UPM
+  const NW = 100, NH = 100;
+  const scaleY = UPM / NH;       // flip Y: canvas Y+ is down, OTF Y+ is up
+
+  const sw      = (2.5 + weight * 10) * (UPM / NW);  // stroke weight in font units
+  const halfSW  = sw / 2;
+  const slantSh = (slant - 0.5) * 0.28;
+  const scaleX  = (0.65 + width * 0.7) * (UPM / NW);
+
+  const cx  = NW / 2;
+  const bot = NH * 0.78;   // canvas baseline
+  const top = NH * 0.18;   // canvas cap height
+  const mid = NH * 0.42;   // canvas x-height
+  const lx  = cx - NW * 0.155;
+  const rx  = cx + NW * 0.155;
+
+  // Transform: canvas (x,y) → OTF (x,y)
+  // Apply shear + scaleX around cx, then flip Y so baseline=0
+  function tx(cx0, x, y) {
+    const xs = x + slantSh * y;
+    const xf = cx0 + (xs - cx0) * scaleX;
+    return Math.round(xf);
+  }
+  function ty(y) {
+    // Flip: canvas bot (=NH*0.78) maps to OTF 0, canvas top maps to OTF capH
+    return Math.round((bot - y) / (bot - top) * capH);
+  }
+
+  // We build the glyph as a stroked outline by offsetting each stroke
+  // by halfSW perpendicular. For simplicity we approximate strokes as
+  // rectangles along each line segment. This produces a valid, editable OTF.
+  const path = new opentype.Path();
+
+  function addStrokeRect(x1, y1, x2, y2, sw) {
+    // Direction vector
+    const dx = x2 - x1, dy = y2 - y1;
+    const len = Math.sqrt(dx*dx + dy*dy) || 1;
+    const nx = -dy/len * sw/2, ny = dx/len * sw/2; // perpendicular offset
+    // Four corners of the stroke rectangle
+    const ox1 = tx(cx*scaleX, x1)+Math.round(nx), oy1 = ty(y1)+Math.round(ny);
+    const ox2 = tx(cx*scaleX, x2)+Math.round(nx), oy2 = ty(y2)+Math.round(ny);
+    const ox3 = tx(cx*scaleX, x2)-Math.round(nx), oy3 = ty(y2)-Math.round(ny);
+    const ox4 = tx(cx*scaleX, x1)-Math.round(nx), oy4 = ty(y1)-Math.round(ny);
+    path.moveTo(ox1, oy1);
+    path.lineTo(ox2, oy2);
+    path.lineTo(ox3, oy3);
+    path.lineTo(ox4, oy4);
+    path.close();
+  }
+
+  // Simplified per-letter outlines using stroked segments
+  // We use the actual canvas coordinates and transform them
+  function seg(x1,y1,x2,y2) {
+    const ux1 = tx(cx, x1+(slantSh*y1), 0);
+    const uy1 = ty(y1);
+    const ux2 = tx(cx, x2+(slantSh*y2), 0);
+    const uy2 = ty(y2);
+    const dx = ux2-ux1, dy = uy2-uy1;
+    const len = Math.sqrt(dx*dx+dy*dy)||1;
+    const nx = -dy/len * halfSW, ny = dx/len * halfSW;
+    path.moveTo(Math.round(ux1+nx), Math.round(uy1+ny));
+    path.lineTo(Math.round(ux2+nx), Math.round(uy2+ny));
+    path.lineTo(Math.round(ux2-nx), Math.round(uy2-ny));
+    path.lineTo(Math.round(ux1-nx), Math.round(uy1-ny));
+    path.close();
+  }
+
+  function addCircle(cx0, cy0, r) {
+    // Approximate circle as octagon
+    const ux = tx(cx, cx0+(slantSh*cy0), 0);
+    const uy = ty(cy0);
+    const ur = Math.round(r * (UPM/NW));
+    const steps = 12;
+    path.moveTo(Math.round(ux + ur), uy);
+    for (let i = 1; i <= steps; i++) {
+      const a = (i / steps) * Math.PI * 2;
+      path.lineTo(Math.round(ux + ur*Math.cos(a)), Math.round(uy + ur*Math.sin(a)));
+    }
+    path.close();
+  }
+
+  const swd = sw * 0.018; // stroke weight as canvas units for arc approximation
+
+  switch(letter) {
+    case 'A':
+      seg(cx,top, lx-NW*0.04,bot);
+      seg(cx,top, rx+NW*0.04,bot);
+      seg(lx+NW*0.03, mid+(bot-mid)*0.38, rx-NW*0.03, mid+(bot-mid)*0.38);
+      break;
+    case 'B':
+      seg(lx,top,lx,bot);
+      seg(lx,top,rx-NW*0.03,top);
+      seg(lx,bot,rx-NW*0.03,bot);
+      seg(lx,mid,rx,mid);
+      // bumps approximated as rectangles
+      seg(rx-NW*0.03,top, rx+NW*0.13,top+(bot-top)*0.25);
+      seg(rx+NW*0.13,top+(bot-top)*0.25, rx-NW*0.03,mid);
+      seg(rx-NW*0.03,mid, rx+NW*0.16,mid+(bot-mid)*0.25);
+      seg(rx+NW*0.16,mid+(bot-mid)*0.25, rx-NW*0.03,bot);
+      break;
+    case 'C':
+      for(let i=0;i<16;i++){
+        const a1=0.38+(i/16)*(Math.PI*2-0.76);
+        const a2=0.38+((i+1)/16)*(Math.PI*2-0.76);
+        const r=(bot-top)/2.2;
+        seg(cx+r*Math.cos(a1),(top+bot)/2+r*Math.sin(a1), cx+r*Math.cos(a2),(top+bot)/2+r*Math.sin(a2));
+      }
+      break;
+    case 'D':
+      seg(lx,top,lx,bot);
+      for(let i=0;i<12;i++){
+        const a1=-Math.PI/2+(i/12)*Math.PI;
+        const a2=-Math.PI/2+((i+1)/12)*Math.PI;
+        const ry=(bot-top)/2, rxr=NW*0.22+NW*0.155;
+        const mcy=(top+bot)/2;
+        seg(lx+rxr*Math.cos(a1),mcy+ry*Math.sin(a1),lx+rxr*Math.cos(a2),mcy+ry*Math.sin(a2));
+      }
+      break;
+    case 'E':
+      seg(lx,top,lx,bot);
+      seg(lx,top,rx,top);
+      seg(lx,(top+bot)/2,cx+NW*0.06,(top+bot)/2);
+      seg(lx,bot,rx,bot);
+      break;
+    case 'F':
+      seg(lx,top,lx,bot);
+      seg(lx,top,rx,top);
+      seg(lx,(top+bot)/2,cx+NW*0.06,(top+bot)/2);
+      break;
+    case 'G':
+      for(let i=0;i<14;i++){
+        const a1=0.38+(i/14)*(Math.PI*2-0.48);
+        const a2=0.38+((i+1)/14)*(Math.PI*2-0.48);
+        const r=(bot-top)/2.2;
+        seg(cx+r*Math.cos(a1),(top+bot)/2+r*Math.sin(a1),cx+r*Math.cos(a2),(top+bot)/2+r*Math.sin(a2));
+      }
+      seg(cx+(bot-top)/2.2,(top+bot)/2, cx,(top+bot)/2);
+      break;
+    case 'H':
+      seg(lx,top,lx,bot);
+      seg(rx,top,rx,bot);
+      seg(lx,(top+bot)/2,rx,(top+bot)/2);
+      break;
+    case 'I':
+      seg(cx,top,cx,bot);
+      seg(lx+NW*0.05,top,rx-NW*0.05,top);
+      seg(lx+NW*0.05,bot,rx-NW*0.05,bot);
+      break;
+    case 'J':
+      seg(rx,top,rx,bot-NW*0.08);
+      seg(lx+NW*0.04,top,rx+NW*0.04,top);
+      // curve approximation
+      for(let i=0;i<6;i++){
+        const a1=0+(i/6)*Math.PI;
+        const a2=0+((i+1)/6)*Math.PI;
+        const r=NW*0.12;
+        seg(rx-r+r*Math.cos(a1),bot-NW*0.02+r*Math.sin(a1),rx-r+r*Math.cos(a2),bot-NW*0.02+r*Math.sin(a2));
+      }
+      break;
+    case 'K':
+      seg(lx,top,lx,bot);
+      seg(lx,(top+bot)/2,rx,top);
+      seg(lx,(top+bot)/2,rx,bot);
+      break;
+    case 'L':
+      seg(lx,top,lx,bot);
+      seg(lx,bot,rx,bot);
+      break;
+    case 'M':
+      seg(lx-NW*0.04,bot,lx-NW*0.04,top);
+      seg(lx-NW*0.04,top,cx,mid-NW*0.04);
+      seg(cx,mid-NW*0.04,rx+NW*0.04,top);
+      seg(rx+NW*0.04,top,rx+NW*0.04,bot);
+      break;
+    case 'N':
+      seg(lx,bot,lx,top);
+      seg(lx,top,rx,bot);
+      seg(rx,bot,rx,top);
+      break;
+    case 'O':
+      for(let i=0;i<16;i++){
+        const a1=(i/16)*Math.PI*2;
+        const a2=((i+1)/16)*Math.PI*2;
+        const erx=NW*0.175, ery=(bot-top)/2.1, mcy=(top+bot)/2;
+        seg(cx+erx*Math.cos(a1),mcy+ery*Math.sin(a1),cx+erx*Math.cos(a2),mcy+ery*Math.sin(a2));
+      }
+      break;
+    case 'P':
+      seg(lx,bot,lx,top);
+      seg(lx,top,rx+NW*0.16,top+(bot-top)*0.25);
+      seg(rx+NW*0.16,top+(bot-top)*0.25,lx,mid);
+      break;
+    case 'Q':
+      for(let i=0;i<16;i++){
+        const a1=(i/16)*Math.PI*2;
+        const a2=((i+1)/16)*Math.PI*2;
+        const erx=NW*0.175, ery=(bot-top)/2.1, mcy=(top+bot)/2;
+        seg(cx+erx*Math.cos(a1),mcy+ery*Math.sin(a1),cx+erx*Math.cos(a2),mcy+ery*Math.sin(a2));
+      }
+      seg(cx+NW*0.09,(top+bot)*0.6, rx+NW*0.07,bot+NH*0.045);
+      break;
+    case 'R':
+      seg(lx,bot,lx,top);
+      seg(lx,top,rx+NW*0.16,top+(bot-top)*0.25);
+      seg(rx+NW*0.16,top+(bot-top)*0.25,lx,mid);
+      seg(lx+NW*0.05,mid,rx,bot);
+      break;
+    case 'S':
+      for(let i=0;i<8;i++){
+        const t1=i/8, t2=(i+1)/8;
+        const y1=top+(bot-top)*t1*0.5, y2=top+(bot-top)*t2*0.5;
+        const xc1=rx-NW*0.02, xc2=lx+NW*0.02;
+        const x1=t1<0.25?xc1:t1<0.5?xc1+(xc2-xc1)*(t1-0.25)*4:xc2;
+        const x2=t2<0.25?xc1:t2<0.5?xc1+(xc2-xc1)*(t2-0.25)*4:xc2;
+        seg(x1,y1,x2,y2);
+      }
+      for(let i=0;i<8;i++){
+        const t1=i/8, t2=(i+1)/8;
+        const y1=(top+bot)/2+(bot-top)*t1*0.5, y2=(top+bot)/2+(bot-top)*t2*0.5;
+        const xc1=lx+NW*0.02, xc2=rx-NW*0.02;
+        const x1=t1<0.25?xc1:t1<0.5?xc1+(xc2-xc1)*(t1-0.25)*4:xc2;
+        const x2=t2<0.25?xc1:t2<0.5?xc1+(xc2-xc1)*(t2-0.25)*4:xc2;
+        seg(x1,y1,x2,y2);
+      }
+      break;
+    case 'T':
+      seg(cx,top,cx,bot);
+      seg(lx-NW*0.06,top,rx+NW*0.06,top);
+      break;
+    case 'U':
+      seg(lx,top,lx,bot-NW*0.08);
+      seg(rx,top,rx,bot-NW*0.08);
+      for(let i=0;i<8;i++){
+        const a1=Math.PI+(i/8)*Math.PI;
+        const a2=Math.PI+((i+1)/8)*Math.PI;
+        const r=NW*0.155;
+        seg(cx+r*Math.cos(a1),bot-NW*0.08+r*Math.sin(a1),cx+r*Math.cos(a2),bot-NW*0.08+r*Math.sin(a2));
+      }
+      break;
+    case 'V':
+      seg(lx-NW*0.04,top,cx,bot);
+      seg(rx+NW*0.04,top,cx,bot);
+      break;
+    case 'W':
+      seg(lx-NW*0.06,top,lx+NW*0.04,bot);
+      seg(lx+NW*0.04,bot,cx,mid+NW*0.04);
+      seg(cx,mid+NW*0.04,rx-NW*0.04,bot);
+      seg(rx-NW*0.04,bot,rx+NW*0.06,top);
+      break;
+    case 'X':
+      seg(lx,top,rx,bot);
+      seg(rx,top,lx,bot);
+      break;
+    case 'Y':
+      seg(lx,top,cx,(top+bot)/2);
+      seg(rx,top,cx,(top+bot)/2);
+      seg(cx,(top+bot)/2,cx,bot);
+      break;
+    case 'Z':
+      seg(lx,top,rx,top);
+      seg(rx,top,lx,bot);
+      seg(lx,bot,rx,bot);
+      break;
+    default: break;
+  }
+
+  return path;
+}
+
+function downloadOTF() {
+  const done = Object.keys(savedLetters);
+  if (done.length === 0) return;
+
+  const UPM = 1000;
+
+  // Build notdef glyph (empty box)
+  const notdefPath = new opentype.Path();
+  notdefPath.moveTo(50, 0);
+  notdefPath.lineTo(450, 0);
+  notdefPath.lineTo(450, 700);
+  notdefPath.lineTo(50, 700);
+  notdefPath.close();
+  notdefPath.moveTo(80, 30);
+  notdefPath.lineTo(420, 30);
+  notdefPath.lineTo(420, 670);
+  notdefPath.lineTo(80, 670);
+  notdefPath.close();
+
+  const notdef = new opentype.Glyph({
+    name: '.notdef',
+    unicode: 0,
+    advanceWidth: 500,
+    path: notdefPath,
+  });
+
+  const glyphs = [notdef];
+
+  done.forEach(letter => {
+    const { colorKey, axes: ax } = savedLetters[letter];
+    const path = buildOpentypePath(letter, ax.weight, ax.slant, ax.width);
+
+    // Advance width based on width axis
+    const advW = Math.round(400 + ax.width * 300);
+
+    glyphs.push(new opentype.Glyph({
+      name: letter,
+      unicode: letter.charCodeAt(0),
+      advanceWidth: advW,
+      path,
+    }));
+
+    // Also add lowercase copy at same shape (common expectation)
+    glyphs.push(new opentype.Glyph({
+      name: letter.toLowerCase(),
+      unicode: letter.toLowerCase().charCodeAt(0),
+      advanceWidth: advW,
+      path,
+    }));
+  });
+
+  const font = new opentype.Font({
+    familyName:    'Choreo Sans',
+    styleName:     'Regular',
+    unitsPerEm:    UPM,
+    ascender:      800,
+    descender:    -200,
+    glyphs,
+  });
+
+  const arrayBuffer = font.download(null); // returns undefined but triggers download
+  // opentype.js font.download() triggers browser download directly
+}
+
+document.getElementById('otfLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  const done = Object.keys(savedLetters).length;
+  if (done === 0) return;
+  downloadOTF();
+});
+
+/* ════════════════════════════════════════
+   MEDIA RECORDER — 6 second capture
+════════════════════════════════════════ */
+function startRecording() {
+  const videoEl = document.getElementById('videoEl');
+  if (!videoEl.srcObject) return;
+
+  const circumference = 125.6;
+  const countdownEl   = document.getElementById('recCountdown');
+  const numEl         = document.getElementById('recCountdownNum');
+  const ringFill      = document.getElementById('recRingFill');
+  const labelEl       = document.getElementById('recCountdownLabel');
+
+  document.getElementById('frameGuide').style.display   = 'none';
+  document.getElementById('axisGrid').style.display     = 'none';
+  document.getElementById('btnRecord').classList.add('recording');
+
+  // ── PHASE 1: 3-second get-ready countdown (no recording yet) ──
+  countdownEl.style.display = 'flex';
+  // Style ring in sage for get-ready phase
+  ringFill.style.stroke = 'var(--sage)';
+  ringFill.style.strokeDashoffset = '0';
+  document.getElementById('recStatusLabel').textContent = 'Get ready…';
+  document.getElementById('recSub').textContent         = '';
+
+  let getReady = 3;
+  numEl.textContent = getReady;
+
+  const getReadyTick = () => {
+    numEl.textContent = getReady;
+    const offset = circumference * (1 - getReady / 3);
+    ringFill.style.strokeDashoffset = offset;
+
+    if (getReady <= 0) {
+      // Phase 1 done — start actual recording
+      beginActualRecording();
+      return;
+    }
+    getReady--;
+    recordingTimer = setTimeout(getReadyTick, 1000);
+  };
+  getReadyTick();
+}
+
+function beginActualRecording() {
+  const videoEl = document.getElementById('videoEl');
+
+  document.getElementById('recCountdown').style.display = 'none';
+  document.getElementById('recLiveBadge').style.display = 'flex';
+  document.getElementById('recStatusLabel').textContent = 'Recording your move…';
+  document.getElementById('recSub').textContent         = '';
+
+  // Record via an offscreen canvas that flips the camera horizontally
+  // so the saved video matches what the user saw (mirrored preview → natural playback)
+  const CW = 480, CH = 640;
+  const compCanvas = document.createElement('canvas');
+  compCanvas.width = CW; compCanvas.height = CH;
+  const cCtx = compCanvas.getContext('2d');
+
+  let compFrameId = null;
+  function drawFrame() {
+    if (videoEl.readyState >= 2) {
+      const vw = videoEl.videoWidth  || CW;
+      const vh = videoEl.videoHeight || CH;
+
+      // Cover-fit: scale so the video fills the canvas, crop overflow
+      const scale = Math.max(CW / vw, CH / vh);
+      const sw = vw * scale;
+      const sh = vh * scale;
+      const sx = (CW - sw) / 2;
+      const sy = (CH - sh) / 2;
+
+      cCtx.save();
+      cCtx.translate(CW, 0);
+      cCtx.scale(-1, 1);
+      cCtx.drawImage(videoEl, sx, sy, sw, sh);
+      cCtx.restore();
+    }
+    compFrameId = requestAnimationFrame(drawFrame);
+  }
+  drawFrame();
+
+  const chunks   = [];
+  const stream   = compCanvas.captureStream(30);
+  const mimeType = ['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4']
+    .find(m => MediaRecorder.isTypeSupported(m)) || '';
+
+  try {
+    mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
+  } catch(e) {
+    mediaRecorder = new MediaRecorder(stream);
+  }
+
+  mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+  mediaRecorder.onstop = () => {
+    cancelAnimationFrame(compFrameId);
+    setFrozen(true);
+    recordedBlob = new Blob(chunks, { type: mimeType || 'video/webm' });
+    showPreview(recordedBlob);
+  };
+
+  mediaRecorder.start();
+
+  let secsLeft = 6;
+  const recTick = () => {
+    if (secsLeft <= 0) { stopRecording(); return; }
+    secsLeft--;
+    recordingTimer = setTimeout(recTick, 1000);
+  };
+  recordingTimer = setTimeout(recTick, 1000);
+}
+
+function stopRecording() {
+  if (recordingTimer) { clearTimeout(recordingTimer); recordingTimer = null; }
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+    mediaRecorder = null;
+  }
+  document.getElementById('recLiveBadge').style.display = 'none';
+}
+
+function showPreview(blob) {
+  const previewVideo = document.getElementById('previewVideo');
+  previewVideo.src = URL.createObjectURL(blob);
+
+  // ── Fix double-image glitch: hide live camera feed while preview plays ──
+  document.getElementById('videoEl').style.opacity    = '0';
+  document.getElementById('poseCanvas').style.opacity = '0';
+
+  document.getElementById('recCountdown').style.display = 'none';
+  document.getElementById('recLiveBadge').style.display = 'none';
+  document.getElementById('recPreview').style.display   = 'flex';
+  document.getElementById('axisGrid').style.display     = 'grid';
+  document.getElementById('btnRecord').classList.remove('recording');
+  document.getElementById('recStatusLabel').textContent = 'Move captured!';
+  document.getElementById('recSub').textContent         = 'Re-record or continue →';
+
+  document.getElementById('btnSave').style.display = 'block';
+
+  // Capture the SVG right now while axes are still at the frozen values
+  const snap        = getLiveAxes();
+  const previewSvg  = captureLetterSVG(activeLetter, snap.weight, snap.slant, snap.width);
+
+  // Slide to profile panel after a beat, passing the captured SVG
+  setTimeout(() => { slideToProfile(previewSvg); }, 900);
+}
+
+function slideToProfile(previewSvg) {
+  expandModal();
+  document.getElementById('panelDesignInner').classList.add('slide-out');
+  document.getElementById('panelProfile').classList.add('slide-in');
+
+  // Draw the glyph directly onto a small canvas for the preview
+  const miniEl = document.getElementById('profileGlyphMini');
+  if (miniEl && activeLetter) {
+    // Create an offscreen canvas matching the mini box dimensions
+    const c   = document.createElement('canvas');
+    c.width   = 120;
+    c.height  = 144;
+    c.style.width  = '100%';
+    c.style.height = '100%';
+
+    const ctx      = c.getContext('2d');
+    const W = c.width, H = c.height;
+    const { weight, slant, width } = getLiveAxes();
+    const sw         = 4 + weight * 18;
+    const slantShear = (slant - 0.5) * 0.3;
+    const scaleX     = 0.65 + width * 0.7;
+    const baseline   = H * 0.78;
+    const capHeight  = H * 0.18;
+    const xHeight    = H * 0.42;
+    const cx         = W / 2;
+
+    ctx.clearRect(0, 0, W, H);
+    const color = CLR_HEX[CLR_CYCLE[LETTERS.indexOf(activeLetter)]];
+    ctx.save();
+    ctx.translate(cx, 0);
+    ctx.transform(1, 0, slantShear, 1, 0, 0);
+    ctx.scale(scaleX, 1);
+    ctx.translate(-cx, 0);
+    ctx.strokeStyle = color;
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+    drawGlyphOnRecorder(ctx, activeLetter, cx, baseline, capHeight, xHeight, sw, W, H);
+    ctx.restore();
+
+    miniEl.innerHTML = '';
+    miniEl.appendChild(c);
+  }
+}
+
+function slideBackToCanvas() {
+  collapseModal(); // shrink back to camera phase height
+  document.getElementById('panelDesignInner').classList.remove('slide-out');
+  document.getElementById('panelProfile').classList.remove('slide-in');
+  setFrozen(false);
+  recordedBlob = null;
+  // Restore camera feed visibility
+  document.getElementById('videoEl').style.opacity    = '0.65';
+  document.getElementById('poseCanvas').style.opacity = '1';
+  document.getElementById('recPreview').style.display   = 'none';
+  document.getElementById('recCountdown').style.display = 'none';
+  document.getElementById('recLiveBadge').style.display = 'none';
+  document.getElementById('frameGuide').style.display   = 'block';
+  document.getElementById('axisGrid').style.display     = 'grid';
+  document.getElementById('recStatusLabel').textContent = 'Dance, then capture your move';
+  document.getElementById('recSub').textContent         = '6 sec · shape locks on record';
+  document.getElementById('btnSave').style.display      = 'none';
+}
+
+// Wire up record button
+document.getElementById('btnRecord').addEventListener('click', () => {
+  if (recordedBlob) {
+    // Re-record
+    recordedBlob = null;
+    document.getElementById('recPreview').style.display = 'none';
+    slideBackToCanvas();
+    return;
+  }
+  startRecording();
+});
+
+// Wire up back button
+document.getElementById('btnBack').addEventListener('click', () => {
+  slideBackToCanvas();
+});
+
+/* ════════════════════════════════════════
+   MODAL HEIGHT — phase-based expansion
+════════════════════════════════════════ */
+function isMobile() { return window.innerWidth <= 600; }
+
+function expandModal() {
+  if (isMobile()) document.querySelector('.modal').classList.add('expanded');
+}
+
+function collapseModal() {
+  if (isMobile()) document.querySelector('.modal').classList.remove('expanded');
+}
+
+/* ════════════════════════════════════════
+   MODAL
+════════════════════════════════════════ */
+function openModal(letter) {
+  activeLetter = letter;
+  isFrozen = false;
+  setFrozen(false);
+  recordedBlob = null;
+
+  document.getElementById('designLetter').textContent = letter;
+  document.getElementById('profileLetterSpan').textContent = letter;
+  document.getElementById('modalVeil').classList.add('open');
+  document.getElementById('recordRow').style.display  = 'none';
+
+  // Reset panel states
+  document.getElementById('panelDesignInner').classList.remove('slide-out');
+  document.getElementById('panelProfile').classList.remove('slide-in');
+  document.getElementById('recPreview').style.display   = 'none';
+  document.getElementById('recCountdown').style.display = 'none';
+  document.getElementById('frameGuide').style.display   = 'none';
+  document.getElementById('btnSave').style.display      = 'none';
+
+  resizeTCanvas();
+  startAnim();
+}
+
+function closeModal() {
+  document.getElementById('modalVeil').classList.remove('open');
+  collapseModal();
+  isFrozen = false;
+  setFrozen(false);
+  stopRecording();
+  stopCamera();
+  cancelAnimationFrame(animFrame);
+  recordedBlob = null;
+  axes.weight = 0.5; axes.slant = 0.5; axes.width = 0.5;
+  smoothAxes.weight = 0.5; smoothAxes.slant = 0.5; smoothAxes.width = 0.5;
+}
+
+document.getElementById('btnClose').addEventListener('click', closeModal);
+document.getElementById('modalVeil').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalVeil')) closeModal();
+});
+
+/* ════════════════════════════════════════
+   SAVE — handled by Firebase module below
+   (listener is registered in the module script)
+════════════════════════════════════════ */
+
+/* ════════════════════════════════════════
+   MEDIAPIPE POSE
+════════════════════════════════════════ */
+document.getElementById('btnStartCam').addEventListener('click', initCamera);
+
+async function initCamera() {
+  const placeholder = document.getElementById('camPlaceholder');
+  const videoEl     = document.getElementById('videoEl');
+  const poseCanvas  = document.getElementById('poseCanvas');
+  const sdot        = document.getElementById('sdot');
+  const stext       = document.getElementById('stext');
+  const btn         = document.getElementById('btnStartCam');
+
+  // Show loading state immediately so user knows something is happening
+  btn.textContent   = 'Connecting…';
+  btn.disabled      = true;
+  stext.textContent = 'Requesting camera…';
+
+  // ── Step 1: Get camera stream directly via getUserMedia ──
+  // This is the reliable path — works on all browsers, triggers permission dialog
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+      audio: false
+    });
+  } catch (err) {
+    // Permission denied or no camera
+    btn.textContent = 'Enable Camera';
+    btn.disabled    = false;
+    stext.textContent = 'Inactive';
+    const hint = placeholder.querySelector('.cam-hint');
+    if (hint) {
+      hint.innerHTML = err.name === 'NotAllowedError'
+        ? 'Camera permission denied.<br>Allow camera access in your browser settings and try again.'
+        : 'No camera found.<br>Make sure a camera is connected and try again.';
+    }
+    return;
+  }
+
+  // ── Step 2: Attach stream to video element and show it ──
+  videoEl.srcObject  = stream;
+  videoEl.style.display    = 'block';
+  poseCanvas.style.display = 'block';
+  placeholder.style.display = 'none';
+
+  await videoEl.play().catch(() => {}); // autoplay may need explicit play() on Safari
+
+  document.getElementById('axisGrid').style.display   = 'grid';
+  document.getElementById('recordRow').style.display  = 'flex';
+  document.getElementById('frameGuide').style.display = 'block';
+  cameraActive  = true;
+  sdot.className = 'sdot on';
+  stext.textContent = 'Tracking';
+
+  const pCtx = poseCanvas.getContext('2d');
+
+  function resizePoseCanvas() {
+    const vp = document.getElementById('camViewport');
+    poseCanvas.width  = vp.clientWidth;
+    poseCanvas.height = vp.clientHeight;
+  }
+  resizePoseCanvas();
+  window.addEventListener('resize', resizePoseCanvas);
+
+  const buf = { lw:[], rw:[], la:[], ra:[] };
+  const BS  = 7;
+  const pushBuf = (arr, v) => { arr.push(v); if (arr.length > BS) arr.shift(); return arr.reduce((a,b)=>a+b,0)/arr.length; };
+  let prevWD=0, prevAD=0, wristMov=0, ankleMov=0;
+
+  function onResults(results) {
+    const CW = poseCanvas.width, CH = poseCanvas.height;
+    pCtx.clearRect(0,0,CW,CH);
+    if (!results.poseLandmarks) { sdot.className='sdot'; stext.textContent='No pose'; return; }
+
+    if (!isFrozen) { sdot.className='sdot on'; stext.textContent='Tracking'; }
+
+    const lm = results.poseLandmarks;
+    const lw=lm[15], rw=lm[16], la=lm[27], ra=lm[28];
+
+    const lwX=pushBuf(buf.lw,lw.x), rwX=pushBuf(buf.rw,rw.x);
+    const laX=pushBuf(buf.la,la.x), raX=pushBuf(buf.ra,ra.x);
+    const lwY=lw.y, rwY=rw.y, laY=la.y, raY=ra.y;
+
+    const wd=Math.abs(lwY-rwY), ad=Math.abs(laX-raX);
+    wristMov=wristMov*0.9+Math.abs(wd-prevWD)*80;
+    ankleMov=ankleMov*0.9+Math.abs(ad-prevAD)*80;
+    prevWD=wd; prevAD=ad;
+    const useLegs=ankleMov>wristMov;
+
+    if (!isFrozen) {
+      let wI,sI,wdI;
+      if (useLegs) { const aY=(laY+raY)/2; wI=1-aY; sI=(laX+raX)/2; wdI=Math.min(1,Math.abs(laX-raX)*2.5); }
+      else { const awY=(lwY+rwY)/2; wI=1-awY; sI=(lwX+rwX)/2; wdI=Math.min(1,Math.abs(lwX-rwX)*2); }
+      axes.weight=Math.max(0.15,Math.min(0.85,wI));
+      axes.slant =Math.max(0.25,Math.min(0.75,sI));
+      axes.width =Math.max(0.2, Math.min(0.8,wdI));
+    }
+
+    document.getElementById('aWt').style.width=(axes.weight*100)+'%'; document.getElementById('vWt').textContent=axes.weight.toFixed(2);
+    document.getElementById('aSl').style.width=(axes.slant*100)+'%';  document.getElementById('vSl').textContent=axes.slant.toFixed(2);
+    document.getElementById('aWd').style.width=(axes.width*100)+'%';  document.getElementById('vWd').textContent=axes.width.toFixed(2);
+    document.getElementById('aDr').style.width=(Math.min(1,Math.max(ankleMov,wristMov)*18)*100)+'%';
+    document.getElementById('vDr').textContent=useLegs?'Ankle':'Wrist';
+    document.getElementById('driveLabel').textContent=`Drive: ${useLegs?'Ankle':'Wrist'}`;
+
+    const pts={};
+    [15,16,27,28].forEach(i=>{ pts[i]={x:lm[i].x*CW,y:lm[i].y*CH}; });
+    const activeIDs=useLegs?[27,28]:[15,16];
+    const styles={15:{color:'#9AB8A4',label:'L.Wrist',r:7},16:{color:'#9AB8A4',label:'R.Wrist',r:7},27:{color:'#D4906E',label:'L.Ankle',r:7},28:{color:'#D4906E',label:'R.Ankle',r:7}};
+    [[15,16,'rgba(154,184,164,0.4)'],[27,28,'rgba(212,144,110,0.4)']].forEach(([a,b,c])=>{
+      pCtx.strokeStyle=c; pCtx.lineWidth=1.2; pCtx.setLineDash([3,4]);
+      pCtx.beginPath(); pCtx.moveTo(pts[a].x,pts[a].y); pCtx.lineTo(pts[b].x,pts[b].y); pCtx.stroke(); pCtx.setLineDash([]);
+    });
+    const now=Date.now()/1000;
+    Object.entries(styles).forEach(([idx,s])=>{
+      const pt=pts[parseInt(idx)], isA=activeIDs.includes(parseInt(idx)), pulse=isA?(0.6+0.4*Math.sin(now*2.8)):0.35;
+      pCtx.beginPath(); pCtx.arc(pt.x,pt.y,s.r+(isA?5*pulse:2),0,Math.PI*2);
+      pCtx.strokeStyle=s.color; pCtx.lineWidth=isA?1.3:0.6; pCtx.globalAlpha=isA?0.55*pulse:0.2; pCtx.stroke();
+      pCtx.beginPath(); pCtx.arc(pt.x,pt.y,s.r,0,Math.PI*2);
+      pCtx.fillStyle=s.color; pCtx.globalAlpha=isA?0.88:0.35; pCtx.fill();
+      pCtx.globalAlpha=0.6; pCtx.font='8.5px DM Sans,sans-serif'; pCtx.fillStyle='rgba(255,255,255,0.8)'; pCtx.textAlign='center';
+      pCtx.fillText(s.label,pt.x,pt.y-s.r-3); pCtx.globalAlpha=1;
+    });
+  }
+
+  // ── Step 3: Init MediaPipe Pose and feed it frames manually ──
+  // We do NOT use MediaPipe's Camera utility here — it calls getUserMedia
+  // internally which triggers a second permission prompt. Instead we feed
+  // frames ourselves from the stream we already have.
+  try {
+    pose = new Pose({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}` });
+    pose.setOptions({ modelComplexity:1, smoothLandmarks:true, enableSegmentation:false, minDetectionConfidence:0.5, minTrackingConfidence:0.5 });
+    pose.onResults(onResults);
+
+    // Send frames manually using requestAnimationFrame
+    let poseRunning = true;
+    const sendFrame = async () => {
+      if (!poseRunning || !document.getElementById('modalVeil').classList.contains('open')) return;
+      if (videoEl.readyState >= 2) { // HAVE_CURRENT_DATA
+        await pose.send({ image: videoEl }).catch(() => {});
+      }
+      requestAnimationFrame(sendFrame);
+    };
+
+    // Store cleanup handle on the camera variable
+    camera = { stop: () => { poseRunning = false; } };
+    sendFrame();
+  } catch(e) {
+    console.warn('MediaPipe unavailable, running in demo mode:', e);
+    stext.textContent = 'Demo mode';
+    runDemoAxes();
+  }
+}
+
+function runDemoAxes() {
+  // Called only when MediaPipe fails — camera is already live,
+  // just animate axes with sine waves so the letter still morphs
+  let t = 0;
+  function tick() {
+    t += 0.018;
+    if (!isFrozen) {
+      axes.weight = 0.35 + 0.3  * Math.sin(t * 0.65);
+      axes.slant  = 0.5  + 0.18 * Math.sin(t * 0.48 + 1.2);
+      axes.width  = 0.42 + 0.22 * Math.sin(t * 0.82 + 2.4);
+    }
+    const useLegs = Math.sin(t * 0.4) > 0;
+    document.getElementById('aWt').style.width  = (axes.weight*100)+'%';
+    document.getElementById('vWt').textContent   = axes.weight.toFixed(2);
+    document.getElementById('aSl').style.width  = (axes.slant*100)+'%';
+    document.getElementById('vSl').textContent   = axes.slant.toFixed(2);
+    document.getElementById('aWd').style.width  = (axes.width*100)+'%';
+    document.getElementById('vWd').textContent   = axes.width.toFixed(2);
+    document.getElementById('aDr').style.width  = (Math.abs(Math.sin(t*0.6))*100)+'%';
+    document.getElementById('vDr').textContent   = useLegs ? 'Ankle' : 'Wrist';
+    document.getElementById('driveLabel').textContent = `Drive: ${useLegs ? 'Ankle' : 'Wrist'}`;
+    if (document.getElementById('modalVeil').classList.contains('open')) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+function stopCamera() {
+  if (camera) { try { camera.stop(); } catch(e){} camera = null; }
+  if (pose)   { try { pose.close();  } catch(e){} pose   = null; }
+
+  // Stop raw getUserMedia stream tracks so camera light turns off
+  const videoEl = document.getElementById('videoEl');
+  if (videoEl.srcObject) {
+    videoEl.srcObject.getTracks().forEach(t => t.stop());
+    videoEl.srcObject = null;
+  }
+  cameraActive = false;
+
+  document.getElementById('camPlaceholder').style.display = 'flex';
+  document.getElementById('videoEl').style.display        = 'none';
+  document.getElementById('videoEl').style.opacity        = '0.65';
+  document.getElementById('poseCanvas').style.display     = 'none';
+  document.getElementById('poseCanvas').style.opacity     = '1';
+  document.getElementById('axisGrid').style.display       = 'none';
+  document.getElementById('recordRow').style.display      = 'none';
+  document.getElementById('frameGuide').style.display     = 'none';
+  document.getElementById('recPreview').style.display     = 'none';
+  document.getElementById('recCountdown').style.display   = 'none';
+  document.getElementById('recLiveBadge').style.display   = 'none';
+  document.getElementById('sdot').className               = 'sdot';
+  document.getElementById('stext').textContent            = 'Inactive';
+  // Reset enable camera button so second letter works
+  const btn = document.getElementById('btnStartCam');
+  btn.textContent = 'Enable Camera';
+  btn.disabled    = false;
+}
+
+/* ════════════════════════════════════════
+   RESIZE OBSERVER
+════════════════════════════════════════ */
+new ResizeObserver(resizeTCanvas).observe(document.getElementById('canvasWrap'));
+window.addEventListener('resize', resizeTCanvas);
+setTimeout(resizeTCanvas, 80);
+
+/* ════════════════════════════════════════
+   HOVER CARD
+════════════════════════════════════════ */
+// Elements resolved lazily after DOM is ready
+let hoverCard        = null;
+let hoverVideo       = null;
+let hoverGlyph       = null;
+let hoverPlaceholder = null;
+let hoverTimeout       = null;
+let currentHoverLetter = null;
+
+function getHoverEls() {
+  hoverCard        = document.getElementById('hoverCard');
+  hoverVideo       = document.getElementById('hoverCardVideo');
+  hoverGlyph       = document.getElementById('hoverCardGlyph');
+  hoverPlaceholder = document.getElementById('hoverCardPlaceholder');
+}
+
+function showHoverCard(letter, anchorEl) {
+  getHoverEls();
+  console.log('[showHoverCard] letter:', letter, '| hoverCard el:', hoverCard, '| savedLetters[letter]:', savedLetters[letter]);
+  const saved = savedLetters[letter];
+  if (!saved) return;
+  currentHoverLetter = letter;
+
+  // SVG glyph in body (uses the human's actual created glyph)
+  const letterGlyph = document.getElementById('hoverCardLetterGlyph');
+  if (letterGlyph) letterGlyph.innerHTML = saved.svgData || '';
+
+  hoverCard.className = `hover-card clr-${saved.colorKey}`;
+  document.getElementById('hoverCardName').textContent     = saved.name || '—';
+  document.getElementById('hoverCardMeta').textContent     = saved.role && saved.company
+    ? `${saved.role} · ${saved.company}`
+    : (saved.role || saved.company || '—');
+  document.getElementById('hoverCardLocation').textContent = saved.location || '—';
+  hoverGlyph.innerHTML = saved.svgData || '';
+
+  if (saved.videoUrl) {
+    hoverVideo.classList.remove('loaded');
+    hoverPlaceholder.style.display = 'flex';
+    hoverVideo.src = saved.videoUrl;
+    hoverVideo.load();
+    const onReady = () => {
+      if (currentHoverLetter !== letter) return;
+      hoverVideo.classList.add('loaded');
+      hoverPlaceholder.style.display = 'none';
+      hoverVideo.play().catch(() => {});
+    };
+    hoverVideo.oncanplay = onReady;
+    if (hoverVideo.readyState >= 3) onReady();
+  } else {
+    hoverVideo.src = '';
+    hoverVideo.classList.remove('loaded');
+    hoverPlaceholder.style.display = 'flex';
+  }
+
+  positionHoverCard(anchorEl);
+  hoverCard.classList.add('visible');
+}
+
+function positionHoverCard(anchorEl) {
+  const rect   = anchorEl.getBoundingClientRect();
+  const cardW  = 220;
+  const cardH  = 320;
+  const margin = 8;
+  let left = rect.left + rect.width / 2 - cardW / 2;
+  let top  = rect.top - cardH - margin;
+  left = Math.max(margin, Math.min(left, window.innerWidth - cardW - margin));
+  if (top < margin) top = rect.bottom + margin;
+  hoverCard.style.left = left + 'px';
+  hoverCard.style.top  = top  + 'px';
+}
+
+function hideHoverCard() {
+  getHoverEls();
+  if (!hoverCard) return;
+  currentHoverLetter = null;
+  hoverCard.classList.remove('visible');
+  setTimeout(() => {
+    if (!hoverCard.classList.contains('visible')) {
+      hoverVideo.pause();
+      hoverVideo.src = '';
+    }
+  }, 200);
+}
+
+function attachHoverCard(cell, letter) {
+  let touchTimer = null;
+  cell.addEventListener('mouseenter', () => {
+    if (!savedLetters[letter]) return;
+    hoverTimeout = setTimeout(() => showHoverCard(letter, cell), 120);
+  });
+  cell.addEventListener('mouseleave', () => {
+    clearTimeout(hoverTimeout);
+    hideHoverCard();
+  });
+  cell.addEventListener('touchstart', () => {
+    if (!savedLetters[letter]) return;
+    touchTimer = setTimeout(() => showHoverCard(letter, cell), 300);
+  }, { passive: true });
+  cell.addEventListener('touchend', () => {
+    clearTimeout(touchTimer);
+    setTimeout(hideHoverCard, 2200);
+  });
+}
+
+/* ════════════════════════════════════════
+   WORLD VIEW
+════════════════════════════════════════ */
+
+// ── Simplified geo coords for common cities / countries
+// Keyed by lowercased location string fragments
+const GEO_LOOKUP = [
+  // Americas
+  { k: ['new york','nyc','brooklyn','manhattan'],   lat: 40.71,  lng: -74.01 },
+  { k: ['los angeles','la,','l.a.','hollywood'],    lat: 34.05,  lng: -118.24 },
+  { k: ['san francisco','sf,','bay area'],          lat: 37.77,  lng: -122.42 },
+  { k: ['chicago'],                                 lat: 41.88,  lng: -87.63 },
+  { k: ['seattle'],                                 lat: 47.61,  lng: -122.33 },
+  { k: ['austin'],                                  lat: 30.27,  lng: -97.74 },
+  { k: ['boston'],                                  lat: 42.36,  lng: -71.06 },
+  { k: ['miami'],                                   lat: 25.77,  lng: -80.19 },
+  { k: ['toronto'],                                 lat: 43.65,  lng: -79.38 },
+  { k: ['vancouver'],                               lat: 49.28,  lng: -123.12 },
+  { k: ['mexico city','cdmx'],                      lat: 19.43,  lng: -99.13 },
+  { k: ['são paulo','sao paulo'],                   lat: -23.55, lng: -46.63 },
+  { k: ['rio','rio de janeiro'],                    lat: -22.91, lng: -43.17 },
+  { k: ['buenos aires'],                            lat: -34.60, lng: -58.38 },
+  { k: ['bogotá','bogota'],                         lat: 4.71,   lng: -74.07 },
+  // Europe
+  { k: ['london','uk,','england'],                  lat: 51.51,  lng: -0.13 },
+  { k: ['paris','france'],                          lat: 48.86,  lng: 2.35 },
+  { k: ['berlin','germany'],                        lat: 52.52,  lng: 13.40 },
+  { k: ['amsterdam','netherlands'],                 lat: 52.37,  lng: 4.90 },
+  { k: ['madrid','spain'],                          lat: 40.42,  lng: -3.70 },
+  { k: ['barcelona'],                               lat: 41.39,  lng: 2.16 },
+  { k: ['milan','milano'],                          lat: 45.46,  lng: 9.19 },
+  { k: ['rome','roma'],                             lat: 41.90,  lng: 12.50 },
+  { k: ['zurich','zürich'],                         lat: 47.38,  lng: 8.54 },
+  { k: ['stockholm','sweden'],                      lat: 59.33,  lng: 18.07 },
+  { k: ['oslo','norway'],                           lat: 59.91,  lng: 10.75 },
+  { k: ['copenhagen','denmark'],                    lat: 55.68,  lng: 12.57 },
+  { k: ['helsinki','finland'],                      lat: 60.17,  lng: 24.94 },
+  { k: ['lisbon','lisboa','portugal'],               lat: 38.72,  lng: -9.14 },
+  { k: ['vienna','wien'],                           lat: 48.21,  lng: 16.37 },
+  { k: ['warsaw','poland'],                         lat: 52.23,  lng: 21.01 },
+  { k: ['prague','czech'],                          lat: 50.08,  lng: 14.44 },
+  // Asia-Pacific
+  { k: ['mumbai','bombay'],                         lat: 19.08,  lng: 72.88 },
+  { k: ['delhi','new delhi'],                       lat: 28.61,  lng: 77.21 },
+  { k: ['bangalore','bengaluru'],                   lat: 12.97,  lng: 77.59 },
+  { k: ['hyderabad'],                               lat: 17.39,  lng: 78.49 },
+  { k: ['chennai'],                                 lat: 13.08,  lng: 80.27 },
+  { k: ['kolkata'],                                 lat: 22.57,  lng: 88.36 },
+  { k: ['india'],                                   lat: 20.59,  lng: 78.96 },
+  { k: ['tokyo','japan'],                           lat: 35.68,  lng: 139.69 },
+  { k: ['osaka'],                                   lat: 34.69,  lng: 135.50 },
+  { k: ['seoul','korea'],                           lat: 37.57,  lng: 126.98 },
+  { k: ['beijing','china'],                         lat: 39.91,  lng: 116.39 },
+  { k: ['shanghai'],                                lat: 31.23,  lng: 121.47 },
+  { k: ['hong kong','hk,'],                         lat: 22.32,  lng: 114.17 },
+  { k: ['singapore'],                               lat: 1.35,   lng: 103.82 },
+  { k: ['bangkok','thailand'],                      lat: 13.76,  lng: 100.50 },
+  { k: ['jakarta','indonesia'],                     lat: -6.21,  lng: 106.85 },
+  { k: ['kuala lumpur','malaysia'],                 lat: 3.14,   lng: 101.69 },
+  { k: ['ho chi minh','vietnam'],                   lat: 10.82,  lng: 106.63 },
+  { k: ['manila','philippines'],                    lat: 14.60,  lng: 120.98 },
+  { k: ['taipei','taiwan'],                         lat: 25.04,  lng: 121.56 },
+  { k: ['sydney','australia'],                      lat: -33.87, lng: 151.21 },
+  { k: ['melbourne'],                               lat: -37.81, lng: 144.96 },
+  { k: ['brisbane'],                                lat: -27.47, lng: 153.03 },
+  { k: ['auckland','new zealand'],                  lat: -36.87, lng: 174.77 },
+  // Middle East & Africa
+  { k: ['dubai','uae','abu dhabi'],                 lat: 25.20,  lng: 55.27 },
+  { k: ['riyadh','saudi'],                          lat: 24.69,  lng: 46.72 },
+  { k: ['tel aviv','israel'],                       lat: 32.07,  lng: 34.79 },
+  { k: ['cairo','egypt'],                           lat: 30.04,  lng: 31.24 },
+  { k: ['nairobi','kenya'],                         lat: -1.29,  lng: 36.82 },
+  { k: ['lagos','nigeria'],                         lat: 6.52,   lng: 3.38 },
+  { k: ['cape town','south africa','johannesburg'], lat: -33.93, lng: 18.42 },
+  { k: ['accra','ghana'],                           lat: 5.56,   lng: -0.20 },
+];
+
+function geocodeLocation(locationStr) {
+  if (!locationStr) return null;
+  const s = locationStr.toLowerCase();
+  for (const entry of GEO_LOOKUP) {
+    for (const k of entry.k) {
+      if (s.includes(k)) return { lat: entry.lat, lng: entry.lng };
+    }
+  }
+  return null;
+}
+
+// Equirectangular lat/lng → SVG x/y (viewBox 0 0 1000 500)
+function project(lat, lng) {
+  const x = (lng + 180) / 360 * 1000;
+  const y = (90  - lat) / 180 * 500;
+  return { x, y };
+}
+
+// Parse location string into a display country/city label
+function parseCountry(loc) {
+  if (!loc) return 'Unknown';
+  const parts = loc.split(',').map(s => s.trim());
+  return parts[parts.length - 1] || loc;
+}
+
+// ── Country stats from savedLetters
+function buildCountryStats() {
+  const counts = {};
+  Object.values(savedLetters).forEach(s => {
+    const country = parseCountry(s.location);
+    if (country && country !== 'Unknown') {
+      counts[country] = (counts[country] || 0) + 1;
+    }
+  });
+  return counts;
+}
+
+// ── Render stats strip
+function renderWvStats() {
+  const total = Object.keys(savedLetters).length;
+  const stats = buildCountryStats();
+  const countries = Object.keys(stats);
+
+  document.getElementById('wvTotalLetters').textContent = total;
+  document.getElementById('wvTotalCountries').textContent = countries.length;
+
+  const palette = ['#C4714A','#7A9E87','#C4A24A','#C4714A','#7A9E87'];
+  const sorted = Object.entries(stats).sort((a,b) => b[1]-a[1]);
+
+  const list = document.getElementById('wvCountryList');
+  list.innerHTML = sorted.slice(0, 8).map(([name, n], i) => `
+    <div class="wv-country-chip">
+      <span class="wv-country-chip-dot" style="background:${palette[i % palette.length]}"></span>
+      <strong>${n}</strong> ${n === 1 ? 'letter' : 'letters'} from ${name}
+    </div>
+  `).join('');
+}
+
+// ── Draw the world map SVG
+const WV_COUNTRIES_SVG = `
+<path class="wv-land" d="M 143 204 L 138 202 L 127 206 L 124 213 L 130 219 L 140 218 L 148 212 Z"/>
+<path class="wv-land" d="M 420 140 L 380 138 L 350 145 L 340 160 L 345 175 L 365 180 L 390 178 L 415 165 L 430 155 Z"/>
+<path class="wv-land" d="M 480 100 L 440 98 L 420 108 L 415 125 L 430 138 L 455 140 L 475 130 L 490 115 Z"/>
+<path class="wv-land" d="M 540 130 L 505 128 L 490 140 L 488 158 L 500 168 L 525 165 L 545 152 L 552 138 Z"/>
+`;
+
+// Simplified world outline paths (low-poly approximation for dark map aesthetic)
+const WORLD_PATHS = [
+  // North America
+  "M170,80 L220,75 L260,85 L285,95 L300,115 L295,135 L280,155 L265,170 L250,180 L235,185 L220,200 L205,210 L190,205 L175,195 L165,185 L155,170 L148,155 L145,140 L148,120 L155,100 Z",
+  // Central America
+  "M210,215 L225,218 L230,230 L220,240 L205,238 L198,225 Z",
+  // South America
+  "M215,245 L255,235 L280,245 L295,265 L295,290 L285,315 L270,340 L250,360 L230,370 L210,360 L195,340 L188,310 L190,285 L198,260 Z",
+  // Europe
+  "M450,80 L490,75 L510,82 L520,95 L515,108 L495,115 L475,118 L458,112 L445,100 Z",
+  // Scandinavia
+  "M460,55 L485,50 L495,65 L488,80 L470,83 L455,72 Z",
+  // Africa
+  "M455,185 L490,180 L510,190 L518,215 L515,250 L505,280 L490,305 L470,320 L448,315 L432,295 L428,265 L432,235 L440,210 L448,195 Z",
+  // Russia / Eurasia
+  "M500,60 L580,50 L650,55 L700,65 L720,75 L715,90 L690,100 L650,105 L600,102 L555,98 L520,92 L505,78 Z",
+  // Middle East
+  "M520,150 L550,145 L570,155 L572,172 L558,182 L535,178 L518,168 Z",
+  // South Asia
+  "M580,155 L615,148 L635,158 L638,178 L628,195 L610,200 L590,195 L575,180 L572,165 Z",
+  // Southeast Asia
+  "M660,175 L690,168 L705,180 L702,198 L685,205 L665,200 L652,188 Z",
+  // China
+  "M640,100 L690,92 L720,100 L728,120 L718,140 L695,150 L668,148 L645,138 L635,118 Z",
+  // Japan
+  "M728,108 L740,105 L748,115 L742,128 L728,130 L720,120 Z",
+  // Australia
+  "M685,305 L730,295 L760,305 L768,330 L758,355 L735,368 L708,362 L688,345 L678,320 Z",
+  // New Zealand
+  "M772,350 L782,345 L788,358 L780,370 L769,368 Z",
+  // Greenland
+  "M290,40 L325,32 L345,42 L340,62 L315,70 L292,62 Z",
+  // UK/Ireland
+  "M440,88 L452,84 L458,93 L450,102 L438,100 Z",
+  // Indonesia
+  "M700,230 L720,225 L735,232 L733,244 L715,248 L700,242 Z",
+];
+
+function drawWorldMap() {
+  const svg = document.getElementById('wvMapSvg');
+  if (!svg) return;
+
+  // Graticule lines
+  let graticule = '';
+  for (let lat = -60; lat <= 60; lat += 30) {
+    const y = (90 - lat) / 180 * 500;
+    graticule += `<line class="wv-graticule" x1="0" y1="${y}" x2="1000" y2="${y}"/>`;
+  }
+  for (let lng = -150; lng <= 150; lng += 30) {
+    const x = (lng + 180) / 360 * 1000;
+    graticule += `<line class="wv-graticule" x1="${x}" y1="0" x2="${x}" y2="500"/>`;
+  }
+
+  const landPaths = WORLD_PATHS.map(d => `<path class="wv-land" d="${d}"/>`).join('');
+
+  svg.innerHTML = `
+    <g>${graticule}</g>
+    <g>${landPaths}</g>
+    <g id="wvPinsLayer"></g>
+  `;
+}
+
+// ── Render pins
+function renderWvPins() {
+  const layer = document.getElementById('wvPinsLayer');
+  if (!layer) return;
+  layer.innerHTML = '';
+
+  const colorMap = { tc: '#C4714A', sg: '#7A9E87', oc: '#C4A24A' };
+
+  // Group letters by approximate location (jitter duplicates)
+  const placed = {};
+
+  Object.entries(savedLetters).forEach(([letter, data]) => {
+    let geo = geocodeLocation(data.location);
+
+    // Fallback: unrecognised location still gets a pin using a hash of the
+    // letter + location string so it's deterministic and spread across the map
+    if (!geo) {
+      const seed = (letter.charCodeAt(0) * 137 + (data.location || '').split('').reduce((a,c) => a + c.charCodeAt(0), 0)) % 360;
+      geo = { lat: (seed % 120) - 50, lng: (seed * 1.618) % 360 - 180 };
+    }
+
+    const key = `${Math.round(geo.lat)}_${Math.round(geo.lng)}`;
+    placed[key] = placed[key] || [];
+    placed[key].push({ letter, data, geo });
+  });
+
+  Object.values(placed).forEach(group => {
+    group.forEach((item, idx) => {
+      // Slight jitter if multiple letters from same city
+      const jitter = idx * 12;
+      const angle = (idx * 137.5) * Math.PI / 180;
+      const jLat = item.geo.lat + (idx > 0 ? Math.cos(angle) * 1.5 : 0);
+      const jLng = item.geo.lng + (idx > 0 ? Math.sin(angle) * 2.5 : 0);
+      const { x, y } = project(jLat, jLng);
+      const col = colorMap[item.data.colorKey] || '#C4714A';
+
+      const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+      g.setAttribute('class','wv-pin-group');
+      g.setAttribute('data-letter', item.letter);
+      g.innerHTML = `
+        <circle class="wv-pin-ring" cx="${x}" cy="${y}" r="8" stroke="${col}" style="animation-delay:${idx*0.3}s"/>
+        <circle class="wv-pin-dot" cx="${x}" cy="${y}" r="5" fill="${col}"/>
+        <text class="wv-pin-letter" x="${x}" y="${y}">${item.letter}</text>
+      `;
+      g.addEventListener('mouseenter', (e) => showWvCard(item.letter, e));
+      g.addEventListener('mouseleave', hideWvCard);
+      g.addEventListener('mousemove', (e) => moveWvCard(e));
+      layer.appendChild(g);
+    });
+  });
+}
+
+// ── World view hover card
+let wvCardLetter = null;
+let wvCardAnimFrame = null;
+
+function showWvCard(letter, e) {
+  const data = savedLetters[letter];
+  if (!data) return;
+  wvCardLetter = letter;
+
+  const card = document.getElementById('wvHoverCard');
+  const video = document.getElementById('wvHcVideo');
+  const canvasWrap = document.getElementById('wvHcCanvasWrap');
+  const canvas = document.getElementById('wvHcCanvas');
+  const colorMap = { tc: 'clr-tc', sg: 'clr-sg', oc: 'clr-oc' };
+
+  card.className = `wv-hover-card ${colorMap[data.colorKey] || ''}`;
+
+  document.getElementById('wvHcName').textContent     = data.name || '—';
+  document.getElementById('wvHcMeta').textContent     = data.role && data.company ? `${data.role} · ${data.company}` : (data.role || data.company || '—');
+  document.getElementById('wvHcLocation').textContent = data.location || '—';
+  document.getElementById('wvHcGlyphMini').innerHTML  = data.svgData || '';
+
+  // Video
+  if (data.videoUrl) {
+    video.classList.remove('loaded');
+    canvasWrap.style.display = 'flex';
+    video.src = data.videoUrl;
+    video.load();
+    const onReady = () => {
+      if (wvCardLetter !== letter) return;
+      video.classList.add('loaded');
+      canvasWrap.style.display = 'none';
+      video.play().catch(()=>{});
+    };
+    video.oncanplay = onReady;
+    if (video.readyState >= 3) onReady();
+  } else {
+    video.src = '';
+    video.classList.remove('loaded');
+    canvasWrap.style.display = 'flex';
+  }
+
+  // Animated glyph canvas
+  startWvGlyphAnim(letter, data, canvas);
+
+  positionWvCard(e);
+  card.classList.add('visible');
+}
+
+function positionWvCard(e) {
+  const card = document.getElementById('wvHoverCard');
+  const W = 230, H = 280, margin = 12;
+  let left = e.clientX + 14;
+  let top  = e.clientY - H / 2;
+  if (left + W > window.innerWidth - margin) left = e.clientX - W - 14;
+  top = Math.max(margin, Math.min(top, window.innerHeight - H - margin));
+  card.style.left = left + 'px';
+  card.style.top  = top + 'px';
+}
+
+function moveWvCard(e) {
+  const card = document.getElementById('wvHoverCard');
+  if (!card.classList.contains('visible')) return;
+  positionWvCard(e);
+}
+
+function hideWvCard() {
+  wvCardLetter = null;
+  cancelAnimationFrame(wvCardAnimFrame);
+  const card = document.getElementById('wvHoverCard');
+  card.classList.remove('visible');
+  const video = document.getElementById('wvHcVideo');
+  setTimeout(() => {
+    if (!card.classList.contains('visible')) {
+      video.pause(); video.src = '';
+    }
+  }, 220);
+}
+
+function startWvGlyphAnim(letter, data, canvas) {
+  cancelAnimationFrame(wvCardAnimFrame);
+  const ctx = canvas.getContext('2d');
+
+  // Match canvas to wrapper size
+  const wrap = document.getElementById('wvHcCanvasWrap');
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width  = wrap.clientWidth  * dpr;
+  canvas.height = wrap.clientHeight * dpr;
+  ctx.scale(dpr, dpr);
+  const W = wrap.clientWidth, H = wrap.clientHeight;
+
+  const axes = data.axes || { weight: 0.5, slant: 0.5, width: 0.5 };
+  const colorMap = { tc: '#C4714A', sg: '#7A9E87', oc: '#C4A24A' };
+  const baseColor = colorMap[data.colorKey] || '#C4714A';
+
+  let t = 0;
+  function drawFrame() {
+    if (wvCardLetter !== letter) return;
+    ctx.clearRect(0, 0, W, H);
+
+    // Gently animate axes to simulate the live creation moment
+    const anim = {
+      weight: axes.weight + Math.sin(t * 0.7)  * 0.12,
+      slant:  axes.slant  + Math.sin(t * 0.5 + 1) * 0.08,
+      width:  axes.width  + Math.sin(t * 0.4 + 2) * 0.1,
+    };
+    anim.weight = Math.max(0, Math.min(1, anim.weight));
+    anim.slant  = Math.max(0, Math.min(1, anim.slant));
+    anim.width  = Math.max(0, Math.min(1, anim.width));
+
+    const sw         = 3 + anim.weight * 12;
+    const slantShear = (anim.slant - 0.5) * 0.3;
+    const scaleX     = 0.65 + anim.width * 0.7;
+    const baseline   = H * 0.75;
+    const capHeight  = H * 0.18;
+    const xHeight    = H * 0.42;
+    const cx         = W / 2;
+
+    // Subtle guide lines
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = 0.5;
+    ctx.setLineDash([]);
+    [baseline, capHeight, xHeight].forEach(y => {
+      ctx.beginPath(); ctx.moveTo(W*0.05, y); ctx.lineTo(W*0.95, y); ctx.stroke();
+    });
+
+    // Draw glyph
+    ctx.save();
+    ctx.translate(cx, 0);
+    ctx.transform(1, 0, slantShear, 1, 0, 0);
+    ctx.scale(scaleX, 1);
+    ctx.translate(-cx, 0);
+    ctx.strokeStyle = baseColor;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    drawGlyphOnRecorder(ctx, letter, cx, baseline, capHeight, xHeight, sw, W, H);
+    ctx.restore();
+
+    // Animated anchor dots
+    const lx = cx - W*0.155, rx = cx + W*0.155;
+    const anchors = [{x:cx,y:capHeight},{x:lx,y:baseline},{x:rx,y:baseline}];
+    const h = baseColor.replace('#','');
+    const ri = parseInt(h.slice(0,2),16), gi = parseInt(h.slice(2,4),16), bi = parseInt(h.slice(4,6),16);
+    anchors.forEach((pt, i) => {
+      const pulse = 0.5 + 0.5 * Math.sin(t * 2.5 + i * 1.1);
+      const r = 2 + anim.weight * 2;
+      ctx.save();
+      ctx.translate(pt.x, pt.y);
+      ctx.transform(1, 0, slantShear, 1, -pt.x, 0);
+      ctx.beginPath();
+      ctx.arc(0, 0, r + 4 * pulse, 0, Math.PI*2);
+      ctx.strokeStyle = `rgba(${ri},${gi},${bi},${0.15 * pulse})`;
+      ctx.lineWidth = 0.7; ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(${ri},${gi},${bi},${0.7 * pulse + 0.3})`;
+      ctx.fill();
+      ctx.restore();
+    });
+
+    t += 0.025;
+    wvCardAnimFrame = requestAnimationFrame(drawFrame);
+  }
+  drawFrame();
+}
+
+// ── Open / close world view
+function openWorldView() {
+  const veil = document.getElementById('worldviewVeil');
+  veil.classList.add('open');
+  requestAnimationFrame(() => veil.classList.add('visible'));
+  drawWorldMap();
+  renderWvPins();
+  renderWvStats();
+}
+
+function closeWorldView() {
+  const veil = document.getElementById('worldviewVeil');
+  veil.classList.remove('visible');
+  setTimeout(() => veil.classList.remove('open'), 380);
+  hideWvCard();
+}
+
+// Re-render pins when savedLetters updates (called from Firebase listener)
+function refreshWorldViewIfOpen() {
+  const veil = document.getElementById('worldviewVeil');
+  if (veil && veil.classList.contains('open')) {
+    renderWvPins();
+    renderWvStats();
+  }
+}
+
+
+buildGrid();
+buildBeads();
+refreshProgress();
+</script>
+
+<!-- HOVER CARD -->
+<div class="hover-card" id="hoverCard">
+  <div class="hover-card-video-wrap" id="hoverCardVideoWrap">
+    <video class="hover-card-video" id="hoverCardVideo" autoplay muted loop playsinline></video>
+    <div class="hover-card-video-placeholder" id="hoverCardPlaceholder">
+      <div class="hover-card-glyph" id="hoverCardGlyph"></div>
+    </div>
+  </div>
+  <div class="hover-card-body">
+    <div class="hover-card-letter-glyph" id="hoverCardLetterGlyph"></div>
+    <div class="hover-card-info">
+      <div class="hover-card-name" id="hoverCardName">—</div>
+      <div class="hover-card-meta" id="hoverCardMeta">—</div>
+      <div class="hover-card-location" id="hoverCardLocation">—</div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp }          from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js';
+import { getDatabase, ref, set, onValue } from 'https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js';
+
+const app = initializeApp({
+  databaseURL: 'https://choreo-sans-default-rtdb.firebaseio.com'
+});
+const db = getDatabase(app);
+
+function getSessionId() {
+  let id = localStorage.getItem('choreo_session');
+  if (!id) { id = crypto.randomUUID(); localStorage.setItem('choreo_session', id); }
+  return id;
+}
+
+/* ── Load all saved letters on open ── */
+onValue(ref(db, 'typeface'), (snapshot) => {
+  const data = snapshot.val();
+  if (!data) return;
+  Object.entries(data).forEach(([letter, saved]) => {
+    savedLetters[letter] = {
+      colorKey: saved.colorKey,
+      axes:     { weight: saved.weight, slant: saved.slant, width: saved.width },
+      svgData:  saved.svgData,
+      name:     saved.name     || null,
+      role:     saved.role     || null,
+      company:  saved.company  || null,
+      location: saved.location || null,
+      videoUrl: saved.videoUrl || null,
+    };
+    refreshCell(letter);
+    refreshBead(letter);
+  });
+  refreshProgress();
+  refreshWorldViewIfOpen();
+});
+
+/* ── Claim glyph: validate form, upload video, save to Firebase ── */
+document.getElementById('btnClaim').addEventListener('click', async () => {
+  if (!activeLetter) return;
+
+  const name     = document.getElementById('inputName').value.trim();
+  const role     = document.getElementById('inputRole').value.trim();
+  const company  = document.getElementById('inputCompany').value.trim();
+  const location = document.getElementById('inputLocation').value.trim();
+
+  // Validate all fields required
+  if (!name || !role || !company || !location) {
+    // Shake empty fields
+    ['inputName','inputRole','inputCompany','inputLocation'].forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value.trim()) {
+        el.style.borderBottomColor = 'var(--terracotta)';
+        el.animate([{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}], {duration:200});
+        setTimeout(() => { el.style.borderBottomColor = ''; }, 1200);
+      }
+    });
+    return;
+  }
+
+  const btn = document.getElementById('btnClaim');
+  btn.disabled = true;
+  btn.textContent = 'Saving…';
+
+  const snap          = getLiveAxes();
+  const colorKey      = CLR_CYCLE[LETTERS.indexOf(activeLetter)];
+  const svgData       = captureLetterSVG(activeLetter, snap.weight, snap.slant, snap.width);
+  const savedLetter   = activeLetter; // capture before closeModal clears it
+
+  // 1. Save locally immediately with full profile data
+  savedLetters[savedLetter] = {
+    colorKey, axes: { ...snap }, svgData,
+    name, role, company, location,
+    videoUrl: null
+  };
+  refreshCell(savedLetter, true);
+  refreshBead(savedLetter);
+  refreshProgress();
+  refreshWorldViewIfOpen();
+
+  // Capture blob reference BEFORE closeModal() wipes recordedBlob
+  const blobToUpload = recordedBlob;
+  closeModal();
+
+  // 2. Upload video to Cloudinary if we have a recording
+  let videoUrl = null;
+  if (blobToUpload) {
+    try {
+      console.log('[Cloudinary] Starting upload, blob size:', blobToUpload.size, 'type:', blobToUpload.type);
+      const formData = new FormData();
+      formData.append('file', blobToUpload, `choreo-${activeLetter}-${Date.now()}.webm`);
+      formData.append('upload_preset', 'c5wpo7lf');
+      formData.append('folder', 'choreo-sans-videos');
+
+      const res = await fetch(
+        'https://api.cloudinary.com/v1_1/dy4ntiwrp/video/upload',
+        { method: 'POST', body: formData }
+      );
+      const data = await res.json();
+      console.log('[Cloudinary] Response:', data);
+      if (data.error) {
+        console.error('[Cloudinary] Error:', data.error.message);
+      }
+      videoUrl = data.secure_url || null;
+      console.log('[Cloudinary] videoUrl:', videoUrl);
+      if (videoUrl && savedLetters[savedLetter]) {
+        savedLetters[savedLetter].videoUrl = videoUrl;
+      }
+    } catch(e) {
+      console.error('[Cloudinary] Upload failed:', e);
+    }
+  } else {
+    console.log('[Cloudinary] No recordedBlob — skipping upload');
+  }
+
+  // 3. Save everything to Realtime Database
+  try {
+    await set(ref(db, `typeface/${savedLetter}`), {
+      colorKey,
+      weight:    snap.weight,
+      slant:     snap.slant,
+      width:     snap.width,
+      svgData,
+      name,
+      role,
+      company,
+      location,
+      videoUrl:  videoUrl || null,
+      savedAt:   Date.now(),
+      sessionId: getSessionId()
+    });
+    // Update local savedLetters with final videoUrl
+    if (savedLetters[savedLetter]) {
+      savedLetters[savedLetter].videoUrl = videoUrl || null;
+    }
+  } catch(err) {
+    console.warn('Firebase save failed:', err);
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Claim your glyph →';
+
+  // Clear form for next use
+  ['inputName','inputRole','inputCompany','inputLocation'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+});
+</script>
+</body>
+</html>
