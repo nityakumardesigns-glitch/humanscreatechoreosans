@@ -646,7 +646,7 @@ body {
   /* Modal — always full height on tablet, no compact phase */
   .modal {
     grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: 52% 48%;
     width: 100%;
     max-width: 100%;
     height: 93dvh;
@@ -675,24 +675,43 @@ body {
 
   .panel-cam {
     min-height: 0;
-    flex: 1;
-    max-height: none;
+    height: 100%;
+    overflow: hidden;
   }
   .cam-viewport {
     max-height: none;
     flex: 1;
+    min-height: 0;
+  }
+
+  /* Live letter pip overlay inside cam on mobile */
+  .mobile-letter-pip {
+    display: flex !important;
   }
 
   .axis-grid { padding: 0.5rem 0.7rem; gap: 0.3rem; }
   .axis-pill { padding: 0.22rem 0.35rem; }
   .freeze-hint { display: none; }
 
-  .panel-design { display: flex; }
+  /* Design panel — scrollable on mobile */
+  .panel-design {
+    display: flex;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .panel-design-inner {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .panel-profile {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 
   .design-topbar { padding: 0.8rem 1rem 0.6rem; }
   .design-letter { font-size: 1.6rem; }
   .design-axis-label { display: none; }
-  .canvas-wrap { min-height: 180px; }
+  .canvas-wrap { min-height: 140px; max-height: 140px; }
   .design-footer { padding: 0.7rem 1rem; }
   .drive-pill { display: none; }
   .btn-save { width: 100%; text-align: center; padding: 0.65rem 1rem; }
@@ -1000,7 +1019,23 @@ body {
   letter-spacing: 0.12em; text-transform: uppercase;
 }
 
-/* ── Live recording badge ── */
+/* ── Mobile live-letter pip (shown inside cam viewport on small screens) ── */
+.mobile-letter-pip {
+  display: none;
+  position: absolute;
+  bottom: 70px; right: 12px;
+  width: 72px; height: 72px;
+  background: rgba(18,14,10,0.78);
+  border-radius: 10px;
+  z-index: 8;
+  align-items: center; justify-content: center;
+  pointer-events: none;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.mobile-letter-pip canvas {
+  width: 100%; height: 100%; display: block;
+}
 .rec-live-badge {
   position: absolute; top: 10px; left: 10px;
   display: flex; align-items: center; gap: 5px;
@@ -1584,6 +1619,9 @@ body {
           <div class="cam-ico"></div>
           <div class="cam-hint">MediaPipe Pose tracks wrists (15, 16)<br>and ankles (27, 28) in real time.</div>
           <button class="btn-cam" id="btnStartCam">Enable Camera</button>
+        </div>
+        <div class="mobile-letter-pip" id="mobilePip">
+          <canvas id="mobilePipCanvas"></canvas>
         </div>
         <video id="videoEl" autoplay muted playsinline style="display:none;"></video>
         <canvas id="poseCanvas" style="display:none;"></canvas>
@@ -2849,6 +2887,7 @@ function openModal(letter) {
 
   resizeTCanvas();
   startAnim();
+  startMobilePip();
 }
 
 function closeModal() {
@@ -2859,6 +2898,7 @@ function closeModal() {
   stopRecording();
   stopCamera();
   cancelAnimationFrame(animFrame);
+  stopMobilePip();
   recordedBlob = null;
   axes.weight = 0.5; axes.slant = 0.5; axes.width = 0.5;
   smoothAxes.weight = 0.5; smoothAxes.slant = 0.5; smoothAxes.width = 0.5;
@@ -3200,8 +3240,59 @@ function attachHoverCard(cell, letter) {
 }
 
 /* ════════════════════════════════════════
-   WORLD VIEW
+   MOBILE LETTER PIP
 ════════════════════════════════════════ */
+let mobilePipFrame = null;
+
+function startMobilePip() {
+  const pip    = document.getElementById('mobilePip');
+  const canvas = document.getElementById('mobilePipCanvas');
+  if (!pip || !canvas) return;
+
+  const dpr = window.devicePixelRatio || 1;
+  const W = 72, H = 72;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  cancelAnimationFrame(mobilePipFrame);
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    const { weight, slant, width } = getLiveAxes();
+    const color      = colorHex(activeLetter);
+    const sw         = 2 + weight * 8;
+    const slantShear = (slant - 0.5) * 0.3;
+    const scaleX     = 0.65 + width * 0.7;
+    const baseline   = H * 0.82;
+    const capHeight  = H * 0.12;
+    const xHeight    = H * 0.44;
+    const cx         = W / 2;
+
+    ctx.save();
+    ctx.translate(cx, 0);
+    ctx.transform(1, 0, slantShear, 1, 0, 0);
+    ctx.scale(scaleX, 1);
+    ctx.translate(-cx, 0);
+    ctx.strokeStyle = color;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    drawGlyphOnRecorder(ctx, activeLetter, cx, baseline, capHeight, xHeight, sw, W, H);
+    ctx.restore();
+
+    mobilePipFrame = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+function stopMobilePip() {
+  cancelAnimationFrame(mobilePipFrame);
+  mobilePipFrame = null;
+}
+
+
 
 // ── Simplified geo coords for common cities / countries
 // Keyed by lowercased location string fragments
