@@ -41,7 +41,12 @@ body {
   color: var(--ink);
   min-height: 100vh;
   overflow-x: hidden;
+  cursor: none;
 }
+input, textarea, select { cursor: text; }
+.modal input, .modal textarea, .modal select { cursor: text; }
+.modal { cursor: none; }
+a, button { cursor: none; }
 
 /* ── HEADER ── */
 .header {
@@ -113,7 +118,7 @@ body {
   aspect-ratio: 4/5;
   border-radius: 4px;
   display: flex; align-items: flex-end; justify-content: flex-start;
-  cursor: pointer;
+  cursor: none;
   position: relative;
   border: 0.5px solid var(--border-mid);
   background: transparent;
@@ -310,7 +315,7 @@ body {
   letter-spacing: 0.01em;
   border-bottom: 0.5px solid var(--terracotta-light);
   transition: color 0.14s, border-color 0.14s;
-  cursor: pointer;
+  cursor: none;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -446,7 +451,7 @@ body {
   border: 0.5px solid rgba(255,255,255,0.22);
   border-radius: 4px;
   color: rgba(255,255,255,0.55);
-  cursor: pointer;
+  cursor: none;
   transition: border-color 0.15s, color 0.15s;
 }
 .btn-cam:hover { border-color: rgba(255,255,255,0.5); color: rgba(255,255,255,0.88); }
@@ -471,7 +476,7 @@ body {
   width: 36px; height: 20px;
   border-radius: 10px;
   background: rgba(255,255,255,0.1);
-  position: relative; cursor: pointer;
+  position: relative; cursor: none;
   transition: background 0.25s ease;
   border: 0.5px solid rgba(255,255,255,0.12);
   flex-shrink: 0;
@@ -575,7 +580,7 @@ body {
   letter-spacing: 0.04em;
   padding: 0.5rem 1.4rem;
   border-radius: 6px; border: none;
-  cursor: pointer;
+  cursor: none;
   background: var(--ink); color: white;
   transition: background 0.14s, transform 0.1s, opacity 0.2s;
 }
@@ -589,7 +594,7 @@ body {
   border: 0.5px solid var(--border);
   background: var(--white);
   display: flex; align-items: center; justify-content: center;
-  cursor: pointer; font-size: 0.7rem; color: var(--ink-mid);
+  cursor: none; font-size: 0.7rem; color: var(--ink-mid);
   z-index: 10; transition: background 0.1s;
 }
 .btn-close:hover { background: var(--surface); }
@@ -684,10 +689,7 @@ body {
     min-height: 0;
   }
 
-  /* Live letter pip overlay inside cam on mobile */
-  .mobile-letter-pip {
-    display: flex !important;
-  }
+  /* Live letter pip — hidden on mobile, letter visible in bottom panel */
 
   .axis-grid { padding: 0.5rem 0.7rem; gap: 0.3rem; }
   .axis-pill { padding: 0.22rem 0.35rem; }
@@ -922,7 +924,7 @@ body {
   border: 0.5px solid rgba(196,113,74,0.4);
   border-radius: 4px;
   color: var(--terracotta-mid);
-  cursor: pointer;
+  cursor: none;
   transition: background 0.15s, border-color 0.15s, transform 0.1s;
   flex-shrink: 0;
 }
@@ -1166,7 +1168,7 @@ body {
   font-family: 'DM Sans', sans-serif;
   font-size: 0.7rem; color: var(--ink-muted);
   background: transparent; border: none;
-  cursor: pointer; letter-spacing: 0.04em;
+  cursor: none; letter-spacing: 0.04em;
   padding: 0.4rem 0;
   transition: color 0.14s;
 }
@@ -1178,7 +1180,7 @@ body {
   letter-spacing: 0.04em;
   padding: 0.55rem 1.4rem;
   border-radius: 6px; border: none;
-  cursor: pointer;
+  cursor: none;
   background: var(--ink); color: white;
   transition: background 0.14s, transform 0.1s, opacity 0.2s;
 }
@@ -1209,7 +1211,7 @@ body {
   border: 0.5px solid var(--border-mid);
   background: var(--white);
   color: var(--ink-mid);
-  cursor: pointer;
+  cursor: none;
   transition: border-color 0.15s, color 0.15s, background 0.15s, transform 0.1s;
   white-space: nowrap;
 }
@@ -1238,6 +1240,7 @@ body {
   flex-direction: column;
   opacity: 0;
   transition: opacity 0.38s ease;
+  cursor: none;
 }
 .worldview-veil.open { display: flex; }
 .worldview-veil.visible { opacity: 1; }
@@ -1285,12 +1288,18 @@ body {
   background: rgba(255,255,255,0.05);
   color: rgba(255,255,255,0.45);
   font-size: 0.72rem;
-  cursor: pointer;
+  cursor: none;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.15s, color 0.15s;
   flex-shrink: 0;
 }
 .wv-close:hover { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.88); }
+.worldview-veil,
+.worldview-veil *,
+.worldview-veil *::before,
+.worldview-veil *::after {
+  cursor: none !important;
+}
 
 /* Stats strip */
 .wv-stats-strip {
@@ -1358,12 +1367,62 @@ body {
   flex: 1;
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 0;
 }
-.wv-map-svg {
-  width: 100%;
-  height: 100%;
+/* Globe canvas — always square, fits within the available space */
+#wvGlobeCanvas {
   display: block;
+  cursor: none;
+  /* size is set via JS to min(width, height) of the wrap */
 }
+#wvGlobeCanvas:active { cursor: none; }
+
+/* Light mode cursor for main page */
+#mainCursor {
+  position: fixed;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.0) 70%);
+  border: 0.5px solid rgba(80,70,60,0.28);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.1s ease, height 0.1s ease, border-color 0.1s ease;
+}
+#mainCursor.hover {
+  width: 16px; height: 16px;
+  border-color: rgba(80,70,60,0.5);
+  background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.0) 70%);
+}
+/* Dark variant of main cursor — for camera panel */
+#mainCursor.dark {
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.0) 70%);
+  border-color: rgba(255,255,255,0.3);
+}
+#mainCursor.dark.hover {
+  border-color: rgba(255,255,255,0.55);
+}
+
+#wvCursor {
+  position: fixed;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.0) 70%);
+  border: 0.5px solid rgba(180,170,160,0.35);
+  pointer-events: none;
+  z-index: 4100;
+  transform: translate(-50%, -50%);
+  display: none;
+  transition: transform 0.08s ease, width 0.12s ease, height 0.12s ease;
+}
+#wvCursor.active {
+  width: 20px; height: 20px;
+  border-color: rgba(180,170,160,0.55);
+}
+.wv-map-svg { width: 100%; height: 100%; display: block; }
 /* Dim world landmasses */
 .wv-land {
   fill: rgba(255,255,255,0.04);
@@ -1377,7 +1436,7 @@ body {
 }
 
 /* Map pins */
-.wv-pin-group { cursor: pointer; }
+.wv-pin-group { cursor: none; }
 .wv-pin-ring {
   fill: none;
   stroke-width: 1;
@@ -1405,7 +1464,7 @@ body {
 .wv-hover-card {
   position: fixed;
   z-index: 4000;
-  width: 230px;
+  width: 160px;
   background: #1A1410;
   border-radius: 10px;
   box-shadow:
@@ -1457,34 +1516,34 @@ body {
 .wv-hc-canvas { width: 100%; height: 100%; display: block; }
 
 .wv-hc-body {
-  padding: 0.75rem 0.85rem 0.85rem;
+  padding: 0.5rem 0.6rem 0.6rem;
   display: flex;
   align-items: flex-start;
-  gap: 0.6rem;
+  gap: 0.45rem;
   border-top: 0.5px solid rgba(255,255,255,0.06);
 }
 .wv-hc-glyph-mini {
-  width: 32px; height: 40px;
+  width: 22px; height: 28px;
   flex-shrink: 0;
   overflow: visible;
   display: flex; align-items: center; justify-content: center;
 }
 .wv-hc-glyph-mini svg { width: 100%; height: 100%; overflow: visible; }
-.wv-hc-info { display: flex; flex-direction: column; gap: 2px; overflow: hidden; }
+.wv-hc-info { display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
 .wv-hc-name {
   font-family: 'DM Serif Display', serif;
-  font-size: 0.82rem;
+  font-size: 0.72rem;
   color: rgba(255,255,255,0.88);
   line-height: 1.2;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .wv-hc-meta {
-  font-size: 0.62rem;
+  font-size: 0.56rem;
   color: rgba(255,255,255,0.38);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .wv-hc-location {
-  font-size: 0.6rem;
+  font-size: 0.54rem;
   color: rgba(255,255,255,0.25);
   letter-spacing: 0.04em;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -1500,6 +1559,9 @@ body {
 </style>
 </head>
 <body>
+
+<!-- Main page light cursor -->
+<div id="mainCursor"></div>
 
 <!-- HEADER -->
 <header class="header">
@@ -1576,11 +1638,14 @@ body {
     <div class="wv-country-list" id="wvCountryList"></div>
   </div>
 
-  <!-- SVG Map -->
+  <!-- 3D Globe -->
   <div class="wv-map-wrap" id="wvMapWrap">
-    <svg class="wv-map-svg" id="wvMapSvg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet"></svg>
+    <canvas id="wvGlobeCanvas"></canvas>
   </div>
 </div>
+
+<!-- World View custom cursor -->
+<div id="wvCursor"></div>
 
 <!-- World View hover card -->
 <div class="wv-hover-card" id="wvHoverCard">
@@ -3432,129 +3497,306 @@ function renderWvStats() {
   `).join('');
 }
 
-// ── Draw the world map SVG
-const WV_COUNTRIES_SVG = `
-<path class="wv-land" d="M 143 204 L 138 202 L 127 206 L 124 213 L 130 219 L 140 218 L 148 212 Z"/>
-<path class="wv-land" d="M 420 140 L 380 138 L 350 145 L 340 160 L 345 175 L 365 180 L 390 178 L 415 165 L 430 155 Z"/>
-<path class="wv-land" d="M 480 100 L 440 98 L 420 108 L 415 125 L 430 138 L 455 140 L 475 130 L 490 115 Z"/>
-<path class="wv-land" d="M 540 130 L 505 128 L 490 140 L 488 158 L 500 168 L 525 165 L 545 152 L 552 138 Z"/>
-`;
+// ── 3D Globe — Three.js
+/* ════════════════════════════════════════
+   3D GLOBE — Three.js
+════════════════════════════════════════ */
 
-// Simplified world outline paths (low-poly approximation for dark map aesthetic)
-const WORLD_PATHS = [
-  // North America
-  "M170,80 L220,75 L260,85 L285,95 L300,115 L295,135 L280,155 L265,170 L250,180 L235,185 L220,200 L205,210 L190,205 L175,195 L165,185 L155,170 L148,155 L145,140 L148,120 L155,100 Z",
-  // Central America
-  "M210,215 L225,218 L230,230 L220,240 L205,238 L198,225 Z",
-  // South America
-  "M215,245 L255,235 L280,245 L295,265 L295,290 L285,315 L270,340 L250,360 L230,370 L210,360 L195,340 L188,310 L190,285 L198,260 Z",
-  // Europe
-  "M450,80 L490,75 L510,82 L520,95 L515,108 L495,115 L475,118 L458,112 L445,100 Z",
-  // Scandinavia
-  "M460,55 L485,50 L495,65 L488,80 L470,83 L455,72 Z",
-  // Africa
-  "M455,185 L490,180 L510,190 L518,215 L515,250 L505,280 L490,305 L470,320 L448,315 L432,295 L428,265 L432,235 L440,210 L448,195 Z",
-  // Russia / Eurasia
-  "M500,60 L580,50 L650,55 L700,65 L720,75 L715,90 L690,100 L650,105 L600,102 L555,98 L520,92 L505,78 Z",
-  // Middle East
-  "M520,150 L550,145 L570,155 L572,172 L558,182 L535,178 L518,168 Z",
-  // South Asia
-  "M580,155 L615,148 L635,158 L638,178 L628,195 L610,200 L590,195 L575,180 L572,165 Z",
-  // Southeast Asia
-  "M660,175 L690,168 L705,180 L702,198 L685,205 L665,200 L652,188 Z",
-  // China
-  "M640,100 L690,92 L720,100 L728,120 L718,140 L695,150 L668,148 L645,138 L635,118 Z",
-  // Japan
-  "M728,108 L740,105 L748,115 L742,128 L728,130 L720,120 Z",
-  // Australia
-  "M685,305 L730,295 L760,305 L768,330 L758,355 L735,368 L708,362 L688,345 L678,320 Z",
-  // New Zealand
-  "M772,350 L782,345 L788,358 L780,370 L769,368 Z",
-  // Greenland
-  "M290,40 L325,32 L345,42 L340,62 L315,70 L292,62 Z",
-  // UK/Ireland
-  "M440,88 L452,84 L458,93 L450,102 L438,100 Z",
-  // Indonesia
-  "M700,230 L720,225 L735,232 L733,244 L715,248 L700,242 Z",
-];
+let globeScene, globeCamera, globeRenderer, globeAnimId;
+let globeSphere, globeAtmo;
+let globePinMeshes = [];
+let isDragging = false, prevMouse = { x: 0, y: 0 };
+let globeRotVel = { x: 0, y: 0.0015 };
+let globeQuaternion;
+let globeRaycaster, globeMouse;
+let globeLoaded = false;
 
-function drawWorldMap() {
-  const svg = document.getElementById('wvMapSvg');
-  if (!svg) return;
+const WV_PIN_COLORS = { tc: 0xC4714A, sg: 0x7A9E87, oc: 0xC4A24A };
 
-  // Graticule lines
-  let graticule = '';
-  for (let lat = -60; lat <= 60; lat += 30) {
-    const y = (90 - lat) / 180 * 500;
-    graticule += `<line class="wv-graticule" x1="0" y1="${y}" x2="1000" y2="${y}"/>`;
-  }
-  for (let lng = -150; lng <= 150; lng += 30) {
-    const x = (lng + 180) / 360 * 1000;
-    graticule += `<line class="wv-graticule" x1="${x}" y1="0" x2="${x}" y2="500"/>`;
-  }
-
-  const landPaths = WORLD_PATHS.map(d => `<path class="wv-land" d="${d}"/>`).join('');
-
-  svg.innerHTML = `
-    <g>${graticule}</g>
-    <g>${landPaths}</g>
-    <g id="wvPinsLayer"></g>
-  `;
+function latLngToVec3(lat, lng, r) {
+  const phi   = (90 - lat) * Math.PI / 180;
+  const theta = (lng + 180) * Math.PI / 180;
+  return new THREE.Vector3(
+    -r * Math.sin(phi) * Math.cos(theta),
+     r * Math.cos(phi),
+     r * Math.sin(phi) * Math.sin(theta)
+  );
 }
 
-// ── Render pins
-function renderWvPins() {
-  const layer = document.getElementById('wvPinsLayer');
-  if (!layer) return;
-  layer.innerHTML = '';
+async function initGlobe() {
+  if (globeLoaded) { resumeGlobe(); return; }
+  const wrap   = document.getElementById('wvMapWrap');
+  const canvas = document.getElementById('wvGlobeCanvas');
+  const size = Math.min(wrap.clientWidth, wrap.clientHeight) * 0.82;
+  const W = size, H = size;
+  canvas.style.width  = size + 'px';
+  canvas.style.height = size + 'px';
 
-  const colorMap = { tc: '#C4714A', sg: '#7A9E87', oc: '#C4A24A' };
+  globeScene    = new THREE.Scene();
+  globeCamera   = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  globeCamera.position.z = 2.6;
+  globeRenderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  globeRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  globeRenderer.setSize(W, H);
+  globeRenderer.setClearColor(0x000000, 0);
+  globeQuaternion = new THREE.Quaternion();
+  globeRaycaster  = new THREE.Raycaster();
+  globeMouse      = new THREE.Vector2();
 
-  // Group letters by approximate location (jitter duplicates)
-  const placed = {};
+  // Subtle dark rim (not blue, just slightly lighter at edge)
+  const atmoGeo = new THREE.SphereGeometry(1.04, 64, 64);
+  const atmoMat = new THREE.MeshBasicMaterial({ color: 0x2a2218, transparent: true, opacity: 0.25, side: THREE.BackSide });
+  globeAtmo = new THREE.Mesh(atmoGeo, atmoMat);
+  globeScene.add(globeAtmo);
 
+  // Globe sphere
+  const sphereGeo = new THREE.SphereGeometry(1, 64, 64);
+  const sphereMat = new THREE.MeshPhongMaterial({ color: 0x100D0A, emissive: 0x080608, shininess: 4 });
+  globeSphere = new THREE.Mesh(sphereGeo, sphereMat);
+  globeScene.add(globeSphere);
+
+  // Graticule lines
+  const graticuleGroup = new THREE.Group();
+  const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.04 });
+  const R = 1.001;
+  for (let lat = -60; lat <= 60; lat += 30) {
+    const pts = [];
+    for (let lng = 0; lng <= 360; lng += 3) pts.push(latLngToVec3(lat, lng - 180, R));
+    graticuleGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), lineMat));
+  }
+  for (let lng = 0; lng < 360; lng += 30) {
+    const pts = [];
+    for (let lat = -90; lat <= 90; lat += 3) pts.push(latLngToVec3(lat, lng - 180, R));
+    graticuleGroup.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), lineMat));
+  }
+  globeScene.add(graticuleGroup);
+
+  // Land dot cloud
+  const landDots = buildLandDots();
+  const dotGeo   = new THREE.BufferGeometry();
+  dotGeo.setAttribute('position', new THREE.Float32BufferAttribute(landDots, 3));
+  const dotMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.008, transparent: true, opacity: 0.18 });
+  globeScene.add(new THREE.Points(dotGeo, dotMat));
+
+  // Lighting
+  globeScene.add(new THREE.AmbientLight(0xffffff, 0.3));
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+  dirLight.position.set(5, 3, 5);
+  globeScene.add(dirLight);
+  const rimLight = new THREE.DirectionalLight(0x4488ff, 0.2);
+  rimLight.position.set(-5, -2, -3);
+  globeScene.add(rimLight);
+
+  // Events
+  canvas.addEventListener('mousedown',  onGlobeMouseDown);
+  canvas.addEventListener('mousemove',  onGlobeMouseMove);
+  canvas.addEventListener('mouseup',    onGlobeMouseUp);
+  canvas.addEventListener('mouseleave', onGlobeMouseUp);
+  canvas.addEventListener('touchstart', onGlobeTouchStart, { passive: true });
+  canvas.addEventListener('touchmove',  onGlobeTouchMove,  { passive: true });
+  canvas.addEventListener('touchend',   onGlobeMouseUp);
+  // Canvas drag events (no cursor show/hide here — handled by veil)
+  canvas.addEventListener('mousedown', () => document.getElementById('wvCursor').classList.add('active'));
+  canvas.addEventListener('mouseup',   () => document.getElementById('wvCursor').classList.remove('active'));
+  canvas.addEventListener('wheel', onGlobeWheel, { passive: false });
+  window.addEventListener('resize', onGlobeResize);
+
+  // Track cursor over entire world view veil
+  const veil = document.getElementById('worldviewVeil');
+  veil.addEventListener('mousemove', (e) => {
+    const c = document.getElementById('wvCursor');
+    c.style.display = 'block';
+    c.style.left = e.clientX + 'px';
+    c.style.top  = e.clientY + 'px';
+  });
+  veil.addEventListener('mouseleave', () => {
+    document.getElementById('wvCursor').style.display = 'none';
+  });
+
+  globeLoaded = true;
+  buildGlobePins();
+  onGlobeResize();
+  animateGlobe();
+}
+
+function buildLandDots() {
+  const regions = [
+    [25, 70, -170, -55, 1800], [-55, 12, -82, -34, 1200],
+    [35, 71, -10, 40, 1000],   [-35, 37, -18, 52, 1800],
+    [5, 75, 25, 145, 3500],    [-45, -10, 113, 154, 700],
+    [60, 84, -55, -15, 300],
+  ];
+  const pts = [];
+  const R = 1.002;
+  regions.forEach(([latMin, latMax, lngMin, lngMax, count]) => {
+    for (let i = 0; i < count; i++) {
+      const lat = latMin + Math.random() * (latMax - latMin);
+      const lng = lngMin + Math.random() * (lngMax - lngMin);
+      const v = latLngToVec3(lat, lng, R);
+      pts.push(v.x, v.y, v.z);
+    }
+  });
+  return pts;
+}
+
+function buildGlobePins() {
+  if (!globeScene) return;
+  globePinMeshes.forEach(m => globeScene.remove(m));
+  globePinMeshes = [];
+  const pinGeo = new THREE.SphereGeometry(0.014, 12, 12);
   Object.entries(savedLetters).forEach(([letter, data]) => {
     let geo = geocodeLocation(data.location);
-
-    // Fallback: unrecognised location still gets a pin using a hash of the
-    // letter + location string so it's deterministic and spread across the map
     if (!geo) {
       const seed = (letter.charCodeAt(0) * 137 + (data.location || '').split('').reduce((a,c) => a + c.charCodeAt(0), 0)) % 360;
       geo = { lat: (seed % 120) - 50, lng: (seed * 1.618) % 360 - 180 };
     }
-
-    const key = `${Math.round(geo.lat)}_${Math.round(geo.lng)}`;
-    placed[key] = placed[key] || [];
-    placed[key].push({ letter, data, geo });
+    const col    = WV_PIN_COLORS[data.colorKey] || WV_PIN_COLORS.tc;
+    const pinMat = new THREE.MeshBasicMaterial({ color: col });
+    const pin    = new THREE.Mesh(pinGeo, pinMat);
+    const pos    = latLngToVec3(geo.lat, geo.lng, 1.03);
+    pin.position.copy(pos);
+    pin.userData  = { letter, data, geo };
+    globeSphere.add(pin);   // parent to sphere so it rotates with it
+    globePinMeshes.push(pin);
+    // Pulse ring — also child of sphere
+    const ringGeo = new THREE.RingGeometry(0.018, 0.022, 24);
+    const ringMat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.35, side: THREE.DoubleSide });
+    const ring    = new THREE.Mesh(ringGeo, ringMat);
+    ring.position.copy(pos);
+    ring.lookAt(new THREE.Vector3(0, 0, 0));
+    ring.userData = { isPulse: true, phase: Math.random() * Math.PI * 2 };
+    globeSphere.add(ring);  // child of sphere
+    globePinMeshes.push(ring);
   });
-
-  Object.values(placed).forEach(group => {
-    group.forEach((item, idx) => {
-      // Slight jitter if multiple letters from same city
-      const jitter = idx * 12;
-      const angle = (idx * 137.5) * Math.PI / 180;
-      const jLat = item.geo.lat + (idx > 0 ? Math.cos(angle) * 1.5 : 0);
-      const jLng = item.geo.lng + (idx > 0 ? Math.sin(angle) * 2.5 : 0);
-      const { x, y } = project(jLat, jLng);
-      const col = colorMap[item.data.colorKey] || '#C4714A';
-
-      const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-      g.setAttribute('class','wv-pin-group');
-      g.setAttribute('data-letter', item.letter);
-      g.innerHTML = `
-        <circle class="wv-pin-ring" cx="${x}" cy="${y}" r="8" stroke="${col}" style="animation-delay:${idx*0.3}s"/>
-        <circle class="wv-pin-dot" cx="${x}" cy="${y}" r="5" fill="${col}"/>
-        <text class="wv-pin-letter" x="${x}" y="${y}">${item.letter}</text>
-      `;
-      g.addEventListener('mouseenter', (e) => showWvCard(item.letter, e));
-      g.addEventListener('mouseleave', hideWvCard);
-      g.addEventListener('mousemove', (e) => moveWvCard(e));
-      layer.appendChild(g);
-    });
-  });
+  // Pins are children of globeSphere — rotation applied automatically
 }
 
-// ── World view hover card
+function animateGlobe() {
+  globeAnimId = requestAnimationFrame(animateGlobe);
+  if (!isDragging) {
+    const q = new THREE.Quaternion();
+    q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), globeRotVel.y);
+    globeQuaternion.premultiply(q);
+    globeSphere.quaternion.copy(globeQuaternion);
+    globeAtmo.quaternion.copy(globeQuaternion);
+    // pins are children of globeSphere, rotate automatically
+  }
+  const t = performance.now() * 0.001;
+  globePinMeshes.forEach(m => {
+    if (m.userData.isPulse) {
+      const s = 1 + 0.35 * Math.abs(Math.sin(t * 1.2 + m.userData.phase));
+      m.scale.setScalar(s);
+      m.material.opacity = 0.25 + 0.15 * (1 - Math.abs(Math.sin(t * 1.2 + m.userData.phase)));
+      m.lookAt(new THREE.Vector3(0, 0, 0));
+    }
+  });
+  globeRenderer.render(globeScene, globeCamera);
+}
+
+function resumeGlobe() {
+  if (!globeAnimId) animateGlobe();
+  buildGlobePins();
+  renderWvStats();
+}
+
+function pauseGlobe() {
+  cancelAnimationFrame(globeAnimId);
+  globeAnimId = null;
+}
+
+function onGlobeMouseDown(e) {
+  isDragging = true;
+  prevMouse  = { x: e.clientX, y: e.clientY };
+  globeRotVel = { x: 0, y: 0 };
+}
+
+function onGlobeMouseMove(e) {
+  if (isDragging) {
+    const dx = (e.clientX - prevMouse.x) * 0.005;
+    const dy = (e.clientY - prevMouse.y) * 0.005;
+    const qY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx);
+    const qX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), dy);
+    globeQuaternion.premultiply(qY).premultiply(qX);
+    globeSphere.quaternion.copy(globeQuaternion);
+    globeAtmo.quaternion.copy(globeQuaternion);
+    globeRotVel = { x: dy * 0.3, y: dx * 0.3 };
+    prevMouse  = { x: e.clientX, y: e.clientY };
+  } else {
+    checkGlobeHover(e);
+  }
+}
+
+function onGlobeMouseUp() {
+  isDragging = false;
+  setTimeout(() => { if (!isDragging) globeRotVel.y = 0.0015; }, 1500);
+}
+
+let globeTouchStartPos = null;
+function onGlobeTouchStart(e) {
+  if (e.touches.length === 1) {
+    isDragging = true;
+    prevMouse  = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    globeRotVel = { x: 0, y: 0 };
+  }
+}
+function onGlobeTouchMove(e) {
+  if (e.touches.length === 1 && isDragging) {
+    const dx = (e.touches[0].clientX - prevMouse.x) * 0.005;
+    const dy = (e.touches[0].clientY - prevMouse.y) * 0.005;
+    const qY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx);
+    const qX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), dy);
+    globeQuaternion.premultiply(qY).premultiply(qX);
+    globeSphere.quaternion.copy(globeQuaternion);
+    globeAtmo.quaternion.copy(globeQuaternion);
+    globeRotVel = { x: dy * 0.3, y: dx * 0.3 };
+    prevMouse  = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+}
+
+function checkGlobeHover(e) {
+  if (!globeCamera || !globeRaycaster) return;
+  const canvas = document.getElementById('wvGlobeCanvas');
+  const rect   = canvas.getBoundingClientRect();
+  globeMouse.x =  ((e.clientX - rect.left) / rect.width)  * 2 - 1;
+  globeMouse.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1;
+  globeRaycaster.setFromCamera(globeMouse, globeCamera);
+  // recursive:true needed since pins are children of globeSphere
+  const hits = globeRaycaster.intersectObjects([globeSphere], true)
+    .filter(h => h.object.userData && h.object.userData.letter);
+  if (hits.length > 0) {
+    showWvCard(hits[0].object.userData.letter, e);
+  } else {
+    hideWvCard();
+  }
+}
+
+function onGlobeWheel(e) {
+  e.preventDefault();
+  const dx =  e.deltaX * 0.003;
+  const dy =  e.deltaY * 0.003;
+  // Apply wheel delta directly to the sphere — syncs globeQuaternion so autospin continues correctly
+  const qY = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), dx);
+  const qX = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), dy);
+  globeQuaternion.premultiply(qY).premultiply(qX);
+  globeSphere.quaternion.copy(globeQuaternion);
+  globeAtmo.quaternion.copy(globeQuaternion);
+  // Don't change globeRotVel — autospin resumes unchanged after wheel
+}
+
+function onGlobeResize() {
+  if (!globeRenderer) return;
+  const wrap = document.getElementById('wvMapWrap');
+  const canvas = document.getElementById('wvGlobeCanvas');
+  if (!wrap || !canvas) return;
+  const size = Math.min(wrap.clientWidth, wrap.clientHeight) * 0.82;
+  canvas.style.width  = size + 'px';
+  canvas.style.height = size + 'px';
+  globeCamera.aspect = 1;
+  globeCamera.updateProjectionMatrix();
+  globeRenderer.setSize(size, size);
+}
+
+// ── World view hover card ──
 let wvCardLetter = null;
 let wvCardAnimFrame = null;
 
@@ -3563,173 +3805,129 @@ function showWvCard(letter, e) {
   if (!data) return;
   wvCardLetter = letter;
 
-  const card = document.getElementById('wvHoverCard');
-  const video = document.getElementById('wvHcVideo');
+  const card      = document.getElementById('wvHoverCard');
+  const video     = document.getElementById('wvHcVideo');
   const canvasWrap = document.getElementById('wvHcCanvasWrap');
-  const canvas = document.getElementById('wvHcCanvas');
-  const colorMap = { tc: 'clr-tc', sg: 'clr-sg', oc: 'clr-oc' };
+  const colorMap  = { tc: 'clr-tc', sg: 'clr-sg', oc: 'clr-oc' };
 
   card.className = `wv-hover-card ${colorMap[data.colorKey] || ''}`;
-
   document.getElementById('wvHcName').textContent     = data.name || '—';
   document.getElementById('wvHcMeta').textContent     = data.role && data.company ? `${data.role} · ${data.company}` : (data.role || data.company || '—');
   document.getElementById('wvHcLocation').textContent = data.location || '—';
   document.getElementById('wvHcGlyphMini').innerHTML  = data.svgData || '';
 
-  // Video
   if (data.videoUrl) {
     video.classList.remove('loaded');
     canvasWrap.style.display = 'flex';
-    video.oncanplay    = null;
-    video.onloadeddata = null;
-    video.src = '';
     video.src = data.videoUrl;
+    video.load();
     const onReady = () => {
       if (wvCardLetter !== letter) return;
       video.classList.add('loaded');
       canvasWrap.style.display = 'none';
-      video.play().catch(()=>{});
+      video.play().catch(() => {});
     };
-    video.oncanplay    = onReady;
-    video.onloadeddata = onReady;
+    video.oncanplay = onReady;
+    if (video.readyState >= 3) onReady();
   } else {
     video.src = '';
     video.classList.remove('loaded');
     canvasWrap.style.display = 'flex';
   }
 
-  // Animated glyph canvas
+  const canvas = document.getElementById('wvHcCanvas');
   startWvGlyphAnim(letter, data, canvas);
-
   positionWvCard(e);
   card.classList.add('visible');
 }
 
 function positionWvCard(e) {
-  const card = document.getElementById('wvHoverCard');
-  const W = 230, H = 280, margin = 12;
+  const card   = document.getElementById('wvHoverCard');
+  const W = 160, H = 260, margin = 12;
   let left = e.clientX + 14;
   let top  = e.clientY - H / 2;
-  if (left + W > window.innerWidth - margin) left = e.clientX - W - 14;
+  if (left + W > window.innerWidth  - margin) left = e.clientX - W - 14;
   top = Math.max(margin, Math.min(top, window.innerHeight - H - margin));
   card.style.left = left + 'px';
-  card.style.top  = top + 'px';
+  card.style.top  = top  + 'px';
 }
 
 function moveWvCard(e) {
   const card = document.getElementById('wvHoverCard');
-  if (!card.classList.contains('visible')) return;
-  positionWvCard(e);
+  if (card.classList.contains('visible')) positionWvCard(e);
 }
 
 function hideWvCard() {
   wvCardLetter = null;
   cancelAnimationFrame(wvCardAnimFrame);
-  const card = document.getElementById('wvHoverCard');
-  card.classList.remove('visible');
+  const card  = document.getElementById('wvHoverCard');
   const video = document.getElementById('wvHcVideo');
+  card.classList.remove('visible');
   setTimeout(() => {
-    if (!card.classList.contains('visible')) {
-      video.pause(); video.src = '';
-    }
+    if (!card.classList.contains('visible')) { video.pause(); video.src = ''; }
   }, 220);
 }
 
 function startWvGlyphAnim(letter, data, canvas) {
   cancelAnimationFrame(wvCardAnimFrame);
-  const ctx = canvas.getContext('2d');
-
-  // Match canvas to wrapper size
+  const ctx  = canvas.getContext('2d');
   const wrap = document.getElementById('wvHcCanvasWrap');
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width  = wrap.clientWidth  * dpr;
-  canvas.height = wrap.clientHeight * dpr;
+  const dpr  = window.devicePixelRatio || 1;
+  canvas.width  = (wrap.clientWidth  || 120) * dpr;
+  canvas.height = (wrap.clientHeight || 120) * dpr;
   ctx.scale(dpr, dpr);
-  const W = wrap.clientWidth, H = wrap.clientHeight;
-
+  const W = (wrap.clientWidth  || 120);
+  const H = (wrap.clientHeight || 120);
   const axes = data.axes || { weight: 0.5, slant: 0.5, width: 0.5 };
   const colorMap = { tc: '#C4714A', sg: '#7A9E87', oc: '#C4A24A' };
   const baseColor = colorMap[data.colorKey] || '#C4714A';
-
   let t = 0;
   function drawFrame() {
     if (wvCardLetter !== letter) return;
     ctx.clearRect(0, 0, W, H);
-
-    // Gently animate axes to simulate the live creation moment
     const anim = {
-      weight: axes.weight + Math.sin(t * 0.7)  * 0.12,
-      slant:  axes.slant  + Math.sin(t * 0.5 + 1) * 0.08,
-      width:  axes.width  + Math.sin(t * 0.4 + 2) * 0.1,
+      weight: Math.max(0, Math.min(1, axes.weight + Math.sin(t * 0.7)  * 0.12)),
+      slant:  Math.max(0, Math.min(1, axes.slant  + Math.sin(t * 0.5 + 1) * 0.08)),
+      width:  Math.max(0, Math.min(1, axes.width  + Math.sin(t * 0.4 + 2) * 0.1)),
     };
-    anim.weight = Math.max(0, Math.min(1, anim.weight));
-    anim.slant  = Math.max(0, Math.min(1, anim.slant));
-    anim.width  = Math.max(0, Math.min(1, anim.width));
-
-    const sw         = 3 + anim.weight * 12;
+    const sw         = 2 + anim.weight * 8;
     const slantShear = (anim.slant - 0.5) * 0.3;
     const scaleX     = 0.65 + anim.width * 0.7;
-    const baseline   = H * 0.75;
-    const capHeight  = H * 0.18;
-    const xHeight    = H * 0.42;
+    const baseline   = H * 0.82;
+    const capHeight  = H * 0.12;
+    const xHeight    = H * 0.44;
     const cx         = W / 2;
-
-    // Subtle guide lines
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-    ctx.lineWidth = 0.5;
-    ctx.setLineDash([]);
-    [baseline, capHeight, xHeight].forEach(y => {
-      ctx.beginPath(); ctx.moveTo(W*0.05, y); ctx.lineTo(W*0.95, y); ctx.stroke();
-    });
-
-    // Draw glyph
     ctx.save();
     ctx.translate(cx, 0);
     ctx.transform(1, 0, slantShear, 1, 0, 0);
     ctx.scale(scaleX, 1);
     ctx.translate(-cx, 0);
     ctx.strokeStyle = baseColor;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     drawGlyphOnRecorder(ctx, letter, cx, baseline, capHeight, xHeight, sw, W, H);
     ctx.restore();
-
-    // Animated anchor dots
-    const lx = cx - W*0.155, rx = cx + W*0.155;
-    const anchors = [{x:cx,y:capHeight},{x:lx,y:baseline},{x:rx,y:baseline}];
-    const h = baseColor.replace('#','');
-    const ri = parseInt(h.slice(0,2),16), gi = parseInt(h.slice(2,4),16), bi = parseInt(h.slice(4,6),16);
-    anchors.forEach((pt, i) => {
-      const pulse = 0.5 + 0.5 * Math.sin(t * 2.5 + i * 1.1);
-      const r = 2 + anim.weight * 2;
-      ctx.save();
-      ctx.translate(pt.x, pt.y);
-      ctx.transform(1, 0, slantShear, 1, -pt.x, 0);
-      ctx.beginPath();
-      ctx.arc(0, 0, r + 4 * pulse, 0, Math.PI*2);
-      ctx.strokeStyle = `rgba(${ri},${gi},${bi},${0.15 * pulse})`;
-      ctx.lineWidth = 0.7; ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(0, 0, r, 0, Math.PI*2);
-      ctx.fillStyle = `rgba(${ri},${gi},${bi},${0.7 * pulse + 0.3})`;
-      ctx.fill();
-      ctx.restore();
-    });
-
     t += 0.025;
     wvCardAnimFrame = requestAnimationFrame(drawFrame);
   }
   drawFrame();
 }
 
-// ── Open / close world view
 function openWorldView() {
   const veil = document.getElementById('worldviewVeil');
   veil.classList.add('open');
-  requestAnimationFrame(() => veil.classList.add('visible'));
-  drawWorldMap();
-  renderWvPins();
+  requestAnimationFrame(() => {
+    veil.classList.add('visible');
+    setTimeout(onGlobeResize, 50); // after CSS transition settles
+  });
   renderWvStats();
+  if (typeof THREE === 'undefined') {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    s.onload = () => initGlobe();
+    document.head.appendChild(s);
+  } else {
+    initGlobe();
+  }
 }
 
 function closeWorldView() {
@@ -3737,17 +3935,66 @@ function closeWorldView() {
   veil.classList.remove('visible');
   setTimeout(() => veil.classList.remove('open'), 380);
   hideWvCard();
+  pauseGlobe();
+  document.getElementById('wvCursor').style.display = 'none';
 }
 
-// Re-render pins when savedLetters updates (called from Firebase listener)
 function refreshWorldViewIfOpen() {
   const veil = document.getElementById('worldviewVeil');
   if (veil && veil.classList.contains('open')) {
-    renderWvPins();
+    buildGlobePins();
     renderWvStats();
   }
 }
 
+
+
+/* ════════════════════════════════════════
+   MAIN PAGE CURSOR
+════════════════════════════════════════ */
+(function() {
+  const cur = document.getElementById('mainCursor');
+  if (!cur) return;
+
+  // Only show on non-touch devices
+  if (window.matchMedia('(hover: none)').matches) {
+    cur.style.display = 'none';
+    return;
+  }
+
+  document.addEventListener('mousemove', e => {
+    // Hide when world view is open
+    const veil = document.getElementById('worldviewVeil');
+    if (veil && veil.classList.contains('open')) {
+      cur.style.display = 'none';
+      return;
+    }
+    cur.style.display = 'block';
+    cur.style.left = e.clientX + 'px';
+    cur.style.top  = e.clientY + 'px';
+  });
+
+  // Swap to dark cursor when hovering the camera panel
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest('.panel-cam')) cur.classList.add('dark');
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest('.panel-cam')) cur.classList.remove('dark');
+  });
+
+  // Hover state on interactive elements
+  const hoverEls = 'a, button, .letter-cell, .hover-card, input, textarea, [role="button"]';
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest(hoverEls)) cur.classList.add('hover');
+  });
+  document.addEventListener('mouseout', e => {
+    if (e.target.closest(hoverEls)) cur.classList.remove('hover');
+  });
+
+  // Hide when leaving window
+  document.addEventListener('mouseleave', () => { cur.style.display = 'none'; });
+  document.addEventListener('mouseenter', () => { cur.style.display = 'block'; });
+})();
 
 buildGrid();
 buildBeads();
