@@ -711,7 +711,8 @@ body {
   .design-topbar { padding: 0.8rem 1rem 0.6rem; }
   .design-letter { font-size: 1.6rem; }
   .design-axis-label { display: none; }
-  .canvas-wrap { min-height: 140px; max-height: 140px; }
+  .canvas-wrap { min-height: 120px; max-height: 120px; overflow: hidden; }
+  #tCanvas { width: 100% !important; height: 100% !important; }
   .design-footer { padding: 0.7rem 1rem; }
   .drive-pill { display: none; }
   .btn-save { width: 100%; text-align: center; padding: 0.65rem 1rem; }
@@ -1584,10 +1585,10 @@ body {
 <!-- World View hover card -->
 <div class="wv-hover-card" id="wvHoverCard">
   <div class="wv-hc-video-wrap">
-    <video class="wv-hc-video" id="wvHcVideo" autoplay muted loop playsinline></video>
     <div class="wv-hc-canvas-wrap" id="wvHcCanvasWrap">
       <canvas class="wv-hc-canvas" id="wvHcCanvas"></canvas>
     </div>
+    <video class="wv-hc-video" id="wvHcVideo" autoplay muted loop playsinline preload="auto"></video>
   </div>
   <div class="wv-hc-body">
     <div class="wv-hc-glyph-mini" id="wvHcGlyphMini"></div>
@@ -3173,16 +3174,18 @@ function showHoverCard(letter, anchorEl) {
   if (saved.videoUrl) {
     hoverVideo.classList.remove('loaded');
     hoverPlaceholder.style.display = 'flex';
+    hoverVideo.oncanplay    = null;
+    hoverVideo.onloadeddata = null;
+    hoverVideo.src = '';
     hoverVideo.src = saved.videoUrl;
-    hoverVideo.load();
     const onReady = () => {
       if (currentHoverLetter !== letter) return;
       hoverVideo.classList.add('loaded');
       hoverPlaceholder.style.display = 'none';
       hoverVideo.play().catch(() => {});
     };
-    hoverVideo.oncanplay = onReady;
-    if (hoverVideo.readyState >= 3) onReady();
+    hoverVideo.oncanplay    = onReady;
+    hoverVideo.onloadeddata = onReady;
   } else {
     hoverVideo.src = '';
     hoverVideo.classList.remove('loaded');
@@ -3263,12 +3266,15 @@ function startMobilePip() {
 
     const { weight, slant, width } = getLiveAxes();
     const color      = colorHex(activeLetter);
-    const sw         = 2 + weight * 8;
+    const sw         = 1.5 + weight * 5;      // thinner strokes for small size
     const slantShear = (slant - 0.5) * 0.3;
     const scaleX     = 0.65 + width * 0.7;
-    const baseline   = H * 0.82;
-    const capHeight  = H * 0.12;
-    const xHeight    = H * 0.44;
+
+    // Tighter margins so glyph fills the small pip box
+    const margin     = 8;
+    const baseline   = H - margin;
+    const capHeight  = margin;
+    const xHeight    = margin + (H - margin * 2) * 0.45;
     const cx         = W / 2;
 
     ctx.save();
@@ -3277,8 +3283,9 @@ function startMobilePip() {
     ctx.scale(scaleX, 1);
     ctx.translate(-cx, 0);
     ctx.strokeStyle = color;
-    ctx.lineCap = 'round';
+    ctx.lineCap  = 'round';
     ctx.lineJoin = 'round';
+    // Pass W/H so drawGlyphOnRecorder uses pip-local coords
     drawGlyphOnRecorder(ctx, activeLetter, cx, baseline, capHeight, xHeight, sw, W, H);
     ctx.restore();
 
@@ -3573,16 +3580,18 @@ function showWvCard(letter, e) {
   if (data.videoUrl) {
     video.classList.remove('loaded');
     canvasWrap.style.display = 'flex';
+    video.oncanplay    = null;
+    video.onloadeddata = null;
+    video.src = '';
     video.src = data.videoUrl;
-    video.load();
     const onReady = () => {
       if (wvCardLetter !== letter) return;
       video.classList.add('loaded');
       canvasWrap.style.display = 'none';
       video.play().catch(()=>{});
     };
-    video.oncanplay = onReady;
-    if (video.readyState >= 3) onReady();
+    video.oncanplay    = onReady;
+    video.onloadeddata = onReady;
   } else {
     video.src = '';
     video.classList.remove('loaded');
@@ -3748,10 +3757,10 @@ refreshProgress();
 <!-- HOVER CARD -->
 <div class="hover-card" id="hoverCard">
   <div class="hover-card-video-wrap" id="hoverCardVideoWrap">
-    <video class="hover-card-video" id="hoverCardVideo" autoplay muted loop playsinline></video>
     <div class="hover-card-video-placeholder" id="hoverCardPlaceholder">
       <div class="hover-card-glyph" id="hoverCardGlyph"></div>
     </div>
+    <video class="hover-card-video" id="hoverCardVideo" autoplay muted loop playsinline preload="auto"></video>
   </div>
   <div class="hover-card-body">
     <div class="hover-card-letter-glyph" id="hoverCardLetterGlyph"></div>
