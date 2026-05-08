@@ -1516,6 +1516,7 @@ a, button { cursor: none; }
   aspect-ratio: 3/4;
   background: #0F0C0A;
   overflow: hidden;
+  border-radius: 10px 10px 0 0;
 }
 .wv-hc-video {
   position: absolute; inset: 0;
@@ -3188,15 +3189,26 @@ async function initCamera() {
   // internally which triggers a second permission prompt. Instead we feed
   // frames ourselves from the stream we already have.
   try {
+    // Use model complexity 0 on mobile for reliable performance
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     pose = new Pose({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}` });
-    pose.setOptions({ modelComplexity:1, smoothLandmarks:true, enableSegmentation:false, minDetectionConfidence:0.5, minTrackingConfidence:0.5 });
+    pose.setOptions({
+      modelComplexity: isMobile ? 0 : 1,
+      smoothLandmarks: true,
+      enableSegmentation: false,
+      minDetectionConfidence: isMobile ? 0.4 : 0.5,
+      minTrackingConfidence:  isMobile ? 0.4 : 0.5,
+    });
     pose.onResults(onResults);
 
-    // Send frames manually using requestAnimationFrame
+    // Send frames manually — throttle on mobile to avoid overwhelming CPU
     let poseRunning = true;
+    let frameSkip = 0;
+    const frameThrottle = isMobile ? 2 : 1; // process every 2nd frame on mobile
     const sendFrame = async () => {
       if (!poseRunning || !document.getElementById('modalVeil').classList.contains('open')) return;
-      if (videoEl.readyState >= 2) { // HAVE_CURRENT_DATA
+      frameSkip++;
+      if (frameSkip % frameThrottle === 0 && videoEl.readyState >= 2) {
         await pose.send({ image: videoEl }).catch(() => {});
       }
       requestAnimationFrame(sendFrame);
@@ -3205,6 +3217,20 @@ async function initCamera() {
     // Store cleanup handle on the camera variable
     camera = { stop: () => { poseRunning = false; } };
     sendFrame();
+
+    // On mobile: if no pose results within 3s, fall back to device motion
+    if (isMobile) {
+      let gotResults = false;
+      const origOnResults = onResults;
+      pose.onResults(r => { gotResults = true; origOnResults(r); });
+      setTimeout(() => {
+        if (!gotResults && document.getElementById('modalVeil').classList.contains('open')) {
+          console.log('MediaPipe not firing on mobile — switching to device motion');
+          poseRunning = false;
+          startDeviceMotion();
+        }
+      }, 3000);
+    }
   } catch(e) {
     console.warn('MediaPipe unavailable, running in demo mode:', e);
     stext.textContent = 'Demo mode';
@@ -3236,6 +3262,89 @@ function runDemoAxes() {
     if (document.getElementById('modalVeil').classList.contains('open')) requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
+}
+
+/* ════════════════════════════════════════
+   DEVICE MOTION — mobile fallback
+   Uses accelerometer + gyroscope to drive
+   letter axes when MediaPipe isn't available
+════════════════════════════════════════ */
+let deviceMotionActive = false;
+
+function startDeviceMotion() {
+  if (deviceMotionActive) return;
+
+  // Request permission on iOS 13+
+  const requestPermission = async () => {
+    if (typeof DeviceMotionEvent !== 'undefined' &&
+        typeof DeviceMotionEvent.requestPermission === 'function') {
+      try {
+        const perm = await DeviceMotionEvent.requestPermission();
+        if (perm !== 'granted') return false;
+      } catch(e) { return false; }
+    }
+    return true;
+  };
+
+  requestPermission().then(granted => {
+    if (!granted) { runDemoAxes(); return; }
+
+    deviceMotionActive = true;
+
+    // Update axis labels to reflect motion control
+    document.getElementById('driveLabel').textContent = 'Drive: Motion';
+
+    // Smooth buffers
+    let smoothA = { x: 0, y: 0, z: 0 };
+    let smoothR = { alpha: 0, beta: 0, gamma: 0 };
+    const LERP = 0.12;
+
+    function onMotion(e) {
+      if (!document.getElementById('modalVeil').classList.contains('open')) {
+        window.removeEventListener('devicemotion', onMotion);
+        window.removeEventListener('deviceorientation', onOrient);
+        deviceMotionActive = false;
+        return;
+      }
+      if (!e.accelerationIncludingGravity) return;
+      const a = e.accelerationIncludingGravity;
+      smoothA.x += ((a.x || 0) - smoothA.x) * LERP;
+      smoothA.y += ((a.y || 0) - smoothA.y) * LERP;
+      smoothA.z += ((a.z || 0) - smoothA.z) * LERP;
+    }
+
+    function onOrient(e) {
+      if (!document.getElementById('modalVeil').classList.contains('open')) return;
+      smoothR.beta  += ((e.beta  || 0) - smoothR.beta)  * LERP;
+      smoothR.gamma += ((e.gamma || 0) - smoothR.gamma) * LERP;
+
+      if (isFrozen) return;
+
+      // Map orientation to axes:
+      // beta  (-180→180): phone tilt forward/back  → weight
+      // gamma (-90→90):   phone tilt left/right    → slant
+      // accel z magnitude:                         → width
+      const betaNorm  = Math.max(0, Math.min(1, (smoothR.beta  + 90)  / 180));
+      const gammaNorm = Math.max(0, Math.min(1, (smoothR.gamma + 45)  / 90));
+      const accelMag  = Math.max(0, Math.min(1, Math.abs(smoothA.z) / 15));
+
+      axes.weight = Math.max(0.15, Math.min(0.85, betaNorm));
+      axes.slant  = Math.max(0.25, Math.min(0.75, gammaNorm));
+      axes.width  = Math.max(0.2,  Math.min(0.8,  0.3 + accelMag * 0.5));
+
+      document.getElementById('aWt').style.width = (axes.weight*100)+'%';
+      document.getElementById('vWt').textContent  = axes.weight.toFixed(2);
+      document.getElementById('aSl').style.width = (axes.slant*100)+'%';
+      document.getElementById('vSl').textContent  = axes.slant.toFixed(2);
+      document.getElementById('aWd').style.width = (axes.width*100)+'%';
+      document.getElementById('vWd').textContent  = axes.width.toFixed(2);
+      document.getElementById('aDr').style.width = (accelMag*100)+'%';
+      document.getElementById('driveLabel').textContent = 'Drive: Motion';
+    }
+
+    window.addEventListener('devicemotion',      onMotion,  { passive: true });
+    window.addEventListener('deviceorientation', onOrient,  { passive: true });
+  });
 }
 
 function stopCamera() {
