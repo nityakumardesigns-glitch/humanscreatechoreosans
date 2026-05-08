@@ -1928,7 +1928,7 @@ function captureLetterSVG(letter, weight, slant, width) {
   const capHeight = NH * 0.18;
   const xHeight   = NH * 0.42;
   const cx        = NW / 2;
-  const sw        = 2.5 + weight * 10;
+  const sw        = Math.min(7, 2 + weight * 7);
   const slantShear = (slant - 0.5) * 0.28;
   const scaleX    = 0.65 + width * 0.7;
 
@@ -2201,7 +2201,7 @@ function drawLetter() {
   tCtx.clearRect(0, 0, W, H);
 
   const { weight, slant, width } = getLiveAxes();
-  const sw         = 4 + weight * 18;
+  const sw         = Math.min(10, 3 + weight * 10);
   const slantShear = (slant - 0.5) * 0.3;
   const scaleX     = 0.65 + width * 0.7;
 
@@ -2932,7 +2932,7 @@ function slideToProfile(previewSvg) {
     const ctx      = c.getContext('2d');
     const W = c.width, H = c.height;
     const { weight, slant, width } = getLiveAxes();
-    const sw         = 4 + weight * 18;
+    const sw         = Math.min(10, 3 + weight * 10);
     const slantShear = (slant - 0.5) * 0.3;
     const scaleX     = 0.65 + width * 0.7;
     const baseline   = H * 0.78;
@@ -3675,7 +3675,8 @@ function renderWvStats() {
   const sorted = Object.entries(stats).sort((a,b) => b[1]-a[1]);
 
   const list = document.getElementById('wvCountryList');
-  list.innerHTML = sorted.slice(0, 3).map(([name, n], i) => `
+  const maxCountries = window.innerWidth < 768 ? 2 : 3;
+  list.innerHTML = sorted.slice(0, maxCountries).map(([name, n], i) => `
     <div class="wv-country-chip">
       <span class="wv-country-chip-dot" style="background:${palette[i % palette.length]}"></span>
       <strong>${n}</strong> ${n === 1 ? 'letter' : 'letters'} from ${name}
@@ -4202,7 +4203,7 @@ function startWvGlyphAnim(letter, data, canvas) {
       slant:  Math.max(0, Math.min(1, axes.slant  + Math.sin(t * 0.5 + 1) * 0.08)),
       width:  Math.max(0, Math.min(1, axes.width  + Math.sin(t * 0.4 + 2) * 0.1)),
     };
-    const sw         = 2 + anim.weight * 8;
+    const sw         = Math.min(6, 2 + anim.weight * 6);
     const slantShear = (anim.slant - 0.5) * 0.3;
     const scaleX     = 0.65 + anim.width * 0.7;
     const baseline   = H * 0.82;
