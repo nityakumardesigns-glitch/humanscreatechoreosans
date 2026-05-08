@@ -759,11 +759,13 @@ a, button { cursor: none; }
   width: 220px;
   background: var(--white);
   border-radius: 10px;
+  overflow: hidden;
+  isolation: isolate;
+  transform: translateZ(0);
   box-shadow:
     0 2px 6px  rgba(44,36,32,0.06),
     0 8px 24px rgba(44,36,32,0.10),
     0 24px 48px rgba(44,36,32,0.12);
-  overflow: hidden;
   pointer-events: none;
   opacity: 0;
   transform: translateY(6px) scale(0.97);
@@ -1485,6 +1487,9 @@ a, button { cursor: none; }
   width: 160px;
   background: #1A1410;
   border-radius: 10px;
+  overflow: hidden;
+  isolation: isolate;
+  transform: translateZ(0);
   box-shadow:
     0 2px 8px  rgba(0,0,0,0.30),
     0 12px 32px rgba(0,0,0,0.45),
@@ -1516,7 +1521,6 @@ a, button { cursor: none; }
   aspect-ratio: 3/4;
   background: #0F0C0A;
   overflow: hidden;
-  border-radius: 10px 10px 0 0;
 }
 .wv-hc-video {
   position: absolute; inset: 0;
@@ -1532,27 +1536,66 @@ a, button { cursor: none; }
   padding: 12%;
   z-index: 1;
 }
-/* Vignette + grain overlay on wv hover card video */
+/* Vignette + grain on main hover card — only when video is loaded */
+.hover-card-video-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 50%,
+    transparent 40%,
+    rgba(10,8,6,0.45) 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.hover-card-video-wrap:has(.hover-card-video.loaded)::after {
+  opacity: 1;
+}
+.hover-card-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+  transition: opacity 0.2s ease;
+}
+.hover-card-video-wrap:has(.hover-card-video.loaded) .hover-card-grain {
+  opacity: 0.06;
+}
+
+/* Vignette + grain overlay on wv hover card — only when video loaded */
 .wv-hc-video-wrap::after {
   content: '';
   position: absolute;
   inset: 0;
   z-index: 3;
   pointer-events: none;
-  background:
-    radial-gradient(ellipse at 50% 50%,
-      transparent 40%,
-      rgba(10,8,6,0.55) 100%);
+  background: radial-gradient(ellipse at 50% 50%,
+    transparent 40%,
+    rgba(10,8,6,0.55) 100%);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.wv-hc-video-wrap:has(.wv-hc-video.loaded)::after {
+  opacity: 1;
 }
 .wv-hc-grain {
   position: absolute;
   inset: 0;
   z-index: 4;
   pointer-events: none;
-  opacity: 0.06;
+  opacity: 0;
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-size: 180px 180px;
+  transition: opacity 0.2s ease;
+}
+.wv-hc-video-wrap:has(.wv-hc-video.loaded) .wv-hc-grain {
+  opacity: 0.06;
 }
 
 .wv-hc-body {
@@ -3427,8 +3470,8 @@ function showHoverCard(letter, anchorEl) {
     hoverPlaceholder.style.display = 'flex';
     hoverVideo.oncanplay    = null;
     hoverVideo.onloadeddata = null;
-    hoverVideo.src = '';
     hoverVideo.src = saved.videoUrl;
+    hoverVideo.load();
     const onReady = () => {
       if (currentHoverLetter !== letter) return;
       hoverVideo.classList.add('loaded');
@@ -3437,10 +3480,34 @@ function showHoverCard(letter, anchorEl) {
     };
     hoverVideo.oncanplay    = onReady;
     hoverVideo.onloadeddata = onReady;
+    if (hoverVideo.readyState >= 3) onReady();
   } else {
+    // videoUrl not ready yet (still uploading) — poll until available
     hoverVideo.src = '';
     hoverVideo.classList.remove('loaded');
     hoverPlaceholder.style.display = 'flex';
+    let pollCount = 0;
+    const pollInterval = setInterval(() => {
+      pollCount++;
+      if (currentHoverLetter !== letter || pollCount > 30) {
+        clearInterval(pollInterval); return;
+      }
+      const url = savedLetters[letter]?.videoUrl;
+      if (url) {
+        clearInterval(pollInterval);
+        hoverVideo.src = url;
+        hoverVideo.load();
+        const onReady = () => {
+          if (currentHoverLetter !== letter) return;
+          hoverVideo.classList.add('loaded');
+          hoverPlaceholder.style.display = 'none';
+          hoverVideo.play().catch(() => {});
+        };
+        hoverVideo.oncanplay    = onReady;
+        hoverVideo.onloadeddata = onReady;
+        if (hoverVideo.readyState >= 3) onReady();
+      }
+    }, 1000); // check every second for up to 30s
   }
 
   positionHoverCard(anchorEl);
@@ -4321,6 +4388,7 @@ refreshProgress();
       <div class="hover-card-glyph" id="hoverCardGlyph"></div>
     </div>
     <video class="hover-card-video" id="hoverCardVideo" autoplay muted loop playsinline preload="auto"></video>
+    <div class="hover-card-grain"></div>
   </div>
   <div class="hover-card-body">
     <div class="hover-card-letter-glyph" id="hoverCardLetterGlyph"></div>
@@ -4439,6 +4507,7 @@ document.getElementById('btnClaim').addEventListener('click', async () => {
       console.log('[Cloudinary] videoUrl:', videoUrl);
       if (videoUrl && savedLetters[savedLetter]) {
         savedLetters[savedLetter].videoUrl = videoUrl;
+        refreshCell(savedLetter);
       }
     } catch(e) {
       console.error('[Cloudinary] Upload failed:', e);
