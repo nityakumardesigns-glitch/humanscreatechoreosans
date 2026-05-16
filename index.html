@@ -1144,6 +1144,48 @@ a, button { cursor: none; }
   height: 100% !important;
 }
 
+/* Profile glyph stage in left cam panel */
+.profile-glyph-stage-cam {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  overflow: hidden;
+  background: var(--surface);
+  transition: background 0.3s ease;
+}
+.profile-glyph-area {
+  width: 75%;
+  max-width: 280px;
+  aspect-ratio: 1/1.2;
+  display: flex; align-items: center; justify-content: center;
+}
+.profile-glyph-area svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.profile-glyph-stage-label {
+  position: absolute;
+  bottom: 10px; right: 14px;
+  font-family: 'DM Serif Display', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-muted);
+  opacity: 0.4;
+}
+
+/* Full-width glyph stage — kept for reference but not used in layout */
+.profile-glyph-stage {
+  display: none;
+}
+.profile-header-slim {
+  padding: 1.25rem 1.65rem 0.5rem;
+  flex-shrink: 0;
+}
+
 .profile-title {
   font-family: 'DM Serif Display', serif;
   font-size: 1rem; color: var(--ink); line-height: 1.2;
@@ -1210,8 +1252,192 @@ a, button { cursor: none; }
 .btn-claim:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ══════════════════════════════════════
-   HEADER RIGHT WRAP + WORLD VIEW BUTTON
+   CELL INFO OVERLAY (replaces hover card on gallery)
 ══════════════════════════════════════ */
+.cell-info-overlay {
+  position: absolute; inset: 0;
+  border-radius: 4px;
+  background: rgba(255,252,248,0.93);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0.6rem 0.7rem;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  pointer-events: none;
+  z-index: 5;
+}
+.cell-info-overlay.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.cell-info-glyph-wrap {
+  width: 36px; height: 48px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  overflow: visible;
+}
+.cell-info-glyph-wrap svg {
+  width: 100%; height: 100%; overflow: visible;
+}
+.cell-info-text {
+  display: flex; flex-direction: column; gap: 1px;
+  overflow: hidden; min-width: 0;
+}
+.cell-info-created {
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.15rem;
+}
+.cell-info-name {
+  font-family: 'DM Serif Display', serif;
+  font-size: 0.85rem;
+  color: var(--ink);
+  line-height: 1.2;
+}
+.cell-info-meta {
+  font-size: 0.6rem;
+  color: var(--ink-mid);
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-word;
+}
+.cell-info-location {
+  font-size: 0.56rem;
+  color: var(--ink-muted);
+  margin-top: 0.1rem;
+}
+
+/* ══════════════════════════════════════
+   WORLD MAP CONSENT MODAL
+══════════════════════════════════════ */
+.consent-veil {
+  position: fixed; inset: 0;
+  z-index: 5000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15,12,10,0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.consent-veil.open { display: flex; }
+.consent-veil.visible { opacity: 1; }
+
+.consent-card {
+  width: 420px;
+  max-width: 92vw;
+  background: var(--white);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(28,22,18,0.28), 0 0 0 0.5px rgba(28,22,18,0.06);
+  transform: translateY(12px) scale(0.97);
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.consent-veil.visible .consent-card {
+  transform: translateY(0) scale(1);
+}
+
+/* Globe preview strip */
+.consent-globe-preview {
+  width: 100%;
+  height: 180px;
+  background: #0F0C0A;
+  position: relative;
+  overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+}
+.consent-globe-canvas {
+  display: block;
+}
+.consent-globe-label {
+  position: absolute;
+  bottom: 12px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.58rem;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Consent body */
+.consent-body {
+  padding: 1.5rem 1.75rem 1.75rem;
+}
+.consent-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.05rem;
+  color: var(--ink);
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+.consent-sub {
+  font-size: 0.72rem;
+  color: var(--ink-muted);
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+}
+.consent-actions {
+  display: flex; gap: 0.75rem;
+  align-items: center;
+}
+.consent-btn-yes {
+  flex: 1;
+  background: var(--ink);
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  cursor: none;
+  transition: background 0.15s, transform 0.1s;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.consent-btn-yes:hover { background: #2a2018; transform: translateY(-1px); }
+.consent-btn-no {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.68rem;
+  color: var(--ink-muted);
+  background: none; border: none;
+  cursor: none;
+  padding: 0.75rem 0.5rem;
+  transition: color 0.14s;
+}
+.consent-btn-no:hover { color: var(--ink); }
+.consent-btn-no:hover { color: var(--ink); }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 56px; left: 50%;
+  transform: translateX(-50%) translateY(12px);
+  background: var(--ink); color: var(--white);
+  font-family: 'DM Sans', sans-serif; font-size: 0.72rem; font-weight: 500;
+  letter-spacing: 0.04em; padding: 0.55rem 1.25rem 0.55rem 0.9rem;
+  border-radius: 20px; box-shadow: 0 8px 24px rgba(28,22,18,0.22);
+  z-index: 6000; opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none; white-space: nowrap;
+  display: flex; align-items: center; gap: 7px;
+}
+.toast-check {
+  width: 16px; height: 16px; background: var(--sage); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.58rem; color: white; flex-shrink: 0;
+}
+.toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
 .header-right-wrap {
   display: flex;
   flex-direction: column;
@@ -1696,6 +1922,32 @@ a, button { cursor: none; }
   <div class="credit-bar">© <a href="https://www.linkedin.com/in/nityakumardesigns/" target="_blank" rel="noopener">Nitya Kumar</a></div>
 </div>
 
+<!-- TOAST -->
+<div class="toast" id="appToast">
+  <span class="toast-check">✓</span>
+  <span id="toastMsg">Added to world map</span>
+</div>
+
+<!-- WORLD MAP CONSENT MODAL -->
+<div class="consent-veil" id="consentVeil">
+  <div class="consent-card">
+    <div class="consent-globe-preview">
+      <canvas class="consent-globe-canvas" id="consentGlobeCanvas" width="420" height="180"></canvas>
+      <span class="consent-globe-label">Your pin on the world map</span>
+    </div>
+    <div class="consent-body">
+      <div class="consent-title" id="consentTitle">Add your dance move to the world map?</div>
+      <div class="consent-sub" id="consentSub">Your pin will appear on the live globe alongside everyone who has shaped this typeface. Others can hover to see your dance move and glyph.</div>
+      <div class="consent-actions">
+        <button class="consent-btn-yes" id="consentYes">
+          <span>Add to world map →</span>
+        </button>
+        <button class="consent-btn-no" id="consentNo">Maybe later</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- WORLD VIEW OVERLAY -->
 <div class="worldview-veil" id="worldviewVeil">
 
@@ -1770,6 +2022,12 @@ a, button { cursor: none; }
           <div class="sdot" id="sdot"></div>
           <span class="stext" id="stext">Inactive</span>
         </div>
+      </div>
+
+      <!-- Profile glyph stage — replaces camera when form is active -->
+      <div class="profile-glyph-stage-cam" id="profileGlyphStageCam" style="display:none;">
+        <div class="profile-glyph-area" id="profileGlyphArea"></div>
+        <div class="profile-glyph-stage-label" id="profileGlyphStageLabel"></div>
       </div>
 
       <div class="cam-viewport" id="camViewport">
@@ -1881,12 +2139,8 @@ a, button { cursor: none; }
 
       <!-- Profile form (slides in after recording) -->
       <div class="panel-profile" id="panelProfile">
-        <div class="profile-header">
-          <div class="profile-glyph-mini" id="profileGlyphMini"></div>
-          <div>
-            <div class="profile-title">Who made this glyph?</div>
-            <div class="profile-sub">Your details appear when people hover <span id="profileLetterSpan">A</span></div>
-          </div>
+        <div class="profile-header-slim">
+          <div class="profile-title">Who made this glyph?</div>
         </div>
 
         <div class="profile-form">
@@ -1905,6 +2159,10 @@ a, button { cursor: none; }
           <div class="profile-field">
             <label class="profile-label">Location</label>
             <input class="profile-input" id="inputLocation" type="text" placeholder="Mumbai, India" autocomplete="country-name">
+          </div>
+          <div class="profile-field">
+            <label class="profile-label">Favourite dance move</label>
+            <input class="profile-input" id="inputDanceMove" type="text" placeholder="Optional">
           </div>
         </div>
 
@@ -2972,49 +3230,49 @@ function slideToProfile(previewSvg) {
   document.getElementById('panelDesignInner').classList.add('slide-out');
   document.getElementById('panelProfile').classList.add('slide-in');
 
-  // Draw the glyph directly onto a small canvas for the preview
-  const miniEl = document.getElementById('profileGlyphMini');
-  if (miniEl && activeLetter) {
-    // Create an offscreen canvas matching the mini box dimensions
-    const c   = document.createElement('canvas');
-    c.width   = 120;
-    c.height  = 144;
-    c.style.width  = '100%';
-    c.style.height = '100%';
+  // Hide camera and topbar, show static glyph preview in cam panel
+  const camViewport = document.getElementById('camViewport');
+  if (camViewport) camViewport.style.display = 'none';
+  const camTopbar = document.querySelector('#panelCam .cam-topbar');
+  if (camTopbar) camTopbar.style.display = 'none';
 
-    const ctx      = c.getContext('2d');
-    const W = c.width, H = c.height;
-    const { weight, slant, width } = getLiveAxes();
-    const sw         = Math.min(10, 3 + weight * 10);
-    const slantShear = (slant - 0.5) * 0.3;
-    const scaleX     = 0.65 + width * 0.7;
-    const baseline   = H * 0.78;
-    const capHeight  = H * 0.18;
-    const xHeight    = H * 0.42;
-    const cx         = W / 2;
-
-    ctx.clearRect(0, 0, W, H);
-    const color = CLR_HEX[CLR_CYCLE[LETTERS.indexOf(activeLetter)]];
-    ctx.save();
-    ctx.translate(cx, 0);
-    ctx.transform(1, 0, slantShear, 1, 0, 0);
-    ctx.scale(scaleX, 1);
-    ctx.translate(-cx, 0);
-    ctx.strokeStyle = color;
-    ctx.lineCap     = 'round';
-    ctx.lineJoin    = 'round';
-    drawGlyphOnRecorder(ctx, activeLetter, cx, baseline, capHeight, xHeight, sw, W, H);
-    ctx.restore();
-
-    miniEl.innerHTML = '';
-    miniEl.appendChild(c);
+  const stage = document.getElementById('profileGlyphStageCam');
+  if (stage) {
+    stage.style.display = 'flex';
+    // Render the frozen letter SVG into the stage
+    const glyphArea = document.getElementById('profileGlyphArea');
+    if (glyphArea && previewSvg) {
+      glyphArea.innerHTML = previewSvg;
+    } else if (glyphArea && activeLetter) {
+      const snap = getLiveAxes();
+      glyphArea.innerHTML = captureLetterSVG(activeLetter, snap.weight, snap.slant, snap.width);
+    }
+    // Set letter label
+    const label = document.getElementById('profileGlyphStageLabel');
+    if (label) label.textContent = activeLetter || '';
+    // Tint background with letter's palette color at low opacity
+    const colorKey2 = CLR_CYCLE[LETTERS.indexOf(activeLetter)];
+    const bgMap = { tc: 'rgba(196,113,74,0.06)', sg: 'rgba(122,158,135,0.06)', oc: 'rgba(196,162,74,0.06)' };
+    stage.style.background = bgMap[colorKey2] || 'var(--surface)';
   }
+
+  // Stop the preview video
+  const previewVideo = document.getElementById('previewVideo');
+  if (previewVideo) { previewVideo.pause(); previewVideo.src = ''; }
+  document.getElementById('recPreview').style.display = 'none';
 }
 
 function slideBackToCanvas() {
   collapseModal(); // shrink back to camera phase height
   document.getElementById('panelDesignInner').classList.remove('slide-out');
   document.getElementById('panelProfile').classList.remove('slide-in');
+  // Restore camera viewport and topbar
+  const camViewport = document.getElementById('camViewport');
+  if (camViewport) camViewport.style.display = '';
+  const camTopbar = document.querySelector('#panelCam .cam-topbar');
+  if (camTopbar) camTopbar.style.display = '';
+  const profileGlyphStageCam = document.getElementById('profileGlyphStageCam');
+  if (profileGlyphStageCam) profileGlyphStageCam.style.display = 'none';
   setFrozen(false);
   recordedBlob = null;
   // Restore camera feed visibility
@@ -3070,7 +3328,8 @@ function openModal(letter) {
   recordedBlob = null;
 
   document.getElementById('designLetter').textContent = letter;
-  document.getElementById('profileLetterSpan').textContent = letter;
+  const spanEl = document.getElementById('profileLetterSpan');
+  if (spanEl) spanEl.textContent = letter;
   document.getElementById('modalVeil').classList.add('open');
   document.getElementById('recordRow').style.display  = 'none';
 
@@ -3096,6 +3355,12 @@ function closeModal() {
   stopCamera();
   cancelAnimationFrame(animFrame);
   stopMobilePip();
+  const camViewport = document.getElementById('camViewport');
+  if (camViewport) camViewport.style.display = '';
+  const camTopbar2 = document.querySelector('#panelCam .cam-topbar');
+  if (camTopbar2) camTopbar2.style.display = '';
+  const profileGlyphStageCam = document.getElementById('profileGlyphStageCam');
+  if (profileGlyphStageCam) profileGlyphStageCam.style.display = 'none';
   recordedBlob = null;
   axes.weight = 0.5; axes.slant = 0.5; axes.width = 0.5;
   smoothAxes.weight = 0.5; smoothAxes.slant = 0.5; smoothAxes.width = 0.5;
@@ -3554,17 +3819,16 @@ function attachHoverCard(cell, letter) {
   let touchTimer = null;
   let autoDismiss = null;
 
-  // Desktop — hover
+  // Desktop — show in-card overlay instead of floating hover card
   cell.addEventListener('mouseenter', () => {
     if (!savedLetters[letter]) return;
-    hoverTimeout = setTimeout(() => showHoverCard(letter, cell), 120);
+    showCellOverlay(cell, letter);
   });
   cell.addEventListener('mouseleave', () => {
-    clearTimeout(hoverTimeout);
-    hideHoverCard();
+    hideCellOverlay(cell);
   });
 
-  // Mobile — tap to open, tap anywhere else to close, auto-dismiss after 6s
+  // Mobile — tap to open in-card overlay, auto-dismiss after 6s
   cell.addEventListener('touchstart', (e) => {
     if (!savedLetters[letter]) return;
     touchTimer = setTimeout(() => {
@@ -3574,16 +3838,16 @@ function attachHoverCard(cell, letter) {
         hideHoverCard();
         return;
       }
-      // Show card
-      showHoverCard(letter, cell);
+      // Show in-card overlay
+      showCellOverlay(cell, letter);
       // Auto-dismiss after 6s
       clearTimeout(autoDismiss);
-      autoDismiss = setTimeout(() => hideHoverCard(), 6000);
+      autoDismiss = setTimeout(() => hideCellOverlay(cell), 6000);
       // Tap anywhere else closes it
       const closeOnOutside = (ev) => {
         if (!cell.contains(ev.target)) {
           clearTimeout(autoDismiss);
-          hideHoverCard();
+          hideCellOverlay(cell);
           document.removeEventListener('touchstart', closeOnOutside, true);
         }
       };
@@ -3602,8 +3866,186 @@ function attachHoverCard(cell, letter) {
 }
 
 /* ════════════════════════════════════════
-   MOBILE LETTER PIP
+   CELL INFO OVERLAY (gallery hover)
 ════════════════════════════════════════ */
+function showCellOverlay(cell, letter) {
+  const data = savedLetters[letter];
+  if (!data) return;
+
+  hideCellOverlay(cell);
+
+  const colorMap = { tc: 'var(--terracotta)', sg: 'var(--sage)', oc: 'var(--ochre)' };
+  const color = colorMap[data.colorKey] || 'var(--terracotta)';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'cell-info-overlay';
+  overlay.innerHTML = `
+    ${data.svgData ? `<div class="cell-info-glyph-wrap">${data.svgData}</div>` : ''}
+    <div class="cell-info-text">
+      <div class="cell-info-created" style="color:${color}">Glyph by</div>
+      <div class="cell-info-name">${data.name || '—'}</div>
+      <div class="cell-info-meta">${[data.role, data.company].filter(Boolean).join(' · ')}</div>
+      ${data.location ? `<div class="cell-info-location">${data.location}</div>` : ''}
+    </div>
+  `;
+
+  cell.appendChild(overlay);
+  requestAnimationFrame(() => overlay.classList.add('visible'));
+}
+
+function hideCellOverlay(cell) {
+  const existing = cell.querySelector('.cell-info-overlay');
+  if (!existing) return;
+  existing.classList.remove('visible');
+  setTimeout(() => existing.remove(), 220);
+}
+
+/* ════════════════════════════════════════
+   PROFILE FORM — live glyph anim (replaces video replay)
+════════════════════════════════════════ */
+let profileGlyphAnimFrame = null;
+
+function startProfileGlyphAnim() {
+  // No-op — static SVG is set in slideToProfile
+}
+
+function stopProfileGlyphAnim() {
+  cancelAnimationFrame(profileGlyphAnimFrame);
+  profileGlyphAnimFrame = null;
+  const stage = document.getElementById('profileGlyphStageCam');
+  if (stage) stage.style.display = 'none';
+  const camViewport = document.getElementById('camViewport');
+  if (camViewport) camViewport.style.display = '';
+}
+
+function stopProfileGlyphAnim() {
+  cancelAnimationFrame(profileGlyphAnimFrame);
+  profileGlyphAnimFrame = null;
+  const stage = document.getElementById('profileGlyphStageCam');
+  if (stage) stage.style.display = 'none';
+}
+
+function stopProfileGlyphAnim() {
+  cancelAnimationFrame(profileGlyphAnimFrame);
+  profileGlyphAnimFrame = null;
+  const stage = document.getElementById('profileGlyphStageCam');
+  if (stage) stage.style.display = 'none';
+}
+
+/* ════════════════════════════════════════
+   WORLD MAP CONSENT MODAL
+════════════════════════════════════════ */
+let consentLetter = null;
+
+function showConsentModal(letter) {
+  consentLetter = letter;
+  const data = savedLetters[letter];
+  const name = data?.name || '';
+  // Personalise the title with user's name
+  const titleEl = document.getElementById('consentTitle');
+  if (titleEl && name) titleEl.textContent = `Add your dance move to the world map, ${name}?`;
+  const veil = document.getElementById('consentVeil');
+  veil.classList.add('open');
+  requestAnimationFrame(() => veil.classList.add('visible'));
+  drawConsentGlobePreview(letter);
+}
+
+function closeConsentModal() {
+  const veil = document.getElementById('consentVeil');
+  veil.classList.remove('visible');
+  setTimeout(() => veil.classList.remove('open'), 300);
+}
+
+function drawConsentGlobePreview(letter) {
+  const canvas = document.getElementById('consentGlobeCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const data = savedLetters[letter];
+  if (!data) return;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Dark background
+  ctx.fillStyle = '#0F0C0A';
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 0.5;
+  for (let x = 0; x < W; x += 60) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  // A few dim existing pins
+  const colorMap = { tc: '#C4714A', sg: '#7A9E87', oc: '#C4A24A' };
+  const dimPins = [
+    {x:0.18,y:0.42,c:'#7A9E87'},{x:0.55,y:0.38,c:'#C4A24A'},
+    {x:0.72,y:0.55,c:'#7A9E87'},{x:0.35,y:0.62,c:'#C4714A'},
+    {x:0.82,y:0.35,c:'#C4A24A'},{x:0.25,y:0.28,c:'#C4714A'},
+  ];
+  dimPins.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x * W, p.y * H, 3.5, 0, Math.PI*2);
+    ctx.fillStyle = p.c + '66';
+    ctx.fill();
+  });
+
+  // Hero pin — the claimed letter, centered, glowing
+  const col = colorMap[data.colorKey] || '#C4714A';
+  const px = W * 0.5, py = H * 0.5;
+
+  // Glow rings
+  [18, 12].forEach((r, i) => {
+    ctx.beginPath();
+    ctx.arc(px, py, r, 0, Math.PI*2);
+    ctx.strokeStyle = col + (i === 0 ? '22' : '44');
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  });
+
+  // Pin dot
+  ctx.beginPath();
+  ctx.arc(px, py, 6, 0, Math.PI*2);
+  ctx.fillStyle = col;
+  ctx.fill();
+
+  // Letter in pin
+  ctx.font = `600 6px 'DM Serif Display', serif`;
+  ctx.fillStyle = 'white';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(letter, px, py);
+
+  // Name label below pin
+  ctx.font = `500 10px 'DM Sans', sans-serif`;
+  ctx.fillStyle = 'rgba(255,255,255,0.7)';
+  ctx.fillText(data.name || letter, px, py + 18);
+}
+
+// Consent button handlers
+document.getElementById('consentYes').addEventListener('click', () => {
+  closeConsentModal();
+  setTimeout(() => {
+    openWorldView();
+    // Show toast after world view opens
+    setTimeout(() => showToast('Added to world map'), 600);
+  }, 350);
+});
+document.getElementById('consentNo').addEventListener('click', () => {
+  closeConsentModal();
+  // Just returns to gallery — modal closes, user sees their letter in the grid
+});
+
+function showToast(msg = 'Added to world map') {
+  const toast = document.getElementById('appToast');
+  const msgEl = document.getElementById('toastMsg');
+  if (!toast) return;
+  if (msgEl) msgEl.textContent = msg;
+  toast.classList.add('visible');
+  setTimeout(() => toast.classList.remove('visible'), 3000);
+}
+
+
 let mobilePipFrame = null;
 
 function startMobilePip() {
@@ -4481,10 +4923,11 @@ onValue(ref(db, 'typeface'), (snapshot) => {
 document.getElementById('btnClaim').addEventListener('click', async () => {
   if (!activeLetter) return;
 
-  const name     = document.getElementById('inputName').value.trim();
-  const role     = document.getElementById('inputRole').value.trim();
-  const company  = document.getElementById('inputCompany').value.trim();
-  const location = document.getElementById('inputLocation').value.trim();
+  const name      = document.getElementById('inputName').value.trim();
+  const role      = document.getElementById('inputRole').value.trim();
+  const company   = document.getElementById('inputCompany').value.trim();
+  const location  = document.getElementById('inputLocation').value.trim();
+  const danceMove = document.getElementById('inputDanceMove')?.value.trim() || '';
 
   // Validate all fields required
   if (!name || !role || !company || !location) {
@@ -4512,17 +4955,21 @@ document.getElementById('btnClaim').addEventListener('click', async () => {
   // 1. Save locally immediately with full profile data
   savedLetters[savedLetter] = {
     colorKey, axes: { ...snap }, svgData,
-    name, role, company, location,
+    name, role, company, location, danceMove,
     videoUrl: null
   };
   refreshCell(savedLetter, true);
   refreshBead(savedLetter);
   refreshProgress();
   refreshWorldViewIfOpen();
+  stopProfileGlyphAnim();
 
   // Capture blob reference BEFORE closeModal() wipes recordedBlob
   const blobToUpload = recordedBlob;
   closeModal();
+
+  // Show consent modal after cell claim animation settles
+  setTimeout(() => showConsentModal(savedLetter), 900);
 
   // 2. Upload video to Cloudinary if we have a recording
   let videoUrl = null;
@@ -4568,6 +5015,7 @@ document.getElementById('btnClaim').addEventListener('click', async () => {
       role,
       company,
       location,
+      danceMove: danceMove || null,
       videoUrl:  videoUrl || null,
       savedAt:   Date.now(),
       sessionId: getSessionId()
@@ -4584,8 +5032,8 @@ document.getElementById('btnClaim').addEventListener('click', async () => {
   btn.textContent = 'Claim your glyph →';
 
   // Clear form for next use
-  ['inputName','inputRole','inputCompany','inputLocation'].forEach(id => {
-    document.getElementById(id).value = '';
+  ['inputName','inputRole','inputCompany','inputLocation','inputDanceMove'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
   });
 });
 </script>
