@@ -132,15 +132,10 @@ a, button { cursor: none; }
   opacity: 1;
   border-color: var(--ink-muted);
 }
-/* saved states — border color only, no background fill */
 .letter-cell.tc { border: 1px solid var(--terracotta); opacity: 1; background: transparent; }
 .letter-cell.sg { border: 1px solid var(--sage);       opacity: 1; background: transparent; }
 .letter-cell.oc { border: 1px solid var(--ochre);      opacity: 1; background: transparent; }
 
-
-
-
-/* placeholder label (shown when unsaved) */
 .cell-label {
   font-family: 'DM Sans', sans-serif;
   font-size: 0.78rem;
@@ -159,9 +154,7 @@ a, button { cursor: none; }
 .letter-cell.tc .cell-label { color: var(--terracotta-light); }
 .letter-cell.sg .cell-label { color: var(--sage-light); }
 .letter-cell.oc .cell-label { color: var(--ochre-light); }
-/* label stays visible on saved cells — color shifts to palette tone above */
 
-/* saved SVG preview */
 .cell-svg-wrap {
   position: absolute;
   top: 8%; left: 8%; right: 8%; bottom: 22%;
@@ -190,7 +183,6 @@ a, button { cursor: none; }
 .letter-cell.sg .cell-dot { background: var(--sage);       display: block; }
 .letter-cell.oc .cell-dot { background: var(--ochre);      display: block; }
 
-/* + icon on empty cells */
 .cell-plus {
   position: absolute;
   top: 50%; left: 50%;
@@ -226,7 +218,6 @@ a, button { cursor: none; }
 }
 .letter-cell:hover .cell-tooltip { opacity: 1; }
 
-/* flash in */
 @keyframes pop-in {
   0%  { transform: scale(0.88); opacity: 0; }
   65% { transform: scale(1.04); }
@@ -318,6 +309,7 @@ a, button { cursor: none; }
   display: flex; flex-direction: column;
   min-height: 530px;
   position: relative;
+  transition: background 0.4s ease;
 }
 .cam-topbar {
   padding: 1.2rem 1.4rem 0.7rem;
@@ -352,7 +344,6 @@ a, button { cursor: none; }
   transform: scaleX(-1);
 }
 
-/* freeze vignette overlay */
 .freeze-vignette {
   position: absolute; inset: 0;
   pointer-events: none;
@@ -363,7 +354,6 @@ a, button { cursor: none; }
 }
 .freeze-vignette.on { opacity: 1; }
 
-/* axis strips */
 .axis-grid {
   position: absolute; bottom: 0; left: 0; right: 0;
   padding: 0.65rem 0.9rem;
@@ -387,7 +377,6 @@ a, button { cursor: none; }
 .axis-fill.dr { background: #8888ff; }
 .axis-val { font-size: 0.6rem; font-weight: 500; color: rgba(255,255,255,0.6); font-variant-numeric: tabular-nums; }
 
-/* camera placeholder */
 .cam-placeholder {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
@@ -422,7 +411,6 @@ a, button { cursor: none; }
 }
 .btn-cam:hover { border-color: rgba(255,255,255,0.5); color: rgba(255,255,255,0.88); }
 
-/* ── FREEZE TOGGLE ── */
 .freeze-row {
   padding: 0.7rem 1.4rem;
   display: flex; align-items: center; justify-content: space-between;
@@ -470,7 +458,6 @@ a, button { cursor: none; }
 }
 .freeze-state-label.on { color: var(--ochre-mid); }
 
-/* frozen badge on design panel */
 .frozen-badge {
   display: none; align-items: center; gap: 5px;
   font-size: 0.6rem; letter-spacing: 0.08em;
@@ -515,7 +502,6 @@ a, button { cursor: none; }
 }
 #tCanvas { width: 100%; height: 100%; }
 
-/* frozen canvas veil */
 .canvas-wrap::after {
   content: '';
   position: absolute; inset: 0;
@@ -569,8 +555,6 @@ a, button { cursor: none; }
    RESPONSIVE — tablet (≤ 768px)
 ══════════════════════════════════════ */
 @media (max-width: 600px) {
-
-  /* Header */
   .header {
     padding: 1.25rem 1.5rem 1rem;
     flex-direction: row;
@@ -586,8 +570,6 @@ a, button { cursor: none; }
     flex-shrink: 0;
     padding-top: 2px;
   }
-
-  /* Step strip — allow wrap if needed, no forced scroll */
   .step-strip {
     padding: 0.7rem 1.5rem;
     gap: 0.75rem 1.25rem;
@@ -597,8 +579,6 @@ a, button { cursor: none; }
   }
   .step-sep { display: none; }
   .step { flex-shrink: 0; }
-
-  /* Grid — 6 columns on tablet */
   .alpha-wrap { padding: 1.5rem 1.5rem 6rem; }
   .alpha-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -606,14 +586,10 @@ a, button { cursor: none; }
     max-width: 100%;
   }
   .cell-label { font-size: 0.58rem; }
-
-  /* Footer */
   .progress-bar { padding: 0 1.5rem; height: 44px; }
   .pb-count { font-size: 0.62rem; }
   .otf-link { font-size: 0.62rem; }
   .credit-bar { font-size: 0.58rem; }
-
-  /* Modal — always full height on tablet, no compact phase */
   .modal {
     grid-template-columns: 1fr;
     grid-template-rows: 50% 50%;
@@ -630,8 +606,6 @@ a, button { cursor: none; }
     max-height: 93dvh;
   }
   .modal-veil { align-items: flex-end; }
-
-  /* Drag handle */
   .modal::before {
     content: '';
     position: absolute;
@@ -642,7 +616,6 @@ a, button { cursor: none; }
     border-radius: 2px;
     z-index: 20;
   }
-
   .panel-cam {
     min-height: 0;
     height: 100%;
@@ -653,14 +626,9 @@ a, button { cursor: none; }
     flex: 1;
     min-height: 0;
   }
-
-  /* Live letter pip — hidden on mobile, letter visible in bottom panel */
-
   .axis-grid { padding: 0.5rem 0.7rem; gap: 0.3rem; }
   .axis-pill { padding: 0.22rem 0.35rem; }
   .freeze-hint { display: none; }
-
-  /* Design panel — scrollable on mobile */
   .panel-design {
     display: flex;
     overflow: hidden;
@@ -674,7 +642,6 @@ a, button { cursor: none; }
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
-
   .design-topbar { padding: 0.8rem 1rem 0.6rem; }
   .design-letter { font-size: 1.6rem; }
   .design-axis-label { display: none; }
@@ -686,17 +653,10 @@ a, button { cursor: none; }
   .btn-close { top: 0.75rem; right: 0.75rem; }
 }
 
-/* ══════════════════════════════════════
-   RESPONSIVE — mobile (≤ 480px)
-══════════════════════════════════════ */
 @media (max-width: 480px) {
-
-  /* Header */
   .header { padding: 1rem 1.1rem 0.85rem; }
   .header-title { font-size: 0.95rem; }
   .header-sub { font-size: 0.6rem; }
-
-  /* Step strip — single row if it fits, wrap to two if not */
   .step-strip {
     padding: 0.65rem 1.1rem;
     flex-wrap: wrap;
@@ -706,8 +666,6 @@ a, button { cursor: none; }
   }
   .step { font-size: 0.62rem; flex-shrink: 0; }
   .step-n { width: 15px; height: 15px; font-size: 0.52rem; }
-
-  /* Grid — 5 columns on small mobile, tight */
   .alpha-wrap { padding: 1.1rem 1rem 7rem; }
   .alpha-grid {
     grid-template-columns: repeat(4, 1fr);
@@ -715,8 +673,6 @@ a, button { cursor: none; }
   }
   .cell-label { font-size: 0.55rem; }
   .cell-dot { width: 4px; height: 4px; top: 4px; right: 4px; }
-
-  /* Footer — two-line on mobile */
   .progress-bar {
     padding: 0.45rem 1rem;
     height: auto;
@@ -728,8 +684,6 @@ a, button { cursor: none; }
   .pb-count { font-size: 0.58rem; order: 1; }
   .otf-link { font-size: 0.58rem; order: 2; }
   .credit-bar { font-size: 0.56rem; order: 3; margin-left: auto; }
-
-  /* Modal — always full height on small phones */
   .modal {
     height: 93dvh;
     max-height: 93dvh;
@@ -778,7 +732,6 @@ a, button { cursor: none; }
   transform: translateY(0) scale(1);
 }
 
-/* Video / glyph area */
 .hover-card-video-wrap {
   position: relative;
   width: 100%;
@@ -808,7 +761,6 @@ a, button { cursor: none; }
 .hover-card-glyph { width: 100%; height: 100%; overflow: visible; }
 .hover-card-glyph svg { width: 100%; height: 100%; overflow: visible; }
 
-/* Info body */
 .hover-card-body {
   padding: 0.75rem 0.85rem 0.85rem;
   display: flex;
@@ -852,7 +804,6 @@ a, button { cursor: none; }
   text-overflow: ellipsis;
 }
 
-/* Color accent strip at top of card matches letter color */
 .hover-card::before {
   content: '';
   position: absolute;
@@ -864,7 +815,6 @@ a, button { cursor: none; }
 .hover-card.clr-sg::before { background: var(--sage); }
 .hover-card.clr-oc::before { background: var(--ochre); }
 
-/* Mobile — tap card instead of hover */
 @media (max-width: 600px) {
   .hover-card { width: 180px; }
   .hover-card-name { font-size: 0.75rem; }
@@ -919,13 +869,8 @@ a, button { cursor: none; }
   background: var(--terracotta);
   flex-shrink: 0;
 }
-.btn-record.recording .btn-record-dot {
-  display: none;
-}
-.btn-record.recording {
-  justify-content: center;
-  gap: 0;
-}
+.btn-record.recording .btn-record-dot { display: none; }
+.btn-record.recording { justify-content: center; gap: 0; }
 .btn-record-count {
   font-family: 'DM Serif Display', serif;
   font-size: 1rem;
@@ -941,7 +886,6 @@ a, button { cursor: none; }
 }
 @keyframes rec-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
 
-/* ── Framing guide ── */
 .frame-guide {
   position: absolute; inset: 0;
   pointer-events: none; z-index: 3;
@@ -952,7 +896,6 @@ a, button { cursor: none; }
   border: 1px dashed rgba(255,255,255,0.28);
   border-radius: 4px;
 }
-/* corner accents */
 .frame-guide-box::before,
 .frame-guide-box::after {
   content: '';
@@ -981,7 +924,6 @@ a, button { cursor: none; }
 }
 [data-recording="true"] .frame-guide { display: none !important; }
 
-/* ── Recording countdown ring ── */
 .rec-countdown {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
@@ -1015,7 +957,6 @@ a, button { cursor: none; }
   letter-spacing: 0.12em; text-transform: uppercase;
 }
 
-/* ── Mobile live-letter pip (shown inside cam viewport on small screens) ── */
 .mobile-letter-pip {
   display: none;
   position: absolute;
@@ -1033,7 +974,6 @@ a, button { cursor: none; }
   width: 100%; height: 100%; display: block;
 }
 
-/* ── Recording countdown ring ── */
 .rec-ring-wrap {
   position: relative;
   width: 20px; height: 20px;
@@ -1077,7 +1017,6 @@ a, button { cursor: none; }
   animation: rec-pulse 0.8s ease infinite;
 }
 
-/* ── Video preview ── */
 .rec-preview {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
@@ -1099,7 +1038,7 @@ a, button { cursor: none; }
 }
 
 /* ══════════════════════════════════════
-   DESIGN PANEL INNER (slides for profile)
+   DESIGN PANEL INNER
 ══════════════════════════════════════ */
 .panel-design { position: relative; overflow: hidden; }
 .panel-design-inner {
@@ -1177,7 +1116,6 @@ a, button { cursor: none; }
   opacity: 0.4;
 }
 
-/* Full-width glyph stage — kept for reference but not used in layout */
 .profile-glyph-stage {
   display: none;
 }
@@ -1252,66 +1190,71 @@ a, button { cursor: none; }
 .btn-claim:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ══════════════════════════════════════
-   CELL INFO OVERLAY (replaces hover card on gallery)
+   CELL INFO OVERLAY
 ══════════════════════════════════════ */
 .cell-info-overlay {
   position: absolute; inset: 0;
   border-radius: 4px;
-  background: rgba(255,252,248,0.93);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: var(--surface);
   display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  gap: 0.5rem;
-  padding: 0.6rem 0.7rem;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0.55rem 0.6rem;
   opacity: 0;
   transform: translateY(4px);
   transition: opacity 0.22s ease, transform 0.22s ease;
   pointer-events: none;
   z-index: 5;
+  overflow: hidden;
 }
 .cell-info-overlay.visible {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
 }
-.cell-info-glyph-wrap {
-  width: 36px; height: 48px;
-  flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  overflow: visible;
-}
-.cell-info-glyph-wrap svg {
-  width: 100%; height: 100%; overflow: visible;
-}
 .cell-info-text {
-  display: flex; flex-direction: column; gap: 1px;
-  overflow: hidden; min-width: 0;
+  display: flex; flex-direction: column; gap: 2px;
+  overflow: hidden; min-width: 0; width: 100%;
 }
 .cell-info-created {
-  font-size: 0.52rem;
-  letter-spacing: 0.06em;
+  font-size: 0.5rem;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  margin-bottom: 0.15rem;
+  color: var(--ink-muted);
+  margin-bottom: 1px;
+  white-space: nowrap;
 }
 .cell-info-name {
   font-family: 'DM Serif Display', serif;
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: var(--ink);
-  line-height: 1.2;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .cell-info-meta {
-  font-size: 0.6rem;
+  font-size: 0.56rem;
   color: var(--ink-mid);
-  line-height: 1.35;
-  white-space: normal;
-  word-break: break-word;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .cell-info-location {
-  font-size: 0.56rem;
+  font-size: 0.52rem;
   color: var(--ink-muted);
-  margin-top: 0.1rem;
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cell-info-meta--short { display: none; }
+
+@media (max-width: 600px) {
+  .cell-info-meta--full  { display: none; }
+  .cell-info-meta--short { display: block; }
 }
 
 /* ══════════════════════════════════════
@@ -1329,8 +1272,13 @@ a, button { cursor: none; }
   opacity: 0;
   transition: opacity 0.3s ease;
 }
-.consent-veil.open { display: flex; }
-.consent-veil.visible { opacity: 1; }
+/* ── FIX: open class drives display, visible class drives opacity ── */
+.consent-veil.open {
+  display: flex;
+}
+.consent-veil.visible {
+  opacity: 1;
+}
 
 .consent-card {
   width: 420px;
@@ -1346,7 +1294,6 @@ a, button { cursor: none; }
   transform: translateY(0) scale(1);
 }
 
-/* Globe preview strip */
 .consent-globe-preview {
   width: 100%;
   height: 180px;
@@ -1355,9 +1302,7 @@ a, button { cursor: none; }
   overflow: hidden;
   display: flex; align-items: center; justify-content: center;
 }
-.consent-globe-canvas {
-  display: block;
-}
+.consent-globe-canvas { display: block; }
 .consent-globe-label {
   position: absolute;
   bottom: 12px; left: 50%;
@@ -1369,7 +1314,6 @@ a, button { cursor: none; }
   white-space: nowrap;
 }
 
-/* Consent body */
 .consent-body {
   padding: 1.5rem 1.75rem 1.75rem;
 }
@@ -1415,7 +1359,6 @@ a, button { cursor: none; }
   padding: 0.75rem 0.5rem;
   transition: color 0.14s;
 }
-.consent-btn-no:hover { color: var(--ink); }
 .consent-btn-no:hover { color: var(--ink); }
 
 /* Toast */
@@ -1492,7 +1435,6 @@ a, button { cursor: none; }
 .worldview-veil.open { display: flex; }
 .worldview-veil.visible { opacity: 1; }
 
-/* Top bar */
 .wv-topbar {
   flex-shrink: 0;
   padding: 1.2rem 3rem;
@@ -1519,7 +1461,7 @@ a, button { cursor: none; }
   align-items: center;
   gap: 1.5rem;
   flex-shrink: 0;
-  padding-top: 2px; /* optical alignment with title baseline */
+  padding-top: 2px;
 }
 .wv-live-badge {
   display: flex; align-items: center; gap: 6px;
@@ -1554,7 +1496,6 @@ a, button { cursor: none; }
   cursor: none !important;
 }
 
-/* Stats strip */
 .wv-stats-strip {
   flex-shrink: 0;
   padding: 0.85rem 3rem;
@@ -1614,7 +1555,6 @@ a, button { cursor: none; }
   flex-shrink: 0;
 }
 
-/* Map container */
 .wv-map-wrap {
   flex: 1;
   position: relative;
@@ -1624,15 +1564,12 @@ a, button { cursor: none; }
   justify-content: center;
   min-height: 0;
 }
-/* Globe canvas — always square, fits within the available space */
 #wvGlobeCanvas {
   display: block;
   cursor: none;
-  /* size is set via JS to min(width, height) of the wrap */
 }
 #wvGlobeCanvas:active { cursor: none; }
 
-/* Light mode cursor for main page */
 #mainCursor {
   position: fixed;
   width: 20px; height: 20px;
@@ -1649,7 +1586,6 @@ a, button { cursor: none; }
   border-color: rgba(80,70,60,0.5);
   background: radial-gradient(circle, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.0) 70%);
 }
-/* Dark variant of main cursor — for camera panel */
 #mainCursor.dark {
   background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.0) 70%);
   border-color: rgba(255,255,255,0.3);
@@ -1675,7 +1611,6 @@ a, button { cursor: none; }
   border-color: rgba(180,170,160,0.55);
 }
 .wv-map-svg { width: 100%; height: 100%; display: block; }
-/* Dim world landmasses */
 .wv-land {
   fill: rgba(255,255,255,0.04);
   stroke: rgba(255,255,255,0.09);
@@ -1687,7 +1622,6 @@ a, button { cursor: none; }
   stroke-width: 0.3;
 }
 
-/* Map pins */
 .wv-pin-group { cursor: none; }
 .wv-pin-ring {
   fill: none;
@@ -1711,8 +1645,6 @@ a, button { cursor: none; }
   font-weight: 400;
 }
 
-/* ── World view hover card (reuses existing hover-card) ── */
-/* extended version with glyph animation canvas */
 .wv-hover-card {
   position: fixed;
   z-index: 4000;
@@ -1727,7 +1659,6 @@ a, button { cursor: none; }
     0 12px 32px rgba(0,0,0,0.45),
     0 32px 64px rgba(0,0,0,0.35),
     inset 0 1px 0 rgba(255,255,255,0.04);
-  overflow: hidden;
   pointer-events: none;
   opacity: 0;
   transform: translateY(8px) scale(0.96);
@@ -1772,7 +1703,6 @@ a, button { cursor: none; }
   padding: 12%;
   z-index: 1;
 }
-/* Vignette + grain on main hover card — only when video is loaded */
 .hover-card-video-wrap::after {
   content: '';
   position: absolute;
@@ -1803,7 +1733,6 @@ a, button { cursor: none; }
   opacity: 0.06;
 }
 
-/* Vignette + grain overlay on wv hover card — only when video loaded */
 .wv-hc-video-wrap::after {
   content: '';
   position: absolute;
@@ -1879,7 +1808,6 @@ a, button { cursor: none; }
 </head>
 <body>
 
-<!-- Main page light cursor -->
 <div id="mainCursor"></div>
 
 <!-- HEADER -->
@@ -1950,8 +1878,6 @@ a, button { cursor: none; }
 
 <!-- WORLD VIEW OVERLAY -->
 <div class="worldview-veil" id="worldviewVeil">
-
-  <!-- Top bar -->
   <div class="wv-topbar">
     <div class="wv-title-group">
       <div class="wv-title">World View</div>
@@ -1965,8 +1891,6 @@ a, button { cursor: none; }
       <button class="wv-close" onclick="closeWorldView()">✕</button>
     </div>
   </div>
-
-  <!-- Stats strip -->
   <div class="wv-stats-strip" id="wvStatsStrip">
     <div class="wv-stat">
       <span class="wv-stat-num" id="wvTotalLetters">0</span>
@@ -1980,14 +1904,11 @@ a, button { cursor: none; }
     <div class="wv-stat-divider"></div>
     <div class="wv-country-list" id="wvCountryList"></div>
   </div>
-
-  <!-- 3D Globe -->
   <div class="wv-map-wrap" id="wvMapWrap">
     <canvas id="wvGlobeCanvas"></canvas>
   </div>
 </div>
 
-<!-- World View custom cursor -->
 <div id="wvCursor"></div>
 
 <!-- World View hover card -->
@@ -2024,7 +1945,7 @@ a, button { cursor: none; }
         </div>
       </div>
 
-      <!-- Profile glyph stage — replaces camera when form is active -->
+      <!-- Profile glyph stage — shown when profile form is active -->
       <div class="profile-glyph-stage-cam" id="profileGlyphStageCam" style="display:none;">
         <div class="profile-glyph-area" id="profileGlyphArea"></div>
         <div class="profile-glyph-stage-label" id="profileGlyphStageLabel"></div>
@@ -2043,12 +1964,10 @@ a, button { cursor: none; }
         <canvas id="poseCanvas" style="display:none;"></canvas>
         <div class="freeze-vignette" id="freezeVignette"></div>
 
-        <!-- Framing guide shown before recording -->
         <div class="frame-guide" id="frameGuide" style="display:none;">
           <div class="frame-guide-box"></div>
         </div>
 
-        <!-- Recording countdown overlay -->
         <div class="rec-countdown" id="recCountdown" style="display:none;">
           <div class="rec-ring">
             <svg class="rec-ring-svg" viewBox="0 0 48 48">
@@ -2060,18 +1979,16 @@ a, button { cursor: none; }
           <span class="rec-countdown-label">Recording in…</span>
         </div>
 
-        <!-- Video preview after recording -->
         <div class="rec-preview" id="recPreview" style="display:none;">
           <video id="previewVideo" autoplay muted loop playsinline></video>
           <div class="rec-preview-label">Your move — looking good ↑</div>
         </div>
 
-        <!-- Live recording badge (minimal, shows during actual 6s record) -->
         <div class="rec-live-badge" id="recLiveBadge" style="display:none;">
           <div class="rec-ring-wrap">
             <svg class="rec-ring-svg" viewBox="0 0 28 28">
               <circle class="rec-ring-track" cx="14" cy="14" r="11"/>
-              <circle class="rec-ring-fill" id="recRingFill" cx="14" cy="14" r="11"/>
+              <circle class="rec-ring-fill" id="recRingFillLive" cx="14" cy="14" r="11"/>
             </svg>
             <span class="rec-live-dot"></span>
           </div>
@@ -2102,7 +2019,7 @@ a, button { cursor: none; }
         </div>
       </div>
 
-      <!-- Record row -->
+      <!-- Record row — hidden when profile panel is shown -->
       <div class="record-row" id="recordRow" style="display:none;">
         <div class="record-row-left">
           <div class="rec-status-label" id="recStatusLabel">Dance, then capture your move</div>
@@ -2123,7 +2040,6 @@ a, button { cursor: none; }
         <div class="design-axis-label">Weight · Slant · Width</div>
       </div>
 
-      <!-- Glyph canvas view -->
       <div class="panel-design-inner" id="panelDesignInner">
         <div class="canvas-wrap" id="canvasWrap">
           <canvas id="tCanvas"></canvas>
@@ -2137,7 +2053,7 @@ a, button { cursor: none; }
         </div>
       </div>
 
-      <!-- Profile form (slides in after recording) -->
+      <!-- Profile form -->
       <div class="panel-profile" id="panelProfile">
         <div class="profile-header-slim">
           <div class="profile-title">Who made this glyph?</div>
@@ -2183,26 +2099,22 @@ const LETTERS   = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 const CLR_CYCLE = ['tc','sg','oc','tc','sg','oc','tc','sg','oc','tc','sg','oc','tc','sg','oc','tc','sg','oc','tc','sg','oc','tc','sg','oc','tc','sg'];
 const CLR_HEX   = { tc: '#C4714A', sg: '#7A9E87', oc: '#C4A24A' };
 
-// savedLetters[letter] = { colorKey, axes: {weight,slant,width}, svgData: <string of SVG path commands> }
 const savedLetters = {};
 
 let activeLetter  = null;
 let cameraActive  = false;
-let isFrozen      = false;   // ← NEW FREEZE STATE
+let isFrozen      = false;
 let animFrame     = null;
 let pose = null, camera = null;
 let mediaRecorder = null, recordedBlob = null, recordingTimer = null;
 
-// Live axes (set by MediaPipe or demo ticker)
 const axes       = { weight: 0.5, slant: 0.5, width: 0.5 };
-// Smoothed axes (only updated when !isFrozen)
 const smoothAxes = { weight: 0.5, slant: 0.5, width: 0.5 };
-// Frozen snapshot axes (copied from smoothAxes when freeze is toggled on)
 const frozenAxes = { weight: 0.5, slant: 0.5, width: 0.5 };
 const LERP = 0.075;
 
 /* ════════════════════════════════════════
-   FREEZE TOGGLE LOGIC
+   FREEZE
 ════════════════════════════════════════ */
 function setFrozen(val) {
   isFrozen = val;
@@ -2211,29 +2123,16 @@ function setFrozen(val) {
     frozenAxes.slant  = smoothAxes.slant;
     frozenAxes.width  = smoothAxes.width;
   }
-  // Axis bars grey out while frozen
   document.querySelectorAll('.axis-fill').forEach(el => {
     el.style.transition = isFrozen ? 'none' : 'width 0.1s linear';
     el.style.opacity    = isFrozen ? '0.35' : '1';
   });
 }
 
-// Remove old toggle listener (toggle no longer in DOM)
-
 /* ════════════════════════════════════════
-   SVG PATH SERIALISATION
-   Captures the draw commands as an SVG path string
-   at the moment of saving, for persistent grid display.
+   SVG CAPTURE
 ════════════════════════════════════════ */
-
-/**
- * captureLetterSVG(letter, weight, slant, width)
- * Returns a tiny SVG string (viewBox 0 0 100 100) of the current letter.
- * We re-run the draw logic on a temp canvas, extract the path via
- * a proxy Context2D recorder, then emit clean SVG path data.
- */
 function captureLetterSVG(letter, weight, slant, width) {
-  // Normalised coordinate space: 100 × 100
   const NW = 100, NH = 100;
   const baseline  = NH * 0.78;
   const capHeight = NH * 0.18;
@@ -2242,33 +2141,17 @@ function captureLetterSVG(letter, weight, slant, width) {
   const sw        = Math.min(7, 2 + weight * 7);
   const slantShear = (slant - 0.5) * 0.28;
   const scaleX    = 0.65 + width * 0.7;
-
   const colorKey = CLR_CYCLE[LETTERS.indexOf(letter)];
   const color    = CLR_HEX[colorKey];
-
-  // We'll collect SVG path command strings
   const cmds = [];
-
-  // Proxy recorder — mirrors Canvas2D drawing API into SVG path `d` strings
   const recorder = makePathRecorder(cmds, cx, NW, NH, slantShear, scaleX, sw, color, baseline, capHeight, xHeight);
-
-  // Run the glyph draw through the recorder
   drawGlyphOnRecorder(recorder, letter, cx, baseline, capHeight, xHeight, sw, NW, NH);
-
   const pathEls = cmds.join('\n');
-
   return `<svg viewBox="0 0 ${NW} ${NH}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" width="100%" height="100%">${pathEls}</svg>`;
 }
 
-/**
- * makePathRecorder builds a minimal Canvas2D–like API proxy that
- * emits SVG path elements instead of painting to a canvas.
- * Commands are accumulated in the `cmds` array.
- */
 function makePathRecorder(cmds, cx, NW, NH, slantShear, scaleX, defaultSW, defaultColor, baseline, capHeight, xHeight) {
-  // We apply the same shear+scale transform to each point
   function tx(x, y) {
-    // shear: x' = x + shear*y, scale: x' *= scaleX around cx
     const xs = x + slantShear * y;
     const xf = cx + (xs - cx) * scaleX;
     return xf;
@@ -2294,7 +2177,6 @@ function makePathRecorder(cmds, cx, NW, NH, slantShear, scaleX, defaultSW, defau
       _d += `C ${tx(c1x,c1y).toFixed(2)} ${ty(c1y).toFixed(2)} ${tx(c2x,c2y).toFixed(2)} ${ty(c2y).toFixed(2)} ${tx(ex,ey).toFixed(2)} ${ty(ey).toFixed(2)} `;
     },
     arc(x, y, r, startAngle, endAngle, anticlockwise) {
-      // Approximate arc as polyline segments for SVG compatibility
       const dir = anticlockwise ? -1 : 1;
       let a = startAngle;
       const step = (dir * (endAngle - startAngle)) / 32;
@@ -2321,7 +2203,6 @@ function makePathRecorder(cmds, cx, NW, NH, slantShear, scaleX, defaultSW, defau
       _d = '';
     },
     fillText(text, x, y) {
-      // Render letter as fallback text element
       cmds.push(`<text x="${tx(x,y).toFixed(2)}" y="${ty(y).toFixed(2)}" font-family="DM Serif Display,serif" font-size="${_sw * 4}" fill="${_color}" text-anchor="middle">${text}</text>`);
     },
     save() {}, restore() {},
@@ -2332,8 +2213,7 @@ function makePathRecorder(cmds, cx, NW, NH, slantShear, scaleX, defaultSW, defau
 }
 
 /* ════════════════════════════════════════
-   SHARED GLYPH DRAW FUNCTION
-   Used by both canvas renderer and SVG recorder
+   GLYPH DRAW
 ════════════════════════════════════════ */
 function drawGlyphOnRecorder(ctx, letter, cx, baseline, capHeight, xHeight, sw, W, H) {
   ctx.lineWidth   = sw;
@@ -2478,7 +2358,7 @@ function drawGlyphOnRecorder(ctx, letter, cx, baseline, capHeight, xHeight, sw, 
 }
 
 /* ════════════════════════════════════════
-   TYPOGRAPHIC CANVAS (modal right panel)
+   TYPOGRAPHIC CANVAS
 ════════════════════════════════════════ */
 const tCanvas = document.getElementById('tCanvas');
 const tCtx    = tCanvas.getContext('2d');
@@ -2490,13 +2370,12 @@ function resizeTCanvas() {
   tCanvas.height = wrap.clientHeight * dpr;
   tCanvas.style.width  = wrap.clientWidth  + 'px';
   tCanvas.style.height = wrap.clientHeight + 'px';
-  tCtx.setTransform(1, 0, 0, 1, 0, 0); // reset before scaling
+  tCtx.setTransform(1, 0, 0, 1, 0, 0);
   tCtx.scale(dpr, dpr);
   drawLetter();
 }
 
 function getLiveAxes() {
-  // When frozen, use the snapshot; otherwise use the smoothed live values
   return isFrozen ? frozenAxes : smoothAxes;
 }
 
@@ -2521,7 +2400,6 @@ function drawLetter() {
   const xHeight   = H * 0.42;
   const cx        = W / 2;
 
-  /* ── guides ── */
   tCtx.save();
   tCtx.strokeStyle = 'rgba(196,113,74,0.18)';
   tCtx.lineWidth = 0.6;
@@ -2542,13 +2420,11 @@ function drawLetter() {
   tCtx.fillText('cap height',W*0.055, capHeight - 4);
   tCtx.fillText('x-height',  W*0.055, xHeight - 4);
 
-  // Left margin rule
   tCtx.strokeStyle = 'rgba(160,140,130,0.14)';
   tCtx.lineWidth = 0.5;
   tCtx.beginPath(); tCtx.moveTo(W*0.2, H*0.07); tCtx.lineTo(W*0.2, H*0.93); tCtx.stroke();
   tCtx.restore();
 
-  /* ── glyph ── */
   const color = colorHex(activeLetter);
   tCtx.save();
   tCtx.translate(cx, 0);
@@ -2561,7 +2437,6 @@ function drawLetter() {
   drawGlyphOnRecorder(tCtx, activeLetter, cx, baseline, capHeight, xHeight, sw, W, H);
   tCtx.restore();
 
-  /* ── anchor dots ── */
   const top = capHeight, bot = baseline, mid = xHeight;
   const lx = cx - W*0.155, rx = cx + W*0.155;
   const anchors = [
@@ -2569,7 +2444,6 @@ function drawLetter() {
     {x:cx,y:(top+bot)/2},{x:lx,y:top},{x:rx,y:top},
   ];
   const t = Date.now() / 1000;
-  const pulseScale = isFrozen ? 0.4 : 1; // quieter pulse when frozen
 
   anchors.forEach((pt, i) => {
     const pulse = isFrozen ? 0.55 : (0.6 + 0.4 * Math.sin(t * 2.2 + i * 0.85));
@@ -2579,8 +2453,7 @@ function drawLetter() {
     tCtx.transform(1, 0, slantShear, 1, -pt.x, 0);
 
     tCtx.beginPath();
-    tCtx.arc(0, 0, r + 3.5 * pulse * pulseScale, 0, Math.PI * 2);
-    // parse hex to rgba
+    tCtx.arc(0, 0, r + 3.5 * pulse, 0, Math.PI * 2);
     const h = color.replace('#','');
     const ri = parseInt(h.slice(0,2),16), gi = parseInt(h.slice(2,4),16), bi = parseInt(h.slice(4,6),16);
     tCtx.strokeStyle = `rgba(${ri},${gi},${bi},${0.14 * pulse})`;
@@ -2602,7 +2475,6 @@ function drawLetter() {
 function startAnim() {
   cancelAnimationFrame(animFrame);
   function loop() {
-    // Only propagate axes → smoothAxes when NOT frozen
     if (!isFrozen) {
       smoothAxes.weight += (axes.weight - smoothAxes.weight) * LERP;
       smoothAxes.slant  += (axes.slant  - smoothAxes.slant)  * LERP;
@@ -2615,7 +2487,7 @@ function startAnim() {
 }
 
 /* ════════════════════════════════════════
-   BUILD GRID + BEADS
+   GRID + BEADS
 ════════════════════════════════════════ */
 function buildGrid() {
   const grid = document.getElementById('alphaGrid');
@@ -2631,7 +2503,6 @@ function buildGrid() {
       <div class="cell-tooltip">${savedLetters[letter] ? 'Redesign' : 'Design this letter'}</div>
     `;
     cell.addEventListener('click', () => {
-      // If already saved, don't reopen modal — hover card is the interaction
       if (savedLetters[letter]) return;
       openModal(letter);
     });
@@ -2650,7 +2521,6 @@ function buildBeads() {
   });
 }
 
-// Update the grid cell: swap placeholder label for saved SVG thumbnail
 function refreshCell(letter, animate = false) {
   const cell = document.querySelector(`.letter-cell[data-letter="${letter}"]`);
   if (!cell) return;
@@ -2660,7 +2530,6 @@ function refreshCell(letter, animate = false) {
 
   if (saved) {
     cell.classList.add(saved.colorKey);
-    // Only animate for the letter just saved in this session
     if (animate) {
       cell.classList.add('just-saved');
       setTimeout(() => cell.classList.remove('just-saved'), 450);
@@ -2693,75 +2562,43 @@ function refreshProgress() {
     el.textContent = `${remaining} human ${remaining === 1 ? 'touch' : 'touches'} left to download OTF`;
     el.classList.remove('done');
   }
-
-  // Show the download link as soon as at least one letter exists
   link.classList.toggle('active', done > 0);
 }
 
 /* ════════════════════════════════════════
-   OTF GENERATION + DOWNLOAD
-   Builds a real OTF font from the saved glyph axes
-   using opentype.js path commands.
+   OTF GENERATION
 ════════════════════════════════════════ */
-
-// Convert our parametric letter into an opentype.js Path
 function buildOpentypePath(letter, weight, slant, width) {
-  const UPM      = 1000;   // units per em
+  const UPM      = 1000;
   const baseline = 0;
   const capH     = 700;
   const xH       = 450;
-  // Our draw space is 0..NW, 0..NH normalised to UPM
   const NW = 100, NH = 100;
-  const scaleY = UPM / NH;       // flip Y: canvas Y+ is down, OTF Y+ is up
+  const scaleY = UPM / NH;
 
-  const sw      = (2.5 + weight * 10) * (UPM / NW);  // stroke weight in font units
+  const sw      = (2.5 + weight * 10) * (UPM / NW);
   const halfSW  = sw / 2;
   const slantSh = (slant - 0.5) * 0.28;
   const scaleX  = (0.65 + width * 0.7) * (UPM / NW);
 
   const cx  = NW / 2;
-  const bot = NH * 0.78;   // canvas baseline
-  const top = NH * 0.18;   // canvas cap height
-  const mid = NH * 0.42;   // canvas x-height
+  const bot = NH * 0.78;
+  const top = NH * 0.18;
+  const mid = NH * 0.42;
   const lx  = cx - NW * 0.155;
   const rx  = cx + NW * 0.155;
 
-  // Transform: canvas (x,y) → OTF (x,y)
-  // Apply shear + scaleX around cx, then flip Y so baseline=0
   function tx(cx0, x, y) {
     const xs = x + slantSh * y;
     const xf = cx0 + (xs - cx0) * scaleX;
     return Math.round(xf);
   }
   function ty(y) {
-    // Flip: canvas bot (=NH*0.78) maps to OTF 0, canvas top maps to OTF capH
     return Math.round((bot - y) / (bot - top) * capH);
   }
 
-  // We build the glyph as a stroked outline by offsetting each stroke
-  // by halfSW perpendicular. For simplicity we approximate strokes as
-  // rectangles along each line segment. This produces a valid, editable OTF.
   const path = new opentype.Path();
 
-  function addStrokeRect(x1, y1, x2, y2, sw) {
-    // Direction vector
-    const dx = x2 - x1, dy = y2 - y1;
-    const len = Math.sqrt(dx*dx + dy*dy) || 1;
-    const nx = -dy/len * sw/2, ny = dx/len * sw/2; // perpendicular offset
-    // Four corners of the stroke rectangle
-    const ox1 = tx(cx*scaleX, x1)+Math.round(nx), oy1 = ty(y1)+Math.round(ny);
-    const ox2 = tx(cx*scaleX, x2)+Math.round(nx), oy2 = ty(y2)+Math.round(ny);
-    const ox3 = tx(cx*scaleX, x2)-Math.round(nx), oy3 = ty(y2)-Math.round(ny);
-    const ox4 = tx(cx*scaleX, x1)-Math.round(nx), oy4 = ty(y1)-Math.round(ny);
-    path.moveTo(ox1, oy1);
-    path.lineTo(ox2, oy2);
-    path.lineTo(ox3, oy3);
-    path.lineTo(ox4, oy4);
-    path.close();
-  }
-
-  // Simplified per-letter outlines using stroked segments
-  // We use the actual canvas coordinates and transform them
   function seg(x1,y1,x2,y2) {
     const ux1 = tx(cx, x1+(slantSh*y1), 0);
     const uy1 = ty(y1);
@@ -2777,202 +2614,33 @@ function buildOpentypePath(letter, weight, slant, width) {
     path.close();
   }
 
-  function addCircle(cx0, cy0, r) {
-    // Approximate circle as octagon
-    const ux = tx(cx, cx0+(slantSh*cy0), 0);
-    const uy = ty(cy0);
-    const ur = Math.round(r * (UPM/NW));
-    const steps = 12;
-    path.moveTo(Math.round(ux + ur), uy);
-    for (let i = 1; i <= steps; i++) {
-      const a = (i / steps) * Math.PI * 2;
-      path.lineTo(Math.round(ux + ur*Math.cos(a)), Math.round(uy + ur*Math.sin(a)));
-    }
-    path.close();
-  }
-
-  const swd = sw * 0.018; // stroke weight as canvas units for arc approximation
-
   switch(letter) {
-    case 'A':
-      seg(cx,top, lx-NW*0.04,bot);
-      seg(cx,top, rx+NW*0.04,bot);
-      seg(lx+NW*0.03, mid+(bot-mid)*0.38, rx-NW*0.03, mid+(bot-mid)*0.38);
-      break;
-    case 'B':
-      seg(lx,top,lx,bot);
-      seg(lx,top,rx-NW*0.03,top);
-      seg(lx,bot,rx-NW*0.03,bot);
-      seg(lx,mid,rx,mid);
-      // bumps approximated as rectangles
-      seg(rx-NW*0.03,top, rx+NW*0.13,top+(bot-top)*0.25);
-      seg(rx+NW*0.13,top+(bot-top)*0.25, rx-NW*0.03,mid);
-      seg(rx-NW*0.03,mid, rx+NW*0.16,mid+(bot-mid)*0.25);
-      seg(rx+NW*0.16,mid+(bot-mid)*0.25, rx-NW*0.03,bot);
-      break;
-    case 'C':
-      for(let i=0;i<16;i++){
-        const a1=0.38+(i/16)*(Math.PI*2-0.76);
-        const a2=0.38+((i+1)/16)*(Math.PI*2-0.76);
-        const r=(bot-top)/2.2;
-        seg(cx+r*Math.cos(a1),(top+bot)/2+r*Math.sin(a1), cx+r*Math.cos(a2),(top+bot)/2+r*Math.sin(a2));
-      }
-      break;
-    case 'D':
-      seg(lx,top,lx,bot);
-      for(let i=0;i<12;i++){
-        const a1=-Math.PI/2+(i/12)*Math.PI;
-        const a2=-Math.PI/2+((i+1)/12)*Math.PI;
-        const ry=(bot-top)/2, rxr=NW*0.22+NW*0.155;
-        const mcy=(top+bot)/2;
-        seg(lx+rxr*Math.cos(a1),mcy+ry*Math.sin(a1),lx+rxr*Math.cos(a2),mcy+ry*Math.sin(a2));
-      }
-      break;
-    case 'E':
-      seg(lx,top,lx,bot);
-      seg(lx,top,rx,top);
-      seg(lx,(top+bot)/2,cx+NW*0.06,(top+bot)/2);
-      seg(lx,bot,rx,bot);
-      break;
-    case 'F':
-      seg(lx,top,lx,bot);
-      seg(lx,top,rx,top);
-      seg(lx,(top+bot)/2,cx+NW*0.06,(top+bot)/2);
-      break;
-    case 'G':
-      for(let i=0;i<14;i++){
-        const a1=0.38+(i/14)*(Math.PI*2-0.48);
-        const a2=0.38+((i+1)/14)*(Math.PI*2-0.48);
-        const r=(bot-top)/2.2;
-        seg(cx+r*Math.cos(a1),(top+bot)/2+r*Math.sin(a1),cx+r*Math.cos(a2),(top+bot)/2+r*Math.sin(a2));
-      }
-      seg(cx+(bot-top)/2.2,(top+bot)/2, cx,(top+bot)/2);
-      break;
-    case 'H':
-      seg(lx,top,lx,bot);
-      seg(rx,top,rx,bot);
-      seg(lx,(top+bot)/2,rx,(top+bot)/2);
-      break;
-    case 'I':
-      seg(cx,top,cx,bot);
-      seg(lx+NW*0.05,top,rx-NW*0.05,top);
-      seg(lx+NW*0.05,bot,rx-NW*0.05,bot);
-      break;
-    case 'J':
-      seg(rx,top,rx,bot-NW*0.08);
-      seg(lx+NW*0.04,top,rx+NW*0.04,top);
-      // curve approximation
-      for(let i=0;i<6;i++){
-        const a1=0+(i/6)*Math.PI;
-        const a2=0+((i+1)/6)*Math.PI;
-        const r=NW*0.12;
-        seg(rx-r+r*Math.cos(a1),bot-NW*0.02+r*Math.sin(a1),rx-r+r*Math.cos(a2),bot-NW*0.02+r*Math.sin(a2));
-      }
-      break;
-    case 'K':
-      seg(lx,top,lx,bot);
-      seg(lx,(top+bot)/2,rx,top);
-      seg(lx,(top+bot)/2,rx,bot);
-      break;
-    case 'L':
-      seg(lx,top,lx,bot);
-      seg(lx,bot,rx,bot);
-      break;
-    case 'M':
-      seg(lx-NW*0.04,bot,lx-NW*0.04,top);
-      seg(lx-NW*0.04,top,cx,mid-NW*0.04);
-      seg(cx,mid-NW*0.04,rx+NW*0.04,top);
-      seg(rx+NW*0.04,top,rx+NW*0.04,bot);
-      break;
-    case 'N':
-      seg(lx,bot,lx,top);
-      seg(lx,top,rx,bot);
-      seg(rx,bot,rx,top);
-      break;
-    case 'O':
-      for(let i=0;i<16;i++){
-        const a1=(i/16)*Math.PI*2;
-        const a2=((i+1)/16)*Math.PI*2;
-        const erx=NW*0.175, ery=(bot-top)/2.1, mcy=(top+bot)/2;
-        seg(cx+erx*Math.cos(a1),mcy+ery*Math.sin(a1),cx+erx*Math.cos(a2),mcy+ery*Math.sin(a2));
-      }
-      break;
-    case 'P':
-      seg(lx,bot,lx,top);
-      seg(lx,top,rx+NW*0.16,top+(bot-top)*0.25);
-      seg(rx+NW*0.16,top+(bot-top)*0.25,lx,mid);
-      break;
-    case 'Q':
-      for(let i=0;i<16;i++){
-        const a1=(i/16)*Math.PI*2;
-        const a2=((i+1)/16)*Math.PI*2;
-        const erx=NW*0.175, ery=(bot-top)/2.1, mcy=(top+bot)/2;
-        seg(cx+erx*Math.cos(a1),mcy+ery*Math.sin(a1),cx+erx*Math.cos(a2),mcy+ery*Math.sin(a2));
-      }
-      seg(cx+NW*0.09,(top+bot)*0.6, rx+NW*0.07,bot+NH*0.045);
-      break;
-    case 'R':
-      seg(lx,bot,lx,top);
-      seg(lx,top,rx+NW*0.16,top+(bot-top)*0.25);
-      seg(rx+NW*0.16,top+(bot-top)*0.25,lx,mid);
-      seg(lx+NW*0.05,mid,rx,bot);
-      break;
-    case 'S':
-      for(let i=0;i<8;i++){
-        const t1=i/8, t2=(i+1)/8;
-        const y1=top+(bot-top)*t1*0.5, y2=top+(bot-top)*t2*0.5;
-        const xc1=rx-NW*0.02, xc2=lx+NW*0.02;
-        const x1=t1<0.25?xc1:t1<0.5?xc1+(xc2-xc1)*(t1-0.25)*4:xc2;
-        const x2=t2<0.25?xc1:t2<0.5?xc1+(xc2-xc1)*(t2-0.25)*4:xc2;
-        seg(x1,y1,x2,y2);
-      }
-      for(let i=0;i<8;i++){
-        const t1=i/8, t2=(i+1)/8;
-        const y1=(top+bot)/2+(bot-top)*t1*0.5, y2=(top+bot)/2+(bot-top)*t2*0.5;
-        const xc1=lx+NW*0.02, xc2=rx-NW*0.02;
-        const x1=t1<0.25?xc1:t1<0.5?xc1+(xc2-xc1)*(t1-0.25)*4:xc2;
-        const x2=t2<0.25?xc1:t2<0.5?xc1+(xc2-xc1)*(t2-0.25)*4:xc2;
-        seg(x1,y1,x2,y2);
-      }
-      break;
-    case 'T':
-      seg(cx,top,cx,bot);
-      seg(lx-NW*0.06,top,rx+NW*0.06,top);
-      break;
-    case 'U':
-      seg(lx,top,lx,bot-NW*0.08);
-      seg(rx,top,rx,bot-NW*0.08);
-      for(let i=0;i<8;i++){
-        const a1=Math.PI+(i/8)*Math.PI;
-        const a2=Math.PI+((i+1)/8)*Math.PI;
-        const r=NW*0.155;
-        seg(cx+r*Math.cos(a1),bot-NW*0.08+r*Math.sin(a1),cx+r*Math.cos(a2),bot-NW*0.08+r*Math.sin(a2));
-      }
-      break;
-    case 'V':
-      seg(lx-NW*0.04,top,cx,bot);
-      seg(rx+NW*0.04,top,cx,bot);
-      break;
-    case 'W':
-      seg(lx-NW*0.06,top,lx+NW*0.04,bot);
-      seg(lx+NW*0.04,bot,cx,mid+NW*0.04);
-      seg(cx,mid+NW*0.04,rx-NW*0.04,bot);
-      seg(rx-NW*0.04,bot,rx+NW*0.06,top);
-      break;
-    case 'X':
-      seg(lx,top,rx,bot);
-      seg(rx,top,lx,bot);
-      break;
-    case 'Y':
-      seg(lx,top,cx,(top+bot)/2);
-      seg(rx,top,cx,(top+bot)/2);
-      seg(cx,(top+bot)/2,cx,bot);
-      break;
-    case 'Z':
-      seg(lx,top,rx,top);
-      seg(rx,top,lx,bot);
-      seg(lx,bot,rx,bot);
-      break;
+    case 'A': seg(cx,top, lx-NW*0.04,bot); seg(cx,top, rx+NW*0.04,bot); seg(lx+NW*0.03, mid+(bot-mid)*0.38, rx-NW*0.03, mid+(bot-mid)*0.38); break;
+    case 'B': seg(lx,top,lx,bot); seg(lx,top,rx-NW*0.03,top); seg(lx,bot,rx-NW*0.03,bot); seg(lx,mid,rx,mid); seg(rx-NW*0.03,top, rx+NW*0.13,top+(bot-top)*0.25); seg(rx+NW*0.13,top+(bot-top)*0.25, rx-NW*0.03,mid); seg(rx-NW*0.03,mid, rx+NW*0.16,mid+(bot-mid)*0.25); seg(rx+NW*0.16,mid+(bot-mid)*0.25, rx-NW*0.03,bot); break;
+    case 'C': for(let i=0;i<16;i++){const a1=0.38+(i/16)*(Math.PI*2-0.76);const a2=0.38+((i+1)/16)*(Math.PI*2-0.76);const r=(bot-top)/2.2;seg(cx+r*Math.cos(a1),(top+bot)/2+r*Math.sin(a1),cx+r*Math.cos(a2),(top+bot)/2+r*Math.sin(a2));}break;
+    case 'D': seg(lx,top,lx,bot); for(let i=0;i<12;i++){const a1=-Math.PI/2+(i/12)*Math.PI;const a2=-Math.PI/2+((i+1)/12)*Math.PI;const ry=(bot-top)/2,rxr=NW*0.22+NW*0.155;const mcy=(top+bot)/2;seg(lx+rxr*Math.cos(a1),mcy+ry*Math.sin(a1),lx+rxr*Math.cos(a2),mcy+ry*Math.sin(a2));}break;
+    case 'E': seg(lx,top,lx,bot);seg(lx,top,rx,top);seg(lx,(top+bot)/2,cx+NW*0.06,(top+bot)/2);seg(lx,bot,rx,bot);break;
+    case 'F': seg(lx,top,lx,bot);seg(lx,top,rx,top);seg(lx,(top+bot)/2,cx+NW*0.06,(top+bot)/2);break;
+    case 'G': for(let i=0;i<14;i++){const a1=0.38+(i/14)*(Math.PI*2-0.48);const a2=0.38+((i+1)/14)*(Math.PI*2-0.48);const r=(bot-top)/2.2;seg(cx+r*Math.cos(a1),(top+bot)/2+r*Math.sin(a1),cx+r*Math.cos(a2),(top+bot)/2+r*Math.sin(a2));}seg(cx+(bot-top)/2.2,(top+bot)/2,cx,(top+bot)/2);break;
+    case 'H': seg(lx,top,lx,bot);seg(rx,top,rx,bot);seg(lx,(top+bot)/2,rx,(top+bot)/2);break;
+    case 'I': seg(cx,top,cx,bot);seg(lx+NW*0.05,top,rx-NW*0.05,top);seg(lx+NW*0.05,bot,rx-NW*0.05,bot);break;
+    case 'J': seg(rx,top,rx,bot-NW*0.08);seg(lx+NW*0.04,top,rx+NW*0.04,top);for(let i=0;i<6;i++){const a1=0+(i/6)*Math.PI;const a2=0+((i+1)/6)*Math.PI;const r=NW*0.12;seg(rx-r+r*Math.cos(a1),bot-NW*0.02+r*Math.sin(a1),rx-r+r*Math.cos(a2),bot-NW*0.02+r*Math.sin(a2));}break;
+    case 'K': seg(lx,top,lx,bot);seg(lx,(top+bot)/2,rx,top);seg(lx,(top+bot)/2,rx,bot);break;
+    case 'L': seg(lx,top,lx,bot);seg(lx,bot,rx,bot);break;
+    case 'M': seg(lx-NW*0.04,bot,lx-NW*0.04,top);seg(lx-NW*0.04,top,cx,mid-NW*0.04);seg(cx,mid-NW*0.04,rx+NW*0.04,top);seg(rx+NW*0.04,top,rx+NW*0.04,bot);break;
+    case 'N': seg(lx,bot,lx,top);seg(lx,top,rx,bot);seg(rx,bot,rx,top);break;
+    case 'O': for(let i=0;i<16;i++){const a1=(i/16)*Math.PI*2;const a2=((i+1)/16)*Math.PI*2;const erx=NW*0.175,ery=(bot-top)/2.1,mcy=(top+bot)/2;seg(cx+erx*Math.cos(a1),mcy+ery*Math.sin(a1),cx+erx*Math.cos(a2),mcy+ery*Math.sin(a2));}break;
+    case 'P': seg(lx,bot,lx,top);seg(lx,top,rx+NW*0.16,top+(bot-top)*0.25);seg(rx+NW*0.16,top+(bot-top)*0.25,lx,mid);break;
+    case 'Q': for(let i=0;i<16;i++){const a1=(i/16)*Math.PI*2;const a2=((i+1)/16)*Math.PI*2;const erx=NW*0.175,ery=(bot-top)/2.1,mcy=(top+bot)/2;seg(cx+erx*Math.cos(a1),mcy+ery*Math.sin(a1),cx+erx*Math.cos(a2),mcy+ery*Math.sin(a2));}seg(cx+NW*0.09,(top+bot)*0.6,rx+NW*0.07,bot+NH*0.045);break;
+    case 'R': seg(lx,bot,lx,top);seg(lx,top,rx+NW*0.16,top+(bot-top)*0.25);seg(rx+NW*0.16,top+(bot-top)*0.25,lx,mid);seg(lx+NW*0.05,mid,rx,bot);break;
+    case 'S': for(let i=0;i<8;i++){const t1=i/8,t2=(i+1)/8;const y1=top+(bot-top)*t1*0.5,y2=top+(bot-top)*t2*0.5;const xc1=rx-NW*0.02,xc2=lx+NW*0.02;const x1=t1<0.25?xc1:t1<0.5?xc1+(xc2-xc1)*(t1-0.25)*4:xc2;const x2=t2<0.25?xc1:t2<0.5?xc1+(xc2-xc1)*(t2-0.25)*4:xc2;seg(x1,y1,x2,y2);}for(let i=0;i<8;i++){const t1=i/8,t2=(i+1)/8;const y1=(top+bot)/2+(bot-top)*t1*0.5,y2=(top+bot)/2+(bot-top)*t2*0.5;const xc1=lx+NW*0.02,xc2=rx-NW*0.02;const x1=t1<0.25?xc1:t1<0.5?xc1+(xc2-xc1)*(t1-0.25)*4:xc2;const x2=t2<0.25?xc1:t2<0.5?xc1+(xc2-xc1)*(t2-0.25)*4:xc2;seg(x1,y1,x2,y2);}break;
+    case 'T': seg(cx,top,cx,bot);seg(lx-NW*0.06,top,rx+NW*0.06,top);break;
+    case 'U': seg(lx,top,lx,bot-NW*0.08);seg(rx,top,rx,bot-NW*0.08);for(let i=0;i<8;i++){const a1=Math.PI+(i/8)*Math.PI;const a2=Math.PI+((i+1)/8)*Math.PI;const r=NW*0.155;seg(cx+r*Math.cos(a1),bot-NW*0.08+r*Math.sin(a1),cx+r*Math.cos(a2),bot-NW*0.08+r*Math.sin(a2));}break;
+    case 'V': seg(lx-NW*0.04,top,cx,bot);seg(rx+NW*0.04,top,cx,bot);break;
+    case 'W': seg(lx-NW*0.06,top,lx+NW*0.04,bot);seg(lx+NW*0.04,bot,cx,mid+NW*0.04);seg(cx,mid+NW*0.04,rx-NW*0.04,bot);seg(rx-NW*0.04,bot,rx+NW*0.06,top);break;
+    case 'X': seg(lx,top,rx,bot);seg(rx,top,lx,bot);break;
+    case 'Y': seg(lx,top,cx,(top+bot)/2);seg(rx,top,cx,(top+bot)/2);seg(cx,(top+bot)/2,cx,bot);break;
+    case 'Z': seg(lx,top,rx,top);seg(rx,top,lx,bot);seg(lx,bot,rx,bot);break;
     default: break;
   }
 
@@ -2985,73 +2653,33 @@ function downloadOTF() {
 
   const UPM = 1000;
 
-  // Build notdef glyph (empty box)
   const notdefPath = new opentype.Path();
-  notdefPath.moveTo(50, 0);
-  notdefPath.lineTo(450, 0);
-  notdefPath.lineTo(450, 700);
-  notdefPath.lineTo(50, 700);
-  notdefPath.close();
-  notdefPath.moveTo(80, 30);
-  notdefPath.lineTo(420, 30);
-  notdefPath.lineTo(420, 670);
-  notdefPath.lineTo(80, 670);
-  notdefPath.close();
+  notdefPath.moveTo(50, 0); notdefPath.lineTo(450, 0); notdefPath.lineTo(450, 700); notdefPath.lineTo(50, 700); notdefPath.close();
+  notdefPath.moveTo(80, 30); notdefPath.lineTo(420, 30); notdefPath.lineTo(420, 670); notdefPath.lineTo(80, 670); notdefPath.close();
 
-  const notdef = new opentype.Glyph({
-    name: '.notdef',
-    unicode: 0,
-    advanceWidth: 500,
-    path: notdefPath,
-  });
-
+  const notdef = new opentype.Glyph({ name: '.notdef', unicode: 0, advanceWidth: 500, path: notdefPath });
   const glyphs = [notdef];
 
   done.forEach(letter => {
     const { colorKey, axes: ax } = savedLetters[letter];
     const path = buildOpentypePath(letter, ax.weight, ax.slant, ax.width);
-
-    // Advance width based on width axis
     const advW = Math.round(400 + ax.width * 300);
-
-    glyphs.push(new opentype.Glyph({
-      name: letter,
-      unicode: letter.charCodeAt(0),
-      advanceWidth: advW,
-      path,
-    }));
-
-    // Also add lowercase copy at same shape (common expectation)
-    glyphs.push(new opentype.Glyph({
-      name: letter.toLowerCase(),
-      unicode: letter.toLowerCase().charCodeAt(0),
-      advanceWidth: advW,
-      path,
-    }));
+    glyphs.push(new opentype.Glyph({ name: letter, unicode: letter.charCodeAt(0), advanceWidth: advW, path }));
+    glyphs.push(new opentype.Glyph({ name: letter.toLowerCase(), unicode: letter.toLowerCase().charCodeAt(0), advanceWidth: advW, path }));
   });
 
-  const font = new opentype.Font({
-    familyName:    'Choreo Sans',
-    styleName:     'Regular',
-    unitsPerEm:    UPM,
-    ascender:      800,
-    descender:    -200,
-    glyphs,
-  });
-
-  const arrayBuffer = font.download(null); // returns undefined but triggers download
-  // opentype.js font.download() triggers browser download directly
+  const font = new opentype.Font({ familyName: 'Choreo Sans', styleName: 'Regular', unitsPerEm: UPM, ascender: 800, descender: -200, glyphs });
+  font.download(null);
 }
 
 document.getElementById('otfLink').addEventListener('click', (e) => {
   e.preventDefault();
-  const done = Object.keys(savedLetters).length;
-  if (done === 0) return;
+  if (Object.keys(savedLetters).length === 0) return;
   downloadOTF();
 });
 
 /* ════════════════════════════════════════
-   MEDIA RECORDER — 6 second capture
+   MEDIA RECORDER
 ════════════════════════════════════════ */
 function startRecording() {
   const videoEl = document.getElementById('videoEl');
@@ -3061,16 +2689,13 @@ function startRecording() {
   const countdownEl   = document.getElementById('recCountdown');
   const numEl         = document.getElementById('recCountdownNum');
   const ringFill      = document.getElementById('recRingFill');
-  const labelEl       = document.getElementById('recCountdownLabel');
 
   document.getElementById('frameGuide').style.display   = 'none';
   document.getElementById('axisGrid').style.display     = 'none';
   document.getElementById('btnRecord').classList.add('recording');
   const cvp = document.getElementById('camViewport'); if (cvp) cvp.dataset.recording = 'true';
 
-  // ── PHASE 1: 3-second get-ready countdown (no recording yet) ──
   countdownEl.style.display = 'flex';
-  // Style ring in sage for get-ready phase
   ringFill.style.stroke = 'var(--sage)';
   ringFill.style.strokeDashoffset = '0';
   document.getElementById('recStatusLabel').textContent = 'Get ready…';
@@ -3083,12 +2708,7 @@ function startRecording() {
     numEl.textContent = getReady;
     const offset = circumference * (1 - getReady / 3);
     ringFill.style.strokeDashoffset = offset;
-
-    if (getReady <= 0) {
-      // Phase 1 done — start actual recording
-      beginActualRecording();
-      return;
-    }
+    if (getReady <= 0) { beginActualRecording(); return; }
     getReady--;
     recordingTimer = setTimeout(getReadyTick, 1000);
   };
@@ -3101,19 +2721,15 @@ function beginActualRecording() {
   document.getElementById('recCountdown').style.display = 'none';
   document.getElementById('recLiveBadge').style.display = 'flex';
   document.getElementById('frameGuide').style.display    = 'none';
-  document.getElementById('camViewport') && (document.getElementById('camViewport').dataset.recording = 'true');
   document.getElementById('recStatusLabel').textContent = 'Recording your move…';
   document.getElementById('recSub').textContent         = '';
 
-  // Show countdown number in the record button, hide dot
   const btnCount = document.getElementById('btnRecordCount');
   const btnLabel = document.getElementById('btnRecordLabel');
   btnCount.style.display = 'inline';
   btnCount.textContent   = '6';
   btnLabel.textContent   = '';
 
-  // Record via an offscreen canvas that flips the camera horizontally
-  // so the saved video matches what the user saw (mirrored preview → natural playback)
   const CW = 480, CH = 640;
   const compCanvas = document.createElement('canvas');
   compCanvas.width = CW; compCanvas.height = CH;
@@ -3124,14 +2740,9 @@ function beginActualRecording() {
     if (videoEl.readyState >= 2) {
       const vw = videoEl.videoWidth  || CW;
       const vh = videoEl.videoHeight || CH;
-
-      // Cover-fit: scale so the video fills the canvas, crop overflow
       const scale = Math.max(CW / vw, CH / vh);
-      const sw = vw * scale;
-      const sh = vh * scale;
-      const sx = (CW - sw) / 2;
-      const sy = (CH - sh) / 2;
-
+      const sw = vw * scale, sh = vh * scale;
+      const sx = (CW - sw) / 2, sy = (CH - sh) / 2;
       cCtx.save();
       cCtx.translate(CW, 0);
       cCtx.scale(-1, 1);
@@ -3163,21 +2774,18 @@ function beginActualRecording() {
 
   mediaRecorder.start();
 
-  const CIRCUMFERENCE = 69.1; // 2π × 11
-  const ring = document.getElementById('recRingFill');
-  // Start full, deplete to 0 over 6 seconds
+  const CIRCUMFERENCE = 69.1;
+  const ring = document.getElementById('recRingFillLive');
   if (ring) ring.style.strokeDashoffset = '0';
 
   let secsLeft = 6;
   const recTick = () => {
     if (secsLeft <= 0) { stopRecording(); return; }
     secsLeft--;
-    // Update ring
     if (ring) {
       const offset = CIRCUMFERENCE * (1 - secsLeft / 6);
       ring.style.strokeDashoffset = offset.toFixed(2);
     }
-    // Update countdown number in button
     if (btnCount) btnCount.textContent = secsLeft;
     recordingTimer = setTimeout(recTick, 1000);
   };
@@ -3190,7 +2798,6 @@ function stopRecording() {
     mediaRecorder.stop();
     mediaRecorder = null;
   }
-  // Reset button to normal state
   const btnCount = document.getElementById('btnRecordCount');
   const btnLabel = document.getElementById('btnRecordLabel');
   if (btnCount) { btnCount.style.display = 'none'; btnCount.textContent = ''; }
@@ -3200,46 +2807,37 @@ function stopRecording() {
 }
 
 function showPreview(blob) {
-  const previewVideo = document.getElementById('previewVideo');
-  previewVideo.src = URL.createObjectURL(blob);
-
-  // ── Fix double-image glitch: hide live camera feed while preview plays ──
-  document.getElementById('videoEl').style.opacity    = '0';
-  document.getElementById('poseCanvas').style.opacity = '0';
-
   document.getElementById('recCountdown').style.display = 'none';
   document.getElementById('recLiveBadge').style.display = 'none';
-  document.getElementById('recPreview').style.display   = 'flex';
-  document.getElementById('axisGrid').style.display     = 'grid';
+  document.getElementById('recPreview').style.display   = 'none';
   document.getElementById('btnRecord').classList.remove('recording');
-  document.getElementById('recStatusLabel').textContent = 'Move captured!';
-  document.getElementById('recSub').textContent         = 'Re-record or continue →';
-
   document.getElementById('btnSave').style.display = 'block';
 
-  // Capture the SVG right now while axes are still at the frozen values
-  const snap        = getLiveAxes();
-  const previewSvg  = captureLetterSVG(activeLetter, snap.weight, snap.slant, snap.width);
+  const snap       = getLiveAxes();
+  const previewSvg = captureLetterSVG(activeLetter, snap.weight, snap.slant, snap.width);
 
-  // Slide to profile panel after a beat, passing the captured SVG
-  setTimeout(() => { slideToProfile(previewSvg); }, 900);
+  slideToProfile(previewSvg);
 }
 
+/* ════════════════════════════════════════
+   SLIDE TO PROFILE
+════════════════════════════════════════ */
 function slideToProfile(previewSvg) {
   expandModal();
   document.getElementById('panelDesignInner').classList.add('slide-out');
   document.getElementById('panelProfile').classList.add('slide-in');
 
-  // Hide camera and topbar, show static glyph preview in cam panel
   const camViewport = document.getElementById('camViewport');
   if (camViewport) camViewport.style.display = 'none';
   const camTopbar = document.querySelector('#panelCam .cam-topbar');
   if (camTopbar) camTopbar.style.display = 'none';
 
+  const recordRow = document.getElementById('recordRow');
+  if (recordRow) recordRow.style.display = 'none';
+
   const stage = document.getElementById('profileGlyphStageCam');
   if (stage) {
     stage.style.display = 'flex';
-    // Render the frozen letter SVG into the stage
     const glyphArea = document.getElementById('profileGlyphArea');
     if (glyphArea && previewSvg) {
       glyphArea.innerHTML = previewSvg;
@@ -3247,35 +2845,43 @@ function slideToProfile(previewSvg) {
       const snap = getLiveAxes();
       glyphArea.innerHTML = captureLetterSVG(activeLetter, snap.weight, snap.slant, snap.width);
     }
-    // Set letter label
     const label = document.getElementById('profileGlyphStageLabel');
     if (label) label.textContent = activeLetter || '';
-    // Tint background with letter's palette color at low opacity
+
     const colorKey2 = CLR_CYCLE[LETTERS.indexOf(activeLetter)];
-    const bgMap = { tc: 'rgba(196,113,74,0.06)', sg: 'rgba(122,158,135,0.06)', oc: 'rgba(196,162,74,0.06)' };
-    stage.style.background = bgMap[colorKey2] || 'var(--surface)';
+    const stageBgMap = { tc: 'rgba(196,113,74,0.06)', sg: 'rgba(122,158,135,0.06)', oc: 'rgba(196,162,74,0.06)' };
+    stage.style.background = stageBgMap[colorKey2] || 'var(--surface)';
   }
 
-  // Stop the preview video
+  const colorKey3 = CLR_CYCLE[LETTERS.indexOf(activeLetter)];
+  const panelCamBgMap = { tc: '#3B1E13', sg: '#192E22', oc: '#2C2410' };
+  const panelCamEl = document.getElementById('panelCam');
+  if (panelCamEl) panelCamEl.style.background = panelCamBgMap[colorKey3] || '#17120E';
+
   const previewVideo = document.getElementById('previewVideo');
   if (previewVideo) { previewVideo.pause(); previewVideo.src = ''; }
   document.getElementById('recPreview').style.display = 'none';
 }
 
 function slideBackToCanvas() {
-  collapseModal(); // shrink back to camera phase height
+  collapseModal();
   document.getElementById('panelDesignInner').classList.remove('slide-out');
   document.getElementById('panelProfile').classList.remove('slide-in');
-  // Restore camera viewport and topbar
+
   const camViewport = document.getElementById('camViewport');
   if (camViewport) camViewport.style.display = '';
   const camTopbar = document.querySelector('#panelCam .cam-topbar');
   if (camTopbar) camTopbar.style.display = '';
+
   const profileGlyphStageCam = document.getElementById('profileGlyphStageCam');
   if (profileGlyphStageCam) profileGlyphStageCam.style.display = 'none';
+
+  const panelCamEl = document.getElementById('panelCam');
+  if (panelCamEl) panelCamEl.style.background = '';
+
   setFrozen(false);
   recordedBlob = null;
-  // Restore camera feed visibility
+
   document.getElementById('videoEl').style.opacity    = '0.65';
   document.getElementById('poseCanvas').style.opacity = '1';
   document.getElementById('recPreview').style.display   = 'none';
@@ -3286,12 +2892,11 @@ function slideBackToCanvas() {
   document.getElementById('recStatusLabel').textContent = 'Dance, then capture your move';
   document.getElementById('recSub').textContent         = '6 sec · shape locks on record';
   document.getElementById('btnSave').style.display      = 'none';
+  document.getElementById('recordRow').style.display    = 'flex';
 }
 
-// Wire up record button
 document.getElementById('btnRecord').addEventListener('click', () => {
   if (recordedBlob) {
-    // Re-record
     recordedBlob = null;
     document.getElementById('recPreview').style.display = 'none';
     slideBackToCanvas();
@@ -3300,26 +2905,19 @@ document.getElementById('btnRecord').addEventListener('click', () => {
   startRecording();
 });
 
-// Wire up back button
 document.getElementById('btnBack').addEventListener('click', () => {
   slideBackToCanvas();
 });
 
 /* ════════════════════════════════════════
-   MODAL HEIGHT — phase-based expansion
+   MODAL HEIGHT
 ════════════════════════════════════════ */
 function isMobile() { return window.innerWidth <= 600; }
-
-function expandModal() {
-  if (isMobile()) document.querySelector('.modal').classList.add('expanded');
-}
-
-function collapseModal() {
-  if (isMobile()) document.querySelector('.modal').classList.remove('expanded');
-}
+function expandModal() { if (isMobile()) document.querySelector('.modal').classList.add('expanded'); }
+function collapseModal() { if (isMobile()) document.querySelector('.modal').classList.remove('expanded'); }
 
 /* ════════════════════════════════════════
-   MODAL
+   MODAL OPEN / CLOSE
 ════════════════════════════════════════ */
 function openModal(letter) {
   activeLetter = letter;
@@ -3328,18 +2926,18 @@ function openModal(letter) {
   recordedBlob = null;
 
   document.getElementById('designLetter').textContent = letter;
-  const spanEl = document.getElementById('profileLetterSpan');
-  if (spanEl) spanEl.textContent = letter;
   document.getElementById('modalVeil').classList.add('open');
   document.getElementById('recordRow').style.display  = 'none';
 
-  // Reset panel states
   document.getElementById('panelDesignInner').classList.remove('slide-out');
   document.getElementById('panelProfile').classList.remove('slide-in');
   document.getElementById('recPreview').style.display   = 'none';
   document.getElementById('recCountdown').style.display = 'none';
   document.getElementById('frameGuide').style.display   = 'none';
   document.getElementById('btnSave').style.display      = 'none';
+
+  const panelCamEl = document.getElementById('panelCam');
+  if (panelCamEl) panelCamEl.style.background = '';
 
   resizeTCanvas();
   startAnim();
@@ -3355,12 +2953,17 @@ function closeModal() {
   stopCamera();
   cancelAnimationFrame(animFrame);
   stopMobilePip();
+
   const camViewport = document.getElementById('camViewport');
   if (camViewport) camViewport.style.display = '';
   const camTopbar2 = document.querySelector('#panelCam .cam-topbar');
   if (camTopbar2) camTopbar2.style.display = '';
   const profileGlyphStageCam = document.getElementById('profileGlyphStageCam');
   if (profileGlyphStageCam) profileGlyphStageCam.style.display = 'none';
+
+  const panelCamEl = document.getElementById('panelCam');
+  if (panelCamEl) panelCamEl.style.background = '';
+
   recordedBlob = null;
   axes.weight = 0.5; axes.slant = 0.5; axes.width = 0.5;
   smoothAxes.weight = 0.5; smoothAxes.slant = 0.5; smoothAxes.width = 0.5;
@@ -3370,11 +2973,6 @@ document.getElementById('btnClose').addEventListener('click', closeModal);
 document.getElementById('modalVeil').addEventListener('click', e => {
   if (e.target === document.getElementById('modalVeil')) closeModal();
 });
-
-/* ════════════════════════════════════════
-   SAVE — handled by Firebase module below
-   (listener is registered in the module script)
-════════════════════════════════════════ */
 
 /* ════════════════════════════════════════
    MEDIAPIPE POSE
@@ -3389,13 +2987,10 @@ async function initCamera() {
   const stext       = document.getElementById('stext');
   const btn         = document.getElementById('btnStartCam');
 
-  // Show loading state immediately so user knows something is happening
   btn.textContent   = 'Connecting…';
   btn.disabled      = true;
   stext.textContent = 'Requesting camera…';
 
-  // ── Step 1: Get camera stream directly via getUserMedia ──
-  // This is the reliable path — works on all browsers, triggers permission dialog
   let stream;
   try {
     stream = await navigator.mediaDevices.getUserMedia({
@@ -3403,7 +2998,6 @@ async function initCamera() {
       audio: false
     });
   } catch (err) {
-    // Permission denied or no camera
     btn.textContent = 'Enable Camera';
     btn.disabled    = false;
     stext.textContent = 'Inactive';
@@ -3416,13 +3010,12 @@ async function initCamera() {
     return;
   }
 
-  // ── Step 2: Attach stream to video element and show it ──
   videoEl.srcObject  = stream;
   videoEl.style.display    = 'block';
   poseCanvas.style.display = 'block';
   placeholder.style.display = 'none';
 
-  await videoEl.play().catch(() => {}); // autoplay may need explicit play() on Safari
+  await videoEl.play().catch(() => {});
 
   document.getElementById('axisGrid').style.display   = 'grid';
   document.getElementById('recordRow').style.display  = 'flex';
@@ -3450,7 +3043,6 @@ async function initCamera() {
     const CW = poseCanvas.width, CH = poseCanvas.height;
     pCtx.clearRect(0,0,CW,CH);
     if (!results.poseLandmarks) { sdot.className='sdot'; stext.textContent='No pose'; return; }
-
     if (!isFrozen) { sdot.className='sdot on'; stext.textContent='Tracking'; }
 
     const lm = results.poseLandmarks;
@@ -3502,27 +3094,21 @@ async function initCamera() {
     });
   }
 
-  // ── Step 3: Init MediaPipe Pose and feed it frames manually ──
-  // We do NOT use MediaPipe's Camera utility here — it calls getUserMedia
-  // internally which triggers a second permission prompt. Instead we feed
-  // frames ourselves from the stream we already have.
   try {
-    // Use model complexity 0 on mobile for reliable performance
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isMobileDevice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     pose = new Pose({ locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${f}` });
     pose.setOptions({
-      modelComplexity: isMobile ? 0 : 1,
+      modelComplexity: isMobileDevice ? 0 : 1,
       smoothLandmarks: true,
       enableSegmentation: false,
-      minDetectionConfidence: isMobile ? 0.4 : 0.5,
-      minTrackingConfidence:  isMobile ? 0.4 : 0.5,
+      minDetectionConfidence: isMobileDevice ? 0.4 : 0.5,
+      minTrackingConfidence:  isMobileDevice ? 0.4 : 0.5,
     });
     pose.onResults(onResults);
 
-    // Send frames manually — throttle on mobile to avoid overwhelming CPU
     let poseRunning = true;
     let frameSkip = 0;
-    const frameThrottle = isMobile ? 2 : 1; // process every 2nd frame on mobile
+    const frameThrottle = isMobileDevice ? 2 : 1;
     const sendFrame = async () => {
       if (!poseRunning || !document.getElementById('modalVeil').classList.contains('open')) return;
       frameSkip++;
@@ -3532,18 +3118,15 @@ async function initCamera() {
       requestAnimationFrame(sendFrame);
     };
 
-    // Store cleanup handle on the camera variable
     camera = { stop: () => { poseRunning = false; } };
     sendFrame();
 
-    // On mobile: if no pose results within 3s, fall back to device motion
-    if (isMobile) {
+    if (isMobileDevice) {
       let gotResults = false;
       const origOnResults = onResults;
       pose.onResults(r => { gotResults = true; origOnResults(r); });
       setTimeout(() => {
         if (!gotResults && document.getElementById('modalVeil').classList.contains('open')) {
-          console.log('MediaPipe not firing on mobile — switching to device motion');
           poseRunning = false;
           startDeviceMotion();
         }
@@ -3557,8 +3140,6 @@ async function initCamera() {
 }
 
 function runDemoAxes() {
-  // Called only when MediaPipe fails — camera is already live,
-  // just animate axes with sine waves so the letter still morphs
   let t = 0;
   function tick() {
     t += 0.018;
@@ -3583,16 +3164,13 @@ function runDemoAxes() {
 }
 
 /* ════════════════════════════════════════
-   DEVICE MOTION — mobile fallback
-   Uses accelerometer + gyroscope to drive
-   letter axes when MediaPipe isn't available
+   DEVICE MOTION FALLBACK
 ════════════════════════════════════════ */
 let deviceMotionActive = false;
 
 function startDeviceMotion() {
   if (deviceMotionActive) return;
 
-  // Request permission on iOS 13+
   const requestPermission = async () => {
     if (typeof DeviceMotionEvent !== 'undefined' &&
         typeof DeviceMotionEvent.requestPermission === 'function') {
@@ -3606,13 +3184,9 @@ function startDeviceMotion() {
 
   requestPermission().then(granted => {
     if (!granted) { runDemoAxes(); return; }
-
     deviceMotionActive = true;
-
-    // Update axis labels to reflect motion control
     document.getElementById('driveLabel').textContent = 'Drive: Motion';
 
-    // Smooth buffers
     let smoothA = { x: 0, y: 0, z: 0 };
     let smoothR = { alpha: 0, beta: 0, gamma: 0 };
     const LERP = 0.12;
@@ -3635,21 +3209,13 @@ function startDeviceMotion() {
       if (!document.getElementById('modalVeil').classList.contains('open')) return;
       smoothR.beta  += ((e.beta  || 0) - smoothR.beta)  * LERP;
       smoothR.gamma += ((e.gamma || 0) - smoothR.gamma) * LERP;
-
       if (isFrozen) return;
-
-      // Map orientation to axes:
-      // beta  (-180→180): phone tilt forward/back  → weight
-      // gamma (-90→90):   phone tilt left/right    → slant
-      // accel z magnitude:                         → width
       const betaNorm  = Math.max(0, Math.min(1, (smoothR.beta  + 90)  / 180));
       const gammaNorm = Math.max(0, Math.min(1, (smoothR.gamma + 45)  / 90));
       const accelMag  = Math.max(0, Math.min(1, Math.abs(smoothA.z) / 15));
-
       axes.weight = Math.max(0.15, Math.min(0.85, betaNorm));
       axes.slant  = Math.max(0.25, Math.min(0.75, gammaNorm));
       axes.width  = Math.max(0.2,  Math.min(0.8,  0.3 + accelMag * 0.5));
-
       document.getElementById('aWt').style.width = (axes.weight*100)+'%';
       document.getElementById('vWt').textContent  = axes.weight.toFixed(2);
       document.getElementById('aSl').style.width = (axes.slant*100)+'%';
@@ -3669,7 +3235,6 @@ function stopCamera() {
   if (camera) { try { camera.stop(); } catch(e){} camera = null; }
   if (pose)   { try { pose.close();  } catch(e){} pose   = null; }
 
-  // Stop raw getUserMedia stream tracks so camera light turns off
   const videoEl = document.getElementById('videoEl');
   if (videoEl.srcObject) {
     videoEl.srcObject.getTracks().forEach(t => t.stop());
@@ -3690,7 +3255,6 @@ function stopCamera() {
   document.getElementById('recLiveBadge').style.display   = 'none';
   document.getElementById('sdot').className               = 'sdot';
   document.getElementById('stext').textContent            = 'Inactive';
-  // Reset enable camera button so second letter works
   const btn = document.getElementById('btnStartCam');
   btn.textContent = 'Enable Camera';
   btn.disabled    = false;
@@ -3706,7 +3270,6 @@ setTimeout(resizeTCanvas, 80);
 /* ════════════════════════════════════════
    HOVER CARD
 ════════════════════════════════════════ */
-// Elements resolved lazily after DOM is ready
 let hoverCard        = null;
 let hoverVideo       = null;
 let hoverGlyph       = null;
@@ -3723,12 +3286,10 @@ function getHoverEls() {
 
 function showHoverCard(letter, anchorEl) {
   getHoverEls();
-  console.log('[showHoverCard] letter:', letter, '| hoverCard el:', hoverCard, '| savedLetters[letter]:', savedLetters[letter]);
   const saved = savedLetters[letter];
   if (!saved) return;
   currentHoverLetter = letter;
 
-  // SVG glyph in body (uses the human's actual created glyph)
   const letterGlyph = document.getElementById('hoverCardLetterGlyph');
   if (letterGlyph) letterGlyph.innerHTML = saved.svgData || '';
 
@@ -3743,8 +3304,6 @@ function showHoverCard(letter, anchorEl) {
   if (saved.videoUrl) {
     hoverVideo.classList.remove('loaded');
     hoverPlaceholder.style.display = 'flex';
-    hoverVideo.oncanplay    = null;
-    hoverVideo.onloadeddata = null;
     hoverVideo.src = saved.videoUrl;
     hoverVideo.load();
     const onReady = () => {
@@ -3757,32 +3316,9 @@ function showHoverCard(letter, anchorEl) {
     hoverVideo.onloadeddata = onReady;
     if (hoverVideo.readyState >= 3) onReady();
   } else {
-    // videoUrl not ready yet (still uploading) — poll until available
     hoverVideo.src = '';
     hoverVideo.classList.remove('loaded');
     hoverPlaceholder.style.display = 'flex';
-    let pollCount = 0;
-    const pollInterval = setInterval(() => {
-      pollCount++;
-      if (currentHoverLetter !== letter || pollCount > 30) {
-        clearInterval(pollInterval); return;
-      }
-      const url = savedLetters[letter]?.videoUrl;
-      if (url) {
-        clearInterval(pollInterval);
-        hoverVideo.src = url;
-        hoverVideo.load();
-        const onReady = () => {
-          if (currentHoverLetter !== letter) return;
-          hoverVideo.classList.add('loaded');
-          hoverPlaceholder.style.display = 'none';
-          hoverVideo.play().catch(() => {});
-        };
-        hoverVideo.oncanplay    = onReady;
-        hoverVideo.onloadeddata = onReady;
-        if (hoverVideo.readyState >= 3) onReady();
-      }
-    }, 1000); // check every second for up to 30s
   }
 
   positionHoverCard(anchorEl);
@@ -3791,9 +3327,7 @@ function showHoverCard(letter, anchorEl) {
 
 function positionHoverCard(anchorEl) {
   const rect   = anchorEl.getBoundingClientRect();
-  const cardW  = 220;
-  const cardH  = 320;
-  const margin = 8;
+  const cardW  = 220, cardH  = 320, margin = 8;
   let left = rect.left + rect.width / 2 - cardW / 2;
   let top  = rect.top - cardH - margin;
   left = Math.max(margin, Math.min(left, window.innerWidth - cardW - margin));
@@ -3808,10 +3342,7 @@ function hideHoverCard() {
   currentHoverLetter = null;
   hoverCard.classList.remove('visible');
   setTimeout(() => {
-    if (!hoverCard.classList.contains('visible')) {
-      hoverVideo.pause();
-      hoverVideo.src = '';
-    }
+    if (!hoverCard.classList.contains('visible')) { hoverVideo.pause(); hoverVideo.src = ''; }
   }, 200);
 }
 
@@ -3819,7 +3350,6 @@ function attachHoverCard(cell, letter) {
   let touchTimer = null;
   let autoDismiss = null;
 
-  // Desktop — show in-card overlay instead of floating hover card
   cell.addEventListener('mouseenter', () => {
     if (!savedLetters[letter]) return;
     showCellOverlay(cell, letter);
@@ -3828,22 +3358,13 @@ function attachHoverCard(cell, letter) {
     hideCellOverlay(cell);
   });
 
-  // Mobile — tap to open in-card overlay, auto-dismiss after 6s
   cell.addEventListener('touchstart', (e) => {
     if (!savedLetters[letter]) return;
     touchTimer = setTimeout(() => {
-      // If card is already showing for THIS letter, close it
-      if (currentHoverLetter === letter) {
-        clearTimeout(autoDismiss);
-        hideHoverCard();
-        return;
-      }
-      // Show in-card overlay
+      if (currentHoverLetter === letter) { clearTimeout(autoDismiss); hideHoverCard(); return; }
       showCellOverlay(cell, letter);
-      // Auto-dismiss after 6s
       clearTimeout(autoDismiss);
       autoDismiss = setTimeout(() => hideCellOverlay(cell), 6000);
-      // Tap anywhere else closes it
       const closeOnOutside = (ev) => {
         if (!cell.contains(ev.target)) {
           clearTimeout(autoDismiss);
@@ -3857,34 +3378,26 @@ function attachHoverCard(cell, letter) {
     }, 80);
   }, { passive: true });
 
-  cell.addEventListener('touchend', () => {
-    clearTimeout(touchTimer);
-  });
-  cell.addEventListener('touchmove', () => {
-    clearTimeout(touchTimer);
-  }, { passive: true });
+  cell.addEventListener('touchend', () => { clearTimeout(touchTimer); });
+  cell.addEventListener('touchmove', () => { clearTimeout(touchTimer); }, { passive: true });
 }
 
 /* ════════════════════════════════════════
-   CELL INFO OVERLAY (gallery hover)
+   CELL INFO OVERLAY
 ════════════════════════════════════════ */
 function showCellOverlay(cell, letter) {
   const data = savedLetters[letter];
   if (!data) return;
-
   hideCellOverlay(cell);
-
-  const colorMap = { tc: 'var(--terracotta)', sg: 'var(--sage)', oc: 'var(--ochre)' };
-  const color = colorMap[data.colorKey] || 'var(--terracotta)';
 
   const overlay = document.createElement('div');
   overlay.className = 'cell-info-overlay';
   overlay.innerHTML = `
-    ${data.svgData ? `<div class="cell-info-glyph-wrap">${data.svgData}</div>` : ''}
     <div class="cell-info-text">
-      <div class="cell-info-created" style="color:${color}">Glyph by</div>
+      <div class="cell-info-created" style="color:var(--ink-muted)">Glyph by</div>
       <div class="cell-info-name">${data.name || '—'}</div>
-      <div class="cell-info-meta">${[data.role, data.company].filter(Boolean).join(' · ')}</div>
+      <div class="cell-info-meta cell-info-meta--full">${[data.role, data.company].filter(Boolean).join(' · ')}</div>
+      <div class="cell-info-meta cell-info-meta--short">${data.company || data.role || ''}</div>
       ${data.location ? `<div class="cell-info-location">${data.location}</div>` : ''}
     </div>
   `;
@@ -3901,13 +3414,11 @@ function hideCellOverlay(cell) {
 }
 
 /* ════════════════════════════════════════
-   PROFILE FORM — live glyph anim (replaces video replay)
+   PROFILE GLYPH ANIM
 ════════════════════════════════════════ */
 let profileGlyphAnimFrame = null;
 
-function startProfileGlyphAnim() {
-  // No-op — static SVG is set in slideToProfile
-}
+function startProfileGlyphAnim() {}
 
 function stopProfileGlyphAnim() {
   cancelAnimationFrame(profileGlyphAnimFrame);
@@ -3918,36 +3429,34 @@ function stopProfileGlyphAnim() {
   if (camViewport) camViewport.style.display = '';
 }
 
-function stopProfileGlyphAnim() {
-  cancelAnimationFrame(profileGlyphAnimFrame);
-  profileGlyphAnimFrame = null;
-  const stage = document.getElementById('profileGlyphStageCam');
-  if (stage) stage.style.display = 'none';
-}
-
-function stopProfileGlyphAnim() {
-  cancelAnimationFrame(profileGlyphAnimFrame);
-  profileGlyphAnimFrame = null;
-  const stage = document.getElementById('profileGlyphStageCam');
-  if (stage) stage.style.display = 'none';
-}
-
 /* ════════════════════════════════════════
-   WORLD MAP CONSENT MODAL
+   CONSENT MODAL  ← BUG FIX HERE
 ════════════════════════════════════════ */
 let consentLetter = null;
 
 function showConsentModal(letter) {
   consentLetter = letter;
+
   const data = savedLetters[letter];
-  const name = data?.name || '';
-  // Personalise the title with user's name
+  const name = (data && data.name) ? data.name : '';
   const titleEl = document.getElementById('consentTitle');
-  if (titleEl && name) titleEl.textContent = `Add your dance move to the world map, ${name}?`;
+  if (titleEl) {
+    titleEl.textContent = name
+      ? `Add your dance move to the world map, ${name}?`
+      : 'Add your dance move to the world map?';
+  }
+
+  try { drawConsentGlobePreview(letter); } catch(e) {}
+
+  // ── FIX: use class-based open/visible, not style.cssText ──
   const veil = document.getElementById('consentVeil');
   veil.classList.add('open');
-  requestAnimationFrame(() => veil.classList.add('visible'));
-  drawConsentGlobePreview(letter);
+  // Double rAF ensures the display:flex has rendered before opacity transitions
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      veil.classList.add('visible');
+    });
+  });
 }
 
 function closeConsentModal() {
@@ -3965,18 +3474,14 @@ function drawConsentGlobePreview(letter) {
   if (!data) return;
 
   ctx.clearRect(0, 0, W, H);
-
-  // Dark background
   ctx.fillStyle = '#0F0C0A';
   ctx.fillRect(0, 0, W, H);
 
-  // Subtle grid lines
   ctx.strokeStyle = 'rgba(255,255,255,0.05)';
   ctx.lineWidth = 0.5;
   for (let x = 0; x < W; x += 60) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
   for (let y = 0; y < H; y += 40) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
 
-  // A few dim existing pins
   const colorMap = { tc: '#C4714A', sg: '#7A9E87', oc: '#C4A24A' };
   const dimPins = [
     {x:0.18,y:0.42,c:'#7A9E87'},{x:0.55,y:0.38,c:'#C4A24A'},
@@ -3990,11 +3495,9 @@ function drawConsentGlobePreview(letter) {
     ctx.fill();
   });
 
-  // Hero pin — the claimed letter, centered, glowing
   const col = colorMap[data.colorKey] || '#C4714A';
   const px = W * 0.5, py = H * 0.5;
 
-  // Glow rings
   [18, 12].forEach((r, i) => {
     ctx.beginPath();
     ctx.arc(px, py, r, 0, Math.PI*2);
@@ -4003,37 +3506,31 @@ function drawConsentGlobePreview(letter) {
     ctx.stroke();
   });
 
-  // Pin dot
   ctx.beginPath();
   ctx.arc(px, py, 6, 0, Math.PI*2);
   ctx.fillStyle = col;
   ctx.fill();
 
-  // Letter in pin
   ctx.font = `600 6px 'DM Serif Display', serif`;
   ctx.fillStyle = 'white';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(letter, px, py);
 
-  // Name label below pin
   ctx.font = `500 10px 'DM Sans', sans-serif`;
   ctx.fillStyle = 'rgba(255,255,255,0.7)';
   ctx.fillText(data.name || letter, px, py + 18);
 }
 
-// Consent button handlers
 document.getElementById('consentYes').addEventListener('click', () => {
   closeConsentModal();
   setTimeout(() => {
     openWorldView();
-    // Show toast after world view opens
     setTimeout(() => showToast('Added to world map'), 600);
   }, 350);
 });
 document.getElementById('consentNo').addEventListener('click', () => {
   closeConsentModal();
-  // Just returns to gallery — modal closes, user sees their letter in the grid
 });
 
 function showToast(msg = 'Added to world map') {
@@ -4045,7 +3542,9 @@ function showToast(msg = 'Added to world map') {
   setTimeout(() => toast.classList.remove('visible'), 3000);
 }
 
-
+/* ════════════════════════════════════════
+   MOBILE PIP
+════════════════════════════════════════ */
 let mobilePipFrame = null;
 
 function startMobilePip() {
@@ -4059,19 +3558,15 @@ function startMobilePip() {
   canvas.height = H * dpr;
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
-
   cancelAnimationFrame(mobilePipFrame);
 
   function draw() {
     ctx.clearRect(0, 0, W, H);
-
     const { weight, slant, width } = getLiveAxes();
     const color      = colorHex(activeLetter);
-    const sw         = 1.5 + weight * 5;      // thinner strokes for small size
+    const sw         = 1.5 + weight * 5;
     const slantShear = (slant - 0.5) * 0.3;
     const scaleX     = 0.65 + width * 0.7;
-
-    // Tighter margins so glyph fills the small pip box
     const margin     = 8;
     const baseline   = H - margin;
     const capHeight  = margin;
@@ -4086,10 +3581,8 @@ function startMobilePip() {
     ctx.strokeStyle = color;
     ctx.lineCap  = 'round';
     ctx.lineJoin = 'round';
-    // Pass W/H so drawGlyphOnRecorder uses pip-local coords
     drawGlyphOnRecorder(ctx, activeLetter, cx, baseline, capHeight, xHeight, sw, W, H);
     ctx.restore();
-
     mobilePipFrame = requestAnimationFrame(draw);
   }
   draw();
@@ -4100,12 +3593,10 @@ function stopMobilePip() {
   mobilePipFrame = null;
 }
 
-
-
-// ── Simplified geo coords for common cities / countries
-// Keyed by lowercased location string fragments
+/* ════════════════════════════════════════
+   GEO + WORLD VIEW HELPERS
+════════════════════════════════════════ */
 const GEO_LOOKUP = [
-  // Americas
   { k: ['new york','nyc','brooklyn','manhattan'],   lat: 40.71,  lng: -74.01 },
   { k: ['los angeles','la,','l.a.','hollywood'],    lat: 34.05,  lng: -118.24 },
   { k: ['san francisco','sf,','bay area'],          lat: 37.77,  lng: -122.42 },
@@ -4121,7 +3612,6 @@ const GEO_LOOKUP = [
   { k: ['rio','rio de janeiro'],                    lat: -22.91, lng: -43.17 },
   { k: ['buenos aires'],                            lat: -34.60, lng: -58.38 },
   { k: ['bogotá','bogota'],                         lat: 4.71,   lng: -74.07 },
-  // Europe
   { k: ['london','uk,','england'],                  lat: 51.51,  lng: -0.13 },
   { k: ['paris','france'],                          lat: 48.86,  lng: 2.35 },
   { k: ['berlin','germany'],                        lat: 52.52,  lng: 13.40 },
@@ -4139,7 +3629,6 @@ const GEO_LOOKUP = [
   { k: ['vienna','wien'],                           lat: 48.21,  lng: 16.37 },
   { k: ['warsaw','poland'],                         lat: 52.23,  lng: 21.01 },
   { k: ['prague','czech'],                          lat: 50.08,  lng: 14.44 },
-  // Asia-Pacific
   { k: ['mumbai','bombay'],                         lat: 19.08,  lng: 72.88 },
   { k: ['delhi','new delhi'],                       lat: 28.61,  lng: 77.21 },
   { k: ['bangalore','bengaluru'],                   lat: 12.97,  lng: 77.59 },
@@ -4164,7 +3653,6 @@ const GEO_LOOKUP = [
   { k: ['melbourne'],                               lat: -37.81, lng: 144.96 },
   { k: ['brisbane'],                                lat: -27.47, lng: 153.03 },
   { k: ['auckland','new zealand'],                  lat: -36.87, lng: 174.77 },
-  // Middle East & Africa
   { k: ['dubai','uae','abu dhabi'],                 lat: 25.20,  lng: 55.27 },
   { k: ['riyadh','saudi'],                          lat: 24.69,  lng: 46.72 },
   { k: ['tel aviv','israel'],                       lat: 32.07,  lng: 34.79 },
@@ -4186,33 +3674,27 @@ function geocodeLocation(locationStr) {
   return null;
 }
 
-// Equirectangular lat/lng → SVG x/y (viewBox 0 0 1000 500)
 function project(lat, lng) {
   const x = (lng + 180) / 360 * 1000;
   const y = (90  - lat) / 180 * 500;
   return { x, y };
 }
 
-// Parse location string into a display country/city label
 function parseCountry(loc) {
   if (!loc) return 'Unknown';
   const parts = loc.split(',').map(s => s.trim());
   return parts[parts.length - 1] || loc;
 }
 
-// ── Country stats from savedLetters
 function buildCountryStats() {
   const counts = {};
   Object.values(savedLetters).forEach(s => {
     const country = parseCountry(s.location);
-    if (country && country !== 'Unknown') {
-      counts[country] = (counts[country] || 0) + 1;
-    }
+    if (country && country !== 'Unknown') counts[country] = (counts[country] || 0) + 1;
   });
   return counts;
 }
 
-// ── Render stats strip
 function renderWvStats() {
   const total = Object.keys(savedLetters).length;
   const stats = buildCountryStats();
@@ -4223,7 +3705,6 @@ function renderWvStats() {
 
   const palette = ['#C4714A','#7A9E87','#C4A24A','#C4714A','#7A9E87'];
   const sorted = Object.entries(stats).sort((a,b) => b[1]-a[1]);
-
   const list = document.getElementById('wvCountryList');
   const maxCountries = window.innerWidth < 768 ? 2 : 3;
   list.innerHTML = sorted.slice(0, maxCountries).map(([name, n], i) => `
@@ -4234,11 +3715,9 @@ function renderWvStats() {
   `).join('');
 }
 
-// ── 3D Globe — Three.js
 /* ════════════════════════════════════════
-   3D GLOBE — Three.js
+   3D GLOBE
 ════════════════════════════════════════ */
-
 let globeScene, globeCamera, globeRenderer, globeAnimId;
 let globeSphere, globeAtmo;
 let globePinMeshes = [];
@@ -4281,15 +3760,11 @@ async function initGlobe() {
   globeRaycaster  = new THREE.Raycaster();
   globeMouse      = new THREE.Vector2();
 
-  // No atmosphere mesh — clean edge
-
-  // Globe sphere
   const sphereGeo = new THREE.SphereGeometry(1, 64, 64);
   const sphereMat = new THREE.MeshPhongMaterial({ color: 0x141210, emissive: 0x0c0906, specular: 0x221a14, shininess: 6 });
   globeSphere = new THREE.Mesh(sphereGeo, sphereMat);
   globeScene.add(globeSphere);
 
-  // Graticule lines
   const graticuleGroup = new THREE.Group();
   const lineMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.05 });
   const R = 1.001;
@@ -4305,10 +3780,8 @@ async function initGlobe() {
   }
   globeSphere.add(graticuleGroup);
 
-  // Build real continent coastline outlines
   buildContinentLines();
 
-  // Lighting
   globeScene.add(new THREE.AmbientLight(0xffffff, 0.2));
   const dirLight = new THREE.DirectionalLight(0xf5efe8, 1.0);
   dirLight.position.set(4, 2, 4);
@@ -4317,7 +3790,6 @@ async function initGlobe() {
   rimLight.position.set(-4, -1, -3);
   globeScene.add(rimLight);
 
-  // Events
   canvas.addEventListener('mousedown',  onGlobeMouseDown);
   canvas.addEventListener('mousemove',  onGlobeMouseMove);
   canvas.addEventListener('mouseup',    onGlobeMouseUp);
@@ -4325,13 +3797,11 @@ async function initGlobe() {
   canvas.addEventListener('touchstart', onGlobeTouchStart, { passive: true });
   canvas.addEventListener('touchmove',  onGlobeTouchMove,  { passive: true });
   canvas.addEventListener('touchend',   onGlobeMouseUp);
-  // Canvas drag events (no cursor show/hide here — handled by veil)
   canvas.addEventListener('mousedown', () => document.getElementById('wvCursor').classList.add('active'));
   canvas.addEventListener('mouseup',   () => document.getElementById('wvCursor').classList.remove('active'));
   canvas.addEventListener('wheel', onGlobeWheel, { passive: false });
   window.addEventListener('resize', onGlobeResize);
 
-  // Track cursor over entire world view veil
   const veil = document.getElementById('worldviewVeil');
   veil.addEventListener('mousemove', (e) => {
     const c = document.getElementById('wvCursor');
@@ -4349,147 +3819,24 @@ async function initGlobe() {
   animateGlobe();
 }
 
-function buildLandDots() { return []; } // replaced by coastlines below
-
-// Simplified but geographically accurate coastline segments
-// Each entry is an array of [lng, lat] pairs forming a coastline polyline
-const COASTLINES = [
-  // North America — west coast
-  [[-168,71],[-166,68],[-162,63],[-158,57],[-152,58],[-148,61],[-145,62],[-136,58],[-130,54],[-124,49],[-124,47],[-124,38],[-120,35],[-117,32],[-117,27],[-110,23],[-105,19],[-90,15],[-83,9],[-77,8]],
-  // North America — east coast
-  [[-77,8],[-76,9],[-75,11],[-82,10],[-83,9]],
-  // North America — east coast north
-  [[-80,25],[-75,35],[-76,37],[-70,42],[-67,45],[-60,47],[-64,44],[-66,45],[-60,47],[-53,47],[-56,50],[-53,54],[-55,58],[-64,63],[-68,63],[-75,63],[-85,67],[-95,69],[-110,70],[-120,69],[-135,68],[-142,70],[-155,71],[-168,71]],
-  // Greenland
-  [[-55,84],[-40,83],[-25,83],[-18,76],[-20,70],[-25,68],[-30,68],[-35,65],[-45,60],[-48,61],[-55,64],[-58,67],[-58,72],[-55,76],[-48,80],[-55,84]],
-  // South America
-  [[-77,8],[-78,2],[-80,-2],[-80,-8],[-75,-14],[-70,-18],[-68,-22],[-65,-25],[-65,-35],[-67,-43],[-65,-55],[-63,-55],[-68,-54],[-68,-52],[-72,-48],[-75,-42],[-73,-38],[-70,-30],[-70,-18],[-75,-14],[-80,-8],[-80,-2],[-77,8]],
-  // Europe — west
-  [[-10,36],[-9,39],[-9,43],[-2,44],[-2,48],[0,49],[2,51],[2,53],[5,53],[8,55],[10,55],[10,58],[5,58],[5,62],[8,63],[14,65],[16,68],[20,70],[28,71],[30,70],[28,68],[26,65],[22,60],[25,60],[25,65],[28,65],[29,69],[30,70]],
-  // Europe — east + Mediterranean
-  [[36,42],[36,37],[30,36],[26,36],[22,37],[18,40],[13,38],[12,44],[14,45],[20,45],[23,38],[26,38],[28,41],[30,43],[32,46],[33,46],[36,47],[37,47],[38,45],[36,42]],
-  // British Isles
-  [[-6,50],[-5,50],[-3,51],[0,52],[2,52],[2,53],[0,54],[-2,55],[-5,56],[-6,58],[-5,58],[-4,57],[-5,55],[-3,54],[-4,53],[-5,52],[-6,50]],
-  // Africa
-  [[-18,15],[-16,11],[-15,11],[-14,10],[-11,8],[-8,5],[-2,5],[2,5],[3,6],[3,4],[9,4],[9,1],[13,4],[14,4],[14,7],[15,12],[13,14],[13,22],[12,24],[12,32],[15,37],[12,37],[12,36],[11,37],[12,38],[14,40],[20,37],[23,37],[24,36],[25,37],[28,34],[32,30],[32,25],[36,22],[40,12],[43,12],[50,11],[50,8],[42,2],[41,-1],[40,-10],[35,-18],[35,-25],[30,-30],[27,-34],[18,-34],[17,-30],[16,-22],[12,-18],[12,-14],[8,-4],[8,2],[3,4],[3,6],[0,5],[-2,5],[-8,5],[-11,8],[-14,10],[-15,11],[-16,11],[-18,15]],
-  // Arabian Peninsula
-  [[36,22],[38,16],[42,12],[44,11],[46,11],[50,11],[55,22],[57,23],[58,22],[57,20],[55,14],[50,12],[44,11]],
-  // India
-  [[66,24],[62,22],[60,23],[62,25],[66,24]],
-  [[68,23],[68,20],[70,20],[72,18],[73,15],[77,8],[80,8],[80,12],[80,14],[80,16],[82,18],[84,20],[85,22],[87,22],[88,22],[90,22],[90,24],[88,26],[86,26],[84,28],[80,30],[76,34],[72,36],[68,36],[66,30],[68,24],[68,23]],
-  // Southeast Asia
-  [[100,2],[104,1],[105,4],[106,4],[108,12],[110,14],[108,16],[106,20],[108,22],[110,20],[112,22],[116,24],[118,24],[120,22],[120,20],[116,18],[112,16],[110,12],[108,10],[106,8],[104,4],[102,2],[100,2]],
-  // Japan
-  [[130,31],[131,33],[133,33],[135,34],[137,34],[138,36],[140,36],[140,38],[141,40],[140,42],[143,44],[145,44],[145,43],[143,42],[141,40],[140,38],[138,36],[136,34],[135,33],[134,32],[130,31]],
-  [[130,32],[131,34],[133,34],[134,36],[135,35],[136,36],[137,36],[137,34],[136,34],[134,32],[132,32],[130,32]],
-  // Australia
-  [[114,-22],[114,-26],[114,-30],[116,-34],[119,-34],[122,-34],[124,-32],[126,-34],[128,-36],[130,-33],[132,-32],[134,-32],[136,-35],[138,-36],[140,-36],[142,-38],[144,-38],[146,-39],[148,-38],[150,-37],[152,-26],[152,-24],[148,-20],[146,-18],[144,-14],[136,-12],[130,-12],[128,-14],[124,-16],[122,-18],[120,-20],[118,-20],[116,-22],[114,-22]],
-  // New Zealand
-  [[166,-46],[168,-46],[170,-44],[172,-42],[174,-40],[176,-38],[178,-38],[178,-40],[176,-42],[174,-42],[172,-44],[170,-46],[168,-46],[166,-46]],
-  [[172,-34],[174,-36],[176,-36],[176,-34],[174,-34],[172,-34]],
-  // Scandinavia
-  [[14,55],[10,55],[8,57],[5,58],[5,62],[8,63],[14,65],[16,68],[20,70],[28,71],[30,70],[28,68],[26,65],[22,60],[20,59],[18,59],[18,57],[14,55]],
-  // Iceland
-  [[-24,64],[-22,64],[-18,64],[-14,65],[-14,66],[-18,67],[-22,66],[-24,65],[-24,64]],
-  // Sri Lanka
-  [[80,10],[82,10],[82,8],[80,8],[80,10]],
-  // Madagascar
-  [[44,-12],[48,-14],[50,-16],[50,-18],[48,-22],[46,-24],[44,-22],[44,-18],[44,-14],[44,-12]],
-  // Philippines
-  [[118,10],[120,14],[122,16],[124,16],[124,12],[122,10],[120,8],[118,8],[118,10]],
-  // Indonesia main
-  [[96,4],[98,4],[100,2],[102,2],[104,2],[106,2],[108,-4],[110,-8],[112,-8],[114,-8],[116,-8],[118,-8],[120,-10],[122,-8],[124,-8],[126,-8],[128,-4],[130,-2],[134,-4],[136,-6],[138,-6],[140,-6],[140,-4],[134,-4],[130,-2],[126,-8],[122,-8],[118,-8],[114,-8],[110,-8],[108,-8],[106,-6],[104,-2],[100,2],[98,2],[96,4]],
-];
-
 function buildContinentLines() {
   if (!globeSphere) return;
   const R = 1.002;
-
-  // Tight land-only bounding boxes [latMin, latMax, lngMin, lngMax, count]
-  // Each box is a clearly land-shaped region — no ocean scatter
   const regions = [
-    // Alaska
-    [55, 70, -168, -140, 80],
-    // Canada west
-    [50, 65, -140, -100, 120],
-    // Canada east
-    [45, 65, -100, -55, 100],
-    // USA west coast
-    [32, 49, -124, -105, 120],
-    // USA east coast
-    [25, 47, -105, -70, 150],
-    // Florida
-    [24, 31, -87, -80, 40],
-    // Mexico
-    [15, 30, -118, -87, 80],
-    // Central America
-    [8, 18, -92, -77, 30],
-    // Colombia / Venezuela
-    [0, 12, -78, -60, 60],
-    // Brazil coast north
-    [-5, 5, -60, -35, 60],
-    // Brazil main
-    [-25, -5, -60, -38, 120],
-    // Argentina / Chile
-    [-55, -25, -73, -55, 80],
-    // UK / Ireland
-    [50, 59, -10, 2, 30],
-    // France / Iberia
-    [36, 48, -9, 5, 60],
-    // Central Europe
-    [44, 55, 5, 25, 80],
-    // Scandinavia
-    [55, 71, 5, 28, 60],
-    // Italy / Balkans
-    [37, 47, 12, 28, 50],
-    // North Africa
-    [15, 38, -18, 35, 100],
-    // West Africa
-    [0, 15, -18, 15, 60],
-    // Central Africa
-    [-10, 5, 15, 35, 80],
-    // East Africa
-    [-15, 15, 35, 52, 60],
-    // South Africa
-    [-35, -15, 16, 38, 60],
-    // Madagascar
-    [-26, -12, 43, 50, 25],
-    // Arabian Peninsula
-    [12, 30, 36, 60, 60],
-    // Iran / Iraq
-    [28, 40, 42, 65, 50],
-    // India
-    [8, 28, 68, 88, 120],
-    // Sri Lanka
-    [6, 10, 80, 82, 8],
-    // Russia west
-    [50, 68, 28, 65, 80],
-    // Russia siberia
-    [50, 70, 65, 140, 120],
-    // China
-    [22, 45, 100, 122, 120],
-    // Southeast Asia mainland
-    [5, 25, 98, 108, 60],
-    // Korea / Japan area
-    [34, 42, 126, 142, 50],
-    // Japan islands
-    [30, 45, 130, 146, 40],
-    // Indonesia / Philippines
-    [-8, 8, 95, 140, 80],
-    // Australia north
-    [-18, -12, 125, 140, 40],
-    // Australia west
-    [-35, -18, 114, 130, 50],
-    // Australia east
-    [-38, -18, 140, 154, 60],
-    // Australia south
-    [-38, -30, 130, 142, 30],
-    // New Zealand
-    [-47, -34, 166, 178, 20],
-    // Greenland
-    [60, 84, -58, -18, 40],
-    // Iceland
-    [63, 67, -24, -13, 12],
+    [55, 70, -168, -140, 80],[50, 65, -140, -100, 120],[45, 65, -100, -55, 100],
+    [32, 49, -124, -105, 120],[25, 47, -105, -70, 150],[24, 31, -87, -80, 40],
+    [15, 30, -118, -87, 80],[8, 18, -92, -77, 30],[0, 12, -78, -60, 60],
+    [-5, 5, -60, -35, 60],[-25, -5, -60, -38, 120],[-55, -25, -73, -55, 80],
+    [50, 59, -10, 2, 30],[36, 48, -9, 5, 60],[44, 55, 5, 25, 80],
+    [55, 71, 5, 28, 60],[37, 47, 12, 28, 50],[15, 38, -18, 35, 100],
+    [0, 15, -18, 15, 60],[-10, 5, 15, 35, 80],[-15, 15, 35, 52, 60],
+    [-35, -15, 16, 38, 60],[-26, -12, 43, 50, 25],[12, 30, 36, 60, 60],
+    [28, 40, 42, 65, 50],[8, 28, 68, 88, 120],[6, 10, 80, 82, 8],
+    [50, 68, 28, 65, 80],[50, 70, 65, 140, 120],[22, 45, 100, 122, 120],
+    [5, 25, 98, 108, 60],[34, 42, 126, 142, 50],[30, 45, 130, 146, 40],
+    [-8, 8, 95, 140, 80],[-18, -12, 125, 140, 40],[-35, -18, 114, 130, 50],
+    [-38, -18, 140, 154, 60],[-38, -30, 130, 142, 30],[-47, -34, 166, 178, 20],
+    [60, 84, -58, -18, 40],[63, 67, -24, -13, 12],
   ];
 
   const pts = [];
@@ -4504,16 +3851,9 @@ function buildContinentLines() {
 
   const dotGeo = new THREE.BufferGeometry();
   dotGeo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
-  const dotMat = new THREE.PointsMaterial({
-    color: 0xffffff,
-    size: 0.007,
-    transparent: true,
-    opacity: 0.28,
-    sizeAttenuation: true,
-  });
+  const dotMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.007, transparent: true, opacity: 0.28, sizeAttenuation: true });
   globeSphere.add(new THREE.Points(dotGeo, dotMat));
 }
-
 
 function buildGlobePins() {
   if (!globeScene) return;
@@ -4532,28 +3872,22 @@ function buildGlobePins() {
     const pos    = latLngToVec3(geo.lat, geo.lng, 1.03);
     pin.position.copy(pos);
     pin.userData  = { letter, data, geo };
-    globeSphere.add(pin);   // parent to sphere so it rotates with it
+    globeSphere.add(pin);
     globePinMeshes.push(pin);
-    // Pulse ring — also child of sphere
     const ringGeo = new THREE.RingGeometry(0.018, 0.022, 24);
     const ringMat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.35, side: THREE.DoubleSide });
     const ring    = new THREE.Mesh(ringGeo, ringMat);
     ring.position.copy(pos);
     ring.lookAt(new THREE.Vector3(0, 0, 0));
     ring.userData = { isPulse: true, phase: Math.random() * Math.PI * 2 };
-    globeSphere.add(ring);  // child of sphere
+    globeSphere.add(ring);
     globePinMeshes.push(ring);
   });
-  // Pins are children of globeSphere — rotation applied automatically
 }
 
 function animateGlobe() {
   globeAnimId = requestAnimationFrame(animateGlobe);
-
-  // Auto-rotate: apply directly to sphere rotation each frame
-  if (!isDragging) {
-    globeSphere.rotation.y += globeRotVel.y;
-  }
+  if (!isDragging) globeSphere.rotation.y += globeRotVel.y;
 
   const t = performance.now() * 0.001;
   globePinMeshes.forEach(m => {
@@ -4602,7 +3936,6 @@ function onGlobeMouseUp() {
   globeRotVel.y = GLOBE_SPIN;
 }
 
-let globeTouchStartPos = null;
 function onGlobeTouchStart(e) {
   if (e.touches.length === 1) {
     isDragging = true;
@@ -4627,14 +3960,10 @@ function checkGlobeHover(e) {
   globeMouse.x =  ((e.clientX - rect.left) / rect.width)  * 2 - 1;
   globeMouse.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1;
   globeRaycaster.setFromCamera(globeMouse, globeCamera);
-  // recursive:true needed since pins are children of globeSphere
   const hits = globeRaycaster.intersectObjects([globeSphere], true)
     .filter(h => h.object.userData && h.object.userData.letter);
-  if (hits.length > 0) {
-    showWvCard(hits[0].object.userData.letter, e);
-  } else {
-    hideWvCard();
-  }
+  if (hits.length > 0) showWvCard(hits[0].object.userData.letter, e);
+  else hideWvCard();
 }
 
 function onGlobeWheel(e) {
@@ -4658,7 +3987,6 @@ function onGlobeResize() {
   globeRenderer.setSize(size, size);
 }
 
-// ── World view hover card ──
 let wvCardLetter = null;
 let wvCardAnimFrame = null;
 
@@ -4714,11 +4042,6 @@ function positionWvCard(e) {
   card.style.top  = top  + 'px';
 }
 
-function moveWvCard(e) {
-  const card = document.getElementById('wvHoverCard');
-  if (card.classList.contains('visible')) positionWvCard(e);
-}
-
 function hideWvCard() {
   wvCardLetter = null;
   cancelAnimationFrame(wvCardAnimFrame);
@@ -4740,7 +4063,7 @@ function startWvGlyphAnim(letter, data, canvas) {
   ctx.scale(dpr, dpr);
   const W = (wrap.clientWidth  || 120);
   const H = (wrap.clientHeight || 120);
-  const axes = data.axes || { weight: 0.5, slant: 0.5, width: 0.5 };
+  const axesData = data.axes || { weight: 0.5, slant: 0.5, width: 0.5 };
   const colorMap = { tc: '#C4714A', sg: '#7A9E87', oc: '#C4A24A' };
   const baseColor = colorMap[data.colorKey] || '#C4714A';
   let t = 0;
@@ -4748,9 +4071,9 @@ function startWvGlyphAnim(letter, data, canvas) {
     if (wvCardLetter !== letter) return;
     ctx.clearRect(0, 0, W, H);
     const anim = {
-      weight: Math.max(0, Math.min(1, axes.weight + Math.sin(t * 0.7)  * 0.12)),
-      slant:  Math.max(0, Math.min(1, axes.slant  + Math.sin(t * 0.5 + 1) * 0.08)),
-      width:  Math.max(0, Math.min(1, axes.width  + Math.sin(t * 0.4 + 2) * 0.1)),
+      weight: Math.max(0, Math.min(1, axesData.weight + Math.sin(t * 0.7)  * 0.12)),
+      slant:  Math.max(0, Math.min(1, axesData.slant  + Math.sin(t * 0.5 + 1) * 0.08)),
+      width:  Math.max(0, Math.min(1, axesData.width  + Math.sin(t * 0.4 + 2) * 0.1)),
     };
     const sw         = Math.min(6, 2 + anim.weight * 6);
     const slantShear = (anim.slant - 0.5) * 0.3;
@@ -4779,7 +4102,7 @@ function openWorldView() {
   veil.classList.add('open');
   requestAnimationFrame(() => {
     veil.classList.add('visible');
-    setTimeout(onGlobeResize, 50); // after CSS transition settles
+    setTimeout(onGlobeResize, 50);
   });
   renderWvStats();
   if (typeof THREE === 'undefined') {
@@ -4809,34 +4132,22 @@ function refreshWorldViewIfOpen() {
   }
 }
 
-
-
 /* ════════════════════════════════════════
    MAIN PAGE CURSOR
 ════════════════════════════════════════ */
 (function() {
   const cur = document.getElementById('mainCursor');
   if (!cur) return;
-
-  // Only show on non-touch devices
-  if (window.matchMedia('(hover: none)').matches) {
-    cur.style.display = 'none';
-    return;
-  }
+  if (window.matchMedia('(hover: none)').matches) { cur.style.display = 'none'; return; }
 
   document.addEventListener('mousemove', e => {
-    // Hide when world view is open
     const veil = document.getElementById('worldviewVeil');
-    if (veil && veil.classList.contains('open')) {
-      cur.style.display = 'none';
-      return;
-    }
+    if (veil && veil.classList.contains('open')) { cur.style.display = 'none'; return; }
     cur.style.display = 'block';
     cur.style.left = e.clientX + 'px';
     cur.style.top  = e.clientY + 'px';
   });
 
-  // Swap to dark cursor when hovering the camera panel
   document.addEventListener('mouseover', e => {
     if (e.target.closest('.panel-cam')) cur.classList.add('dark');
   });
@@ -4844,7 +4155,6 @@ function refreshWorldViewIfOpen() {
     if (e.target.closest('.panel-cam')) cur.classList.remove('dark');
   });
 
-  // Hover state on interactive elements
   const hoverEls = 'a, button, .letter-cell, .hover-card, input, textarea, [role="button"]';
   document.addEventListener('mouseover', e => {
     if (e.target.closest(hoverEls)) cur.classList.add('hover');
@@ -4853,7 +4163,6 @@ function refreshWorldViewIfOpen() {
     if (e.target.closest(hoverEls)) cur.classList.remove('hover');
   });
 
-  // Hide when leaving window
   document.addEventListener('mouseleave', () => { cur.style.display = 'none'; });
   document.addEventListener('mouseenter', () => { cur.style.display = 'block'; });
 })();
@@ -4891,13 +4200,17 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
+window._fbRef = ref;
+window._fbSet = (path, data) => set(ref(db, path), data);
+window._fbReady = true;
+
 function getSessionId() {
   let id = localStorage.getItem('choreo_session');
   if (!id) { id = crypto.randomUUID(); localStorage.setItem('choreo_session', id); }
   return id;
 }
+window._getSessionId = getSessionId;
 
-/* ── Load all saved letters on open ── */
 onValue(ref(db, 'typeface'), (snapshot) => {
   const data = snapshot.val();
   if (!data) return;
@@ -4918,8 +4231,9 @@ onValue(ref(db, 'typeface'), (snapshot) => {
   refreshProgress();
   refreshWorldViewIfOpen();
 });
+</script>
 
-/* ── Claim glyph: validate form, upload video, save to Firebase ── */
+<script>
 document.getElementById('btnClaim').addEventListener('click', async () => {
   if (!activeLetter) return;
 
@@ -4929,9 +4243,7 @@ document.getElementById('btnClaim').addEventListener('click', async () => {
   const location  = document.getElementById('inputLocation').value.trim();
   const danceMove = document.getElementById('inputDanceMove')?.value.trim() || '';
 
-  // Validate all fields required
   if (!name || !role || !company || !location) {
-    // Shake empty fields
     ['inputName','inputRole','inputCompany','inputLocation'].forEach(id => {
       const el = document.getElementById(id);
       if (!el.value.trim()) {
@@ -4947,12 +4259,11 @@ document.getElementById('btnClaim').addEventListener('click', async () => {
   btn.disabled = true;
   btn.textContent = 'Saving…';
 
-  const snap          = getLiveAxes();
-  const colorKey      = CLR_CYCLE[LETTERS.indexOf(activeLetter)];
-  const svgData       = captureLetterSVG(activeLetter, snap.weight, snap.slant, snap.width);
-  const savedLetter   = activeLetter; // capture before closeModal clears it
+  const snap        = getLiveAxes();
+  const colorKey    = CLR_CYCLE[LETTERS.indexOf(activeLetter)];
+  const svgData     = captureLetterSVG(activeLetter, snap.weight, snap.slant, snap.width);
+  const savedLetter = activeLetter;
 
-  // 1. Save locally immediately with full profile data
   savedLetters[savedLetter] = {
     colorKey, axes: { ...snap }, svgData,
     name, role, company, location, danceMove,
@@ -4964,34 +4275,25 @@ document.getElementById('btnClaim').addEventListener('click', async () => {
   refreshWorldViewIfOpen();
   stopProfileGlyphAnim();
 
-  // Capture blob reference BEFORE closeModal() wipes recordedBlob
   const blobToUpload = recordedBlob;
+  const letterToConsent = savedLetter;
   closeModal();
 
-  // Show consent modal after cell claim animation settles
-  setTimeout(() => showConsentModal(savedLetter), 900);
+  // Show consent modal after gallery pop-in animation
+  setTimeout(() => {
+    showConsentModal(letterToConsent);
+  }, 1200);
 
-  // 2. Upload video to Cloudinary if we have a recording
   let videoUrl = null;
   if (blobToUpload) {
     try {
-      console.log('[Cloudinary] Starting upload, blob size:', blobToUpload.size, 'type:', blobToUpload.type);
       const formData = new FormData();
-      formData.append('file', blobToUpload, `choreo-${activeLetter}-${Date.now()}.webm`);
+      formData.append('file', blobToUpload, `choreo-${savedLetter}-${Date.now()}.webm`);
       formData.append('upload_preset', 'c5wpo7lf');
       formData.append('folder', 'choreo-sans-videos');
-
-      const res = await fetch(
-        'https://api.cloudinary.com/v1_1/dy4ntiwrp/video/upload',
-        { method: 'POST', body: formData }
-      );
+      const res  = await fetch('https://api.cloudinary.com/v1_1/dy4ntiwrp/video/upload', { method: 'POST', body: formData });
       const data = await res.json();
-      console.log('[Cloudinary] Response:', data);
-      if (data.error) {
-        console.error('[Cloudinary] Error:', data.error.message);
-      }
       videoUrl = data.secure_url || null;
-      console.log('[Cloudinary] videoUrl:', videoUrl);
       if (videoUrl && savedLetters[savedLetter]) {
         savedLetters[savedLetter].videoUrl = videoUrl;
         refreshCell(savedLetter);
@@ -4999,30 +4301,23 @@ document.getElementById('btnClaim').addEventListener('click', async () => {
     } catch(e) {
       console.error('[Cloudinary] Upload failed:', e);
     }
-  } else {
-    console.log('[Cloudinary] No recordedBlob — skipping upload');
   }
 
-  // 3. Save everything to Realtime Database
   try {
-    await set(ref(db, `typeface/${savedLetter}`), {
-      colorKey,
-      weight:    snap.weight,
-      slant:     snap.slant,
-      width:     snap.width,
-      svgData,
-      name,
-      role,
-      company,
-      location,
-      danceMove: danceMove || null,
-      videoUrl:  videoUrl || null,
-      savedAt:   Date.now(),
-      sessionId: getSessionId()
-    });
-    // Update local savedLetters with final videoUrl
-    if (savedLetters[savedLetter]) {
-      savedLetters[savedLetter].videoUrl = videoUrl || null;
+    if (window._fbSet) {
+      await window._fbSet(`typeface/${savedLetter}`, {
+        colorKey,
+        weight:    snap.weight,
+        slant:     snap.slant,
+        width:     snap.width,
+        svgData,
+        name, role, company, location,
+        danceMove: danceMove || null,
+        videoUrl:  videoUrl || null,
+        savedAt:   Date.now(),
+        sessionId: window._getSessionId ? window._getSessionId() : 'unknown'
+      });
+      if (savedLetters[savedLetter]) savedLetters[savedLetter].videoUrl = videoUrl || null;
     }
   } catch(err) {
     console.warn('Firebase save failed:', err);
@@ -5031,7 +4326,6 @@ document.getElementById('btnClaim').addEventListener('click', async () => {
   btn.disabled = false;
   btn.textContent = 'Claim your glyph →';
 
-  // Clear form for next use
   ['inputName','inputRole','inputCompany','inputLocation','inputDanceMove'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
